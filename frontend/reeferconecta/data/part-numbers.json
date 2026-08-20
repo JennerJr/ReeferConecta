@@ -1,0 +1,1192 @@
+{
+  "dados": [
+    {
+      "id": 1,
+      "fabricante": "First Coast Aftermarket",
+      "linha": "Container",
+      "componente": "Substituição para Daikin 2086086 — Keypad FC2086086",
+      "partNumbers": [
+        "FC2086086"
+      ],
+      "descricao": "Substituição para Daikin 2086086 — Keypad FC2086086",
+      "url": "https://fcie.us/fice-FC2086086-Replacement-Daikin-2086086.html",
+      "imagem": "https://fcie.us/images/2021/Daikin_Alt_Keypad_2086086.jpg"
+    },
+    {
+      "id": 2,
+      "fabricante": "First Coast Aftermarket",
+      "linha": "Container",
+      "componente": "CIM6 Keypad (Substituição Star Cool 818513A)",
+      "partNumbers": [
+        "CIM6"
+      ],
+      "descricao": "Substituição para Star Cool 818513A — CIM6 Keypad",
+      "url": "https://fcie.us/fice-CIM5Keypad-Replacement-StarCool-818513A.html",
+      "imagem": "https://fcie.us/images/2021/Starcool_CIM_6_Keypad_818513A-KP.jpg"
+    },
+    {
+      "id": 3,
+      "fabricante": "First Coast Aftermarket",
+      "linha": "Container",
+      "componente": "CIM5 Keypad (Substituição Star Cool 818527B)",
+      "partNumbers": [
+        "CIM5"
+      ],
+      "descricao": "Substituição para Star Cool 818527B — CIM5 Keypad",
+      "url": "https://fcie.us/fice-CIM5Keypad-Replacement-StarCool-818527B.html",
+      "imagem": "https://fcie.us/images/2021/Starcool_CIM%205_Keypad_818527B-KP.jpg"
+    },
+    {
+      "id": 4,
+      "fabricante": "First Coast Aftermarket",
+      "linha": "Container",
+      "componente": "MP4000LCD (Substituição Display MP4000 Thermo King)",
+      "partNumbers": [
+        "MP4000LCD"
+      ],
+      "descricao": "Substituição para Thermo King 42-4184 — MP4000LCD",
+      "url": "https://fcie.us/fice-MP4000LCD-Replacement-ThermoKing-42-4184.html",
+      "imagem": "https://fcie.us/images/2021/TK_MP4000_LCD_42-4184.jpg"
+    },
+    {
+      "id": 5,
+      "fabricante": "First Coast Aftermarket",
+      "linha": "Container",
+      "componente": "MP4000Decal (Substituição Thermo King MP4000 Decal)",
+      "partNumbers": [
+        "MP4000Decal"
+      ],
+      "descricao": "Substituição para Thermo King MP4000 Decal — MP4000Decal",
+      "url": "https://fcie.us/fice-MP4000Decal-Replacement-ThermoKing-MP4000-Decal.html",
+      "imagem": "https://fcie.us/images/2021/TK_MP4000_Decal.jpg"
+    },
+    {
+      "id": 6,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Carregador de Bateria",
+      "partNumbers": [
+        "30-00416-xx",
+        "30-00460-xx"
+      ],
+      "descricao": "Carregador de bateria Carrier",
+      "url": "https://fcie.us/carrier-30-00416-xx.html",
+      "imagem": "https://fcie.us/images/carrier-30-00416-xx.jpg"
+    },
+    {
+      "id": 7,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Silver Battery Charger 12-00683-xx",
+      "partNumbers": [
+        "12-00683-xx"
+      ],
+      "descricao": "Carregador de bateria silver Carrier — 12-00683-xx",
+      "url": "https://fcie.us/carrier-12-00683-xx.html",
+      "imagem": "https://fcie.us/images/carrier-12-00683-x.jpg"
+    },
+    {
+      "id": 8,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Microprocessor MicroLink 1",
+      "partNumbers": [
+        "69NT42-334-xx"
+      ],
+      "descricao": "Microprocessador MicroLink 1 — 69NT42-334-xx",
+      "url": "https://fcie.us/carrier-69NT42-334-xx.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML1%20Controller.JPG"
+    },
+    {
+      "id": 9,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Placa lógica MicroLink 1",
+      "partNumbers": [
+        "12-01121-xx"
+      ],
+      "descricao": "Placa lógica MicroLink 1",
+      "url": "https://fcie.us/carrier-Logic%20Board-MicroLink1.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML1%20Logic%20Board1.JPG"
+    },
+    {
+      "id": 10,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "I/O Board MicroLink 1",
+      "partNumbers": [
+        "12-01084-06",
+        "12-01097-xx",
+        "12-01120-xx",
+        "12-01123-xx",
+        "12-01130-xx"
+      ],
+      "descricao": "Placa I/O MicroLink 1",
+      "url": "https://fcie.us/carrier-I-O-Board-MicroLink1.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML1%20I%20O%20Board1.JPG"
+    },
+    {
+      "id": 11,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Display MicroLink 1",
+      "partNumbers": [
+        "12-00313-xx"
+      ],
+      "descricao": "Display MicroLink 1",
+      "url": "https://fcie.us/carrier-Display-MicroLink-1.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML1%20Display.JPG"
+    },
+    {
+      "id": 12,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Controlador MicroLink 2",
+      "partNumbers": [
+        "12-50038-xx",
+        "12-50050-xx",
+        "12-50054-xx",
+        "12-55058-xx",
+        "12-55060-xx",
+        "12-55388-xx",
+        "12-56000-xx",
+        "12-56388-xx",
+        "12-00327-xx",
+        "12-00367-xx",
+        "12-00388-xx",
+        "12-00414-xx",
+        "12-50026-xx",
+        "12-50029-xx",
+        "12-50031-xx",
+        "12-50034-xx"
+      ],
+      "descricao": "Controlador MicroLink 2",
+      "url": "https://fcie.us/carrier-Controller-MicroLink2.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML2i%20Controller.JPG"
+    },
+    {
+      "id": 13,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Controlador MicroLink 2i",
+      "partNumbers": [
+        "12-55057-xx",
+        "12-55061-xx",
+        "12-55386-xx",
+        "12-55425-xx",
+        "12-55442-xx",
+        "12-55458-xx",
+        "12-56002-xx",
+        "12-56386-xx",
+        "12-56425-xx",
+        "12-56442-xx",
+        "12-56458-xx",
+        "12-00373-xx",
+        "12-00378-xx",
+        "12-00379-xx",
+        "12-00386-xx",
+        "12-00425-xx",
+        "12-00442-xx",
+        "12-50032-xx",
+        "12-50035-xx",
+        "12-50051-xx",
+        "12-50055-xx",
+        "12-50386-xx",
+        "12-55002-xx"
+      ],
+      "descricao": "Controlador MicroLink 2i",
+      "url": "https://fcie.us/carrier-Controller-MicroLink-2i.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML2i%20Controller.JPG"
+    },
+    {
+      "id": 14,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Datacoder MicroLink 2",
+      "partNumbers": [
+        "12-55066-xx",
+        "12-55356-xx",
+        "12-56005-xx",
+        "12-56328-xx",
+        "12-56356-xx",
+        "12-56358-xx",
+        "12-56387-xx",
+        "12-56463-xx",
+        "12-56476-xx",
+        "12-00328-xx",
+        "12-00356-xx",
+        "12-00358-xx",
+        "12-00387-xx",
+        "12-50036-xx",
+        "12-50356-xx",
+        "12-55005-xx",
+        "12-55036-xx",
+        "12-55062-xx"
+      ],
+      "descricao": "Datacorder MicroLink 2",
+      "url": "https://fcie.us/carrier-Datacorder-MicroLink2.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/datacoder%20microlink2.jpg"
+    },
+    {
+      "id": 15,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Controller MicroLink 3 (Yellow Label)",
+      "partNumbers": [
+        "12-55008-xx",
+        "12-56008-xx",
+        "12-55009-xx",
+        "12-56009-xx",
+        "12-55006-xx",
+        "12-56006-xx",
+        "12-55007-xx",
+        "12-56007-xx",
+        "12-00579-xx",
+        "12-00719-xx"
+      ],
+      "descricao": "Controlador MicroLink 3 — Yellow Label",
+      "url": "https://fcie.us/carrier-Controller-MicroLink-3.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML3.jpg"
+    },
+    {
+      "id": 16,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Controller MicroLink 3 (Green Label)",
+      "partNumbers": [
+        "12-56011-xx",
+        "12-56012-xx"
+      ],
+      "descricao": "Controlador MicroLink 3 — Green Label",
+      "url": "https://fcie.us/carrier-Controller-MicroLink-3-Green-Label.html",
+      "imagem": "https://fcie.us/images/ML3_Green_Label_12-56011-xx%20(1).jpg"
+    },
+    {
+      "id": 17,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "ML5 Controller",
+      "partNumbers": [
+        "12-56016-xx"
+      ],
+      "descricao": "Controlador ML5",
+      "url": "https://fcie.us/carrier-Controller-MicroLink-3.html",
+      "imagem": "https://fcie.us/images/2021/ML5_12-56015-xx.jpg"
+    },
+    {
+      "id": 18,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Display Module",
+      "partNumbers": [
+        "12-00301-xx",
+        "12-00333-xx",
+        "12-00433-xx"
+      ],
+      "descricao": "Módulo de display Carrier",
+      "url": "https://fcie.us/carrier-Display-Module-12-00301-xx.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/IMG_0428.JPG"
+    },
+    {
+      "id": 19,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Micro Link 2i/3 Keypad",
+      "partNumbers": [
+        "79-01706-xx",
+        "79-66669-xx"
+      ],
+      "descricao": "Teclado Micro Link 2i/3",
+      "url": "https://fcie.us/carrier-Micro-Link-2i-3-Keypad.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/2i-3%20Keypad%20Microlink.jpg"
+    },
+    {
+      "id": 20,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Digital Temperature Display",
+      "partNumbers": [
+        "12-00418-xx",
+        "12-01069-xx",
+        "12-01073-xx"
+      ],
+      "descricao": "Display digital de temperatura Carrier",
+      "url": "https://fcie.us/carrier-Digital-Temperature-Display.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/Digital%20Temp%20Display.JPG"
+    },
+    {
+      "id": 21,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Auto Restart Board",
+      "partNumbers": [
+        "12-00249-xx"
+      ],
+      "descricao": "Placa de reinício automático Carrier",
+      "url": "https://fcie.us/carrier-Auto-Restart-Board.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/IMG_0354.JPG"
+    },
+    {
+      "id": 22,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Temperature Control Board 12-00214-xx",
+      "partNumbers": [
+        "12-00214-xx"
+      ],
+      "descricao": "Placa de controle de temperatura Carrier — 12-00214-xx",
+      "url": "https://fcie.us/carrier-Temperature-Control-Board.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/IMG_0358.JPG"
+    },
+    {
+      "id": 23,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Partlow Recorder",
+      "partNumbers": [
+        "12-00464-xx"
+      ],
+      "descricao": "Gravador Partlow Carrier",
+      "url": "https://fcie.us/carrier-Partlow-Recorder.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/Partlow%20Chart%20Recorder1.JPG"
+    },
+    {
+      "id": 24,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Power Supply Board",
+      "partNumbers": [
+        "12-01059-xx"
+      ],
+      "descricao": "Placa de alimentação Carrier",
+      "url": "https://fcie.us/carrier-Partlow-Recorder.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/Power%20Supply%20Board.JPG"
+    },
+    {
+      "id": 25,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Timing & Current Board",
+      "partNumbers": [
+        "12-01058-xx"
+      ],
+      "descricao": "Placa de temporização e corrente Carrier",
+      "url": "https://fcie.us/carrier-Timing-Current-Board.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/Timing%20and%20Current%20Board.JPG"
+    },
+    {
+      "id": 26,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "Temperature Control Board 12-01057-xx",
+      "partNumbers": [
+        "12-01057-xx",
+        "12-01064-xx",
+        "12-01085-xx"
+      ],
+      "descricao": "Placa de controle de temperatura Carrier — 12-01057-xx / 12-01064-xx / 12-01085-xx",
+      "url": "https://fcie.us/carrier-Temperature-Control-Board-12-01057-xx.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/Temp%20Control%20Board.JPG"
+    },
+    {
+      "id": 27,
+      "fabricante": "Carrier",
+      "linha": "Container",
+      "componente": "CER Recorder",
+      "partNumbers": [
+        "69NT40-404-xx"
+      ],
+      "descricao": "Gravador CER Carrier",
+      "url": "https://fcie.us/carrier-CER-Recorder.html",
+      "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/CER%20Recorder.jpg"
+    },
+    {
+      "id": 28,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "MPC2000 Controller",
+      "partNumbers": [
+        "45-1851",
+        "45-1907",
+        "K31-52100",
+        "K31-52169"
+      ],
+      "descricao": "Controlador MPC2000 Thermo King",
+      "url": "https://fcie.us/thermoking-MPC2000-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/IMG_0867-1.JPG"
+    },
+    {
+      "id": 29,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "MPC2000 Relay Board",
+      "partNumbers": [
+        "K31-72007",
+        "K31-72008",
+        "K31-72386",
+        "K31-72387",
+        "41-2472",
+        "41-2834",
+        "41-2955",
+        "K31-52088",
+        "K31-52197"
+      ],
+      "descricao": "Placa de relés MPC2000 Thermo King",
+      "url": "https://fcie.us/thermoking-MPC2000-relay-board.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/IMG_0864-1.JPG"
+    },
+    {
+      "id": 30,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "MPC3000/3000A Controller",
+      "partNumbers": [
+        "45-1909",
+        "45-2009",
+        "K31-50130-00"
+      ],
+      "descricao": "Controlador MPC3000/3000A Thermo King",
+      "url": "https://fcie.us/thermoking-MPC3000-3000A-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/MPC3000.JPG"
+    },
+    {
+      "id": 31,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "MPC3000 Relay Board",
+      "partNumbers": [
+        "45-2010",
+        "45-2834"
+      ],
+      "descricao": "Placa de relés MPC3000 Thermo King",
+      "url": "https://fcie.us/thermoking-MPC3000-relay-board.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/IMG_0086.JPG"
+    },
+    {
+      "id": 32,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "MP4000 Controller",
+      "partNumbers": [
+        "41-8723"
+      ],
+      "descricao": "Controlador MP4000 Thermo King",
+      "url": "https://fcie.us/thermoking-MP4000-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/mp4000%20controller.jpg"
+    },
+    {
+      "id": 33,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "PM4000 Power Module",
+      "partNumbers": [
+        "41-8719"
+      ],
+      "descricao": "Módulo de alimentação PM4000 Thermo King",
+      "url": "https://fcie.us/thermoking-MP4000-power-module.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/pm4000%20power%20module.jpg"
+    },
+    {
+      "id": 34,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "MP4000 Door",
+      "partNumbers": [
+        "45-2295"
+      ],
+      "descricao": "Porta MP4000 Thermo King",
+      "url": "https://fcie.us/thermoking-MP4000-door.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/mp4000%20door.jpg"
+    },
+    {
+      "id": 35,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "uP-D Power Module",
+      "partNumbers": [
+        "45-1792",
+        "45-1806",
+        "45-1817"
+      ],
+      "descricao": "Módulo de alimentação uP-D Thermo King",
+      "url": "https://fcie.us/thermoking-uP-D-Power-Module.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/PWR%20Mod.JPG"
+    },
+    {
+      "id": 36,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "uP-D Output Module",
+      "partNumbers": [
+        "45-1711",
+        "45-1788",
+        "45-1853"
+      ],
+      "descricao": "Módulo de saída uP-D Thermo King",
+      "url": "https://fcie.us/thermoking-uP-D-Power-Module.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/IMG_0395.JPG"
+    },
+    {
+      "id": 37,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "uP-D Controller",
+      "partNumbers": [
+        "45-1860",
+        "45-1861",
+        "45-1862",
+        "45-1916",
+        "45-1949",
+        "45-1818",
+        "45-1824",
+        "45-1825",
+        "45-1826",
+        "45-1827",
+        "45-1835",
+        "45-1844",
+        "45-1845",
+        "45-1846",
+        "45-1847",
+        "45-1850",
+        "45-1710",
+        "45-1772",
+        "45-1793",
+        "45-1796",
+        "45-1799",
+        "45-1800",
+        "45-1807",
+        "45-1808",
+        "45-1809",
+        "45-1815",
+        "45-1816"
+      ],
+      "descricao": "Controlador uP-D Thermo King",
+      "url": "https://fcie.us/thermoking-uP-D-Output-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/IMG_0430.JPG"
+    },
+    {
+      "id": 38,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "Thermoguard uP-C Controller",
+      "partNumbers": [
+        "45-1347",
+        "45-1400",
+        "45-1554"
+      ],
+      "descricao": "Controlador Thermoguard uP-C Thermo King",
+      "url": "https://fcie.us/thermoking-Thermoguard-uP-C-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/IMG_0403.JPG"
+    },
+    {
+      "id": 39,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "uP Controller",
+      "partNumbers": [
+        "45-1397",
+        "45-1399",
+        "45-1462",
+        "45-1463",
+        "45-1518",
+        "45-1341",
+        "45-1342",
+        "45-1343",
+        "45-1344",
+        "45-1345",
+        "45-1346",
+        "45-1348",
+        "45-1354",
+        "45-1376",
+        "45-1378",
+        "45-1382",
+        "45-1234",
+        "45-1236",
+        "45-1304",
+        "45-1313",
+        "45-1321",
+        "45-1325",
+        "45-1331",
+        "45-1334",
+        "45-1338",
+        "45-1339",
+        "45-1340"
+      ],
+      "descricao": "Controlador uP Thermo King",
+      "url": "https://fcie.us/thermoking-uP-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/TK%20Micro%20P.jpg"
+    },
+    {
+      "id": 40,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "uP A Controller",
+      "partNumbers": [
+        "45-1571",
+        "45-1574",
+        "45-1577",
+        "45-1581",
+        "45-1722",
+        "45-1723",
+        "45-1506",
+        "45-1507",
+        "45-1508",
+        "45-1509",
+        "45-1526",
+        "45-1529",
+        "45-1532",
+        "45-1539",
+        "45-1559",
+        "45-1561",
+        "45-1428",
+        "45-1453",
+        "45-1472",
+        "45-1474",
+        "45-1489",
+        "45-1490",
+        "45-1491",
+        "45-1493",
+        "45-1495",
+        "45-1497"
+      ],
+      "descricao": "Controlador uP A Thermo King",
+      "url": "https://fcie.us/thermoking-uP-A-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/Micro%20PA.jpg"
+    },
+    {
+      "id": 41,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "uP A+ Controller",
+      "partNumbers": [
+        "45-1758",
+        "45-1759",
+        "45-1760",
+        "45-1761",
+        "45-1762",
+        "45-1763",
+        "45-1764",
+        "45-1765",
+        "45-1777",
+        "45-1778",
+        "45-1779",
+        "45-1787",
+        "45-1795",
+        "45-1743",
+        "45-1744",
+        "45-1745",
+        "45-1746",
+        "45-1749",
+        "45-1750",
+        "45-1751",
+        "45-1752",
+        "45-1753",
+        "45-1754",
+        "45-1755",
+        "45-1756",
+        "45-1757",
+        "45-1599",
+        "45-1629",
+        "45-1630",
+        "45-1631",
+        "45-1632",
+        "45-1633",
+        "45-1636",
+        "45-1684",
+        "45-1687",
+        "45-1715",
+        "45-1730",
+        "45-1741",
+        "45-1742"
+      ],
+      "descricao": "Controlador uP A+ Thermo King",
+      "url": "https://fcie.us/thermoking-uP-A+-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/Micro%20PA.jpg"
+    },
+    {
+      "id": 42,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "uP-G Controller",
+      "partNumbers": [
+        "45-1797"
+      ],
+      "descricao": "Controlador uP-G Thermo King",
+      "url": "https://fcie.us/thermoking-uP-G-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/uG%20Controller.JPG"
+    },
+    {
+      "id": 43,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "uP-G Relay Board",
+      "partNumbers": [
+        "41-2906",
+        "41-5219"
+      ],
+      "descricao": "Placa de relés uP-G Thermo King",
+      "url": "https://fcie.us/thermoking-uP-G-Relay.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/uG%20Relay%20Board.JPG"
+    },
+    {
+      "id": 44,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "SG+ Controller",
+      "partNumbers": [
+        "45-2185",
+        "45-2554"
+      ],
+      "descricao": "Controlador SG+ Thermo King",
+      "url": "https://fcie.us/thermoking-uP-G-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/SG+%20Controller.jpg"
+    },
+    {
+      "id": 45,
+      "fabricante": "Thermo King",
+      "linha": "Container",
+      "componente": "SG+ Display",
+      "partNumbers": [
+        "41-7841"
+      ],
+      "descricao": "Display SG+ Thermo King",
+      "url": "https://fcie.us/thermoking-SG+Display.html",
+      "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/SG+%20Display.jpg"
+    },
+    {
+      "id": 46,
+      "fabricante": "Star Cool",
+      "linha": "Container",
+      "componente": "Compressor",
+      "partNumbers": [
+        "818658B"
+      ],
+      "descricao": "Compressor Star Cool",
+      "url": "https://fcie.us/starcool-818658B.html",
+      "imagem": "https://fcie.us/images/starcool-818658B.jpg"
+    },
+    {
+      "id": 47,
+      "fabricante": "Star Cool",
+      "linha": "Container",
+      "componente": "Frequency Converter",
+      "partNumbers": [
+        "818242C"
+      ],
+      "descricao": "Conversor de frequência Star Cool",
+      "url": "https://fcie.us/starcool-818658B.html",
+      "imagem": "https://fcie.us/images/starcool-818242C.jpg"
+    },
+    {
+      "id": 48,
+      "fabricante": "Star Cool",
+      "linha": "Container",
+      "componente": "Controller CIM5",
+      "partNumbers": [
+        "818510B",
+        "818510C",
+        "818255C"
+      ],
+      "descricao": "Controlador CIM5 Star Cool",
+      "url": "https://fcie.us/starcool-Controller-CIM5.html",
+      "imagem": "https://fcie.us/images/Products/Starcool/Starcool%20Container/Controller%20CIM5.jpg"
+    },
+    {
+      "id": 49,
+      "fabricante": "Star Cool",
+      "linha": "Container",
+      "componente": "Controlador CIM6 Star Cool",
+      "partNumbers": [
+        "818510D"
+      ],
+      "descricao": "Controlador CIM6 Star Cool",
+      "url": "https://fcie.us/starcool-Controller-CIM6.html",
+      "imagem": "https://fcie.us/images/Products/Starcool/Starcool%20Container/Controller%20CIM6.jpg"
+    },
+    {
+      "id": 50,
+      "fabricante": "Star Cool",
+      "linha": "Container",
+      "componente": "Controller CIM 6.2",
+      "partNumbers": [
+        "818925A"
+      ],
+      "descricao": "Controlador CIM 6.2 Star Cool",
+      "url": "https://fcie.us/starcool-Controller-CIM6-point-2.html",
+      "imagem": "https://fcie.us/images/2024/818925A_1.JPEG"
+    },
+    {
+      "id": 51,
+      "fabricante": "Star Cool",
+      "linha": "Container",
+      "componente": "Terminal Board",
+      "partNumbers": [
+        "818526C"
+      ],
+      "descricao": "Placa terminal Star Cool",
+      "url": "https://fcie.us/starcool-Terminal-Board-818526C.html",
+      "imagem": "https://fcie.us/images/Products/Starcool/Starcool%20Container/Terminal%20Board.jpg"
+    },
+    {
+      "id": 52,
+      "fabricante": "Star Cool",
+      "linha": "Container",
+      "componente": "Power Measurement Board",
+      "partNumbers": [
+        "818511B"
+      ],
+      "descricao": "Placa de medição de potência Star Cool",
+      "url": "https://fcie.us/starcool-Power-Measurement-Board-818511B.html",
+      "imagem": "https://fcie.us/images/Products/Starcool/Starcool%20Container/power%20measurement%20board.jpg"
+    },
+    {
+      "id": 53,
+      "fabricante": "Star Cool",
+      "linha": "Container",
+      "componente": "User Panel CIM6 (Display/Key)",
+      "partNumbers": [
+        "818513A",
+        "818515A"
+      ],
+      "descricao": "Painel de usuário CIM6 Star Cool (display/teclado)",
+      "url": "https://fcie.us/starcool-User-Panel-CIM6.html",
+      "imagem": "https://fcie.us/images/Products/Starcool/Starcool%20Container/User%20Panel,%20CIM6.jpg"
+    },
+    {
+      "id": 54,
+      "fabricante": "Star Cool",
+      "linha": "Container",
+      "componente": "Control Door Assembly",
+      "partNumbers": [
+        "818320A"
+      ],
+      "descricao": "Montagem de porta de controle Star Cool",
+      "url": "https://fcie.us/starcool-Control-Door-Assembly-818320A.html",
+      "imagem": "https://fcie.us/images/Products/Starcool/Starcool%20Container/Control%20Door%20Assembly.jpg"
+    },
+    {
+      "id": 55,
+      "fabricante": "Daikin",
+      "linha": "Container",
+      "componente": "Decos IIIa Controller",
+      "partNumbers": [
+        "0598932",
+        "0766968",
+        "0777083",
+        "0953128",
+        "1062861",
+        "1062878",
+        "1456853"
+      ],
+      "descricao": "Controlador Decos IIIa Daikin",
+      "url": "https://fcie.us/daikin-Decos-IIIa-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/DECOS%20IIIa.jpg"
+    },
+    {
+      "id": 56,
+      "fabricante": "Daikin",
+      "linha": "Container",
+      "componente": "Decos IIIb Controller",
+      "partNumbers": [
+        "1241501",
+        "1241518",
+        "1241549"
+      ],
+      "descricao": "Controlador Decos IIIb Daikin",
+      "url": "https://fcie.us/daikin-Decos%20IIIb%20Controller.html",
+      "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/IMG_0391.JPG"
+    },
+    {
+      "id": 57,
+      "fabricante": "Daikin",
+      "linha": "Container",
+      "componente": "Decos IIIc Controller",
+      "partNumbers": [
+        "1562804",
+        "1601312",
+        "1601329",
+        "1684014"
+      ],
+      "descricao": "Controlador Decos IIIc Daikin",
+      "url": "https://fcie.us/daikin-Decos-IIIC-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/IMG_0376.JPG"
+    },
+    {
+      "id": 58,
+      "fabricante": "Daikin",
+      "linha": "Container",
+      "componente": "Decos IIId Controller",
+      "partNumbers": [
+        "1739356",
+        "1750586",
+        "1787502",
+        "1775477"
+      ],
+      "descricao": "Controlador Decos IIId Daikin",
+      "url": "https://fcie.us/daikin-Decos-IIId-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/IMG_0399.JPG"
+    },
+    {
+      "id": 59,
+      "fabricante": "Daikin",
+      "linha": "Container",
+      "componente": "Decos IIIe Controller",
+      "partNumbers": [
+        "1775477",
+        "1890857"
+      ],
+      "descricao": "Controlador Decos IIIe Daikin",
+      "url": "https://fcie.us/daikin-Decos-IIIe-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/Decos%20IIIe.jpg"
+    },
+    {
+      "id": 60,
+      "fabricante": "Daikin",
+      "linha": "Container",
+      "componente": "DER Recorder",
+      "partNumbers": [
+        "0037329",
+        "0177265",
+        "0183897",
+        "0184744"
+      ],
+      "descricao": "Gravador DER Daikin",
+      "url": "https://fcie.us/daikin-DER-Recorder.html",
+      "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/IMG_0405.JPG"
+    },
+    {
+      "id": 61,
+      "fabricante": "Daikin",
+      "linha": "Container",
+      "componente": "PT & CT Board",
+      "partNumbers": [
+        "0598545",
+        "0954633",
+        "0980788",
+        "0994004"
+      ],
+      "descricao": "Placa PT & CT Daikin",
+      "url": "https://fcie.us/daikin-PT-CT-Board.html",
+      "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/IMG_0411.JPG"
+    },
+    {
+      "id": 62,
+      "fabricante": "Daikin",
+      "linha": "Container",
+      "componente": "Super DECOS Controller",
+      "partNumbers": [
+        "690674",
+        "690675",
+        "690688",
+        "0184751",
+        "0454955",
+        "0480682"
+      ],
+      "descricao": "Controlador Super DECOS Daikin",
+      "url": "https://fcie.us/daikin-Super-DECOS-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/Super%20Decos.jpg"
+    },
+    {
+      "id": 63,
+      "fabricante": "Daikin",
+      "linha": "Container",
+      "componente": "Decos IIIb/c/d LCD Board",
+      "partNumbers": [
+        "1095645",
+        "1913394",
+        "0954602",
+        "1010815"
+      ],
+      "descricao": "Placa LCD Decos IIIb/c/d Daikin",
+      "url": "https://fcie.us/daikin-Decos-III-b-c-d-LCD-Board.html",
+      "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/DECOS%20IIIbc%20Display.jpg"
+    },
+    {
+      "id": 64,
+      "fabricante": "Daikin",
+      "linha": "Container",
+      "componente": "Zestia Inverter",
+      "partNumbers": [
+        "2222628",
+        "2153234"
+      ],
+      "descricao": "Inversor Zestia Daikin",
+      "url": "https://fcie.us/daikin-zestia-inverter.html",
+      "imagem": "https://fcie.us/images/2024/Zestia_Inverter.JPEG"
+    },
+    {
+      "id": 65,
+      "fabricante": "Daikin",
+      "linha": "Container",
+      "componente": "Zestia CPU Board",
+      "partNumbers": [
+        "2551951"
+      ],
+      "descricao": "Placa CPU Zestia Daikin",
+      "url": "https://fcie.us/daikin-zestia-cpu-board.html",
+      "imagem": "https://fcie.us/images/2024/Zestia_CPU.JPEG"
+    },
+    {
+      "id": 66,
+      "fabricante": "Daikin",
+      "linha": "Container",
+      "componente": "Zestia I/O Board",
+      "partNumbers": [
+        "2237480"
+      ],
+      "descricao": "Placa I/O Zestia Daikin",
+      "url": "https://fcie.us/daikin-zestia-io-board.html",
+      "imagem": "https://fcie.us/images/2024/Zestia_I-O.JPEG"
+    },
+    {
+      "id": 67,
+      "fabricante": "Daikin",
+      "linha": "Container",
+      "componente": "Zestia PT/CT Board",
+      "partNumbers": [
+        "2424967"
+      ],
+      "descricao": "Placa PT/CT Zestia Daikin",
+      "url": "https://fcie.us/daikin-zestia-pt-ct-board.html",
+      "imagem": "https://fcie.us/images/2024/Zestia_PT-CT.jpeg"
+    },
+    {
+      "id": 68,
+      "fabricante": "Mitsubishi",
+      "linha": "Container",
+      "componente": "MER Recorder",
+      "partNumbers": [
+        "TSA501A101",
+        "TSA599N004B",
+        "TSA599N005A",
+        "TSA599N013",
+        "TSA599N018"
+      ],
+      "descricao": "Gravador MER Mitsubishi",
+      "url": "https://fcie.us/mitsubishi-MER-Recorder.html",
+      "imagem": "https://fcie.us/images/Products/Mitsubishi/Mitsubishi%20Container/CER-DER-MER%20Recorder.jpg"
+    },
+    {
+      "id": 69,
+      "fabricante": "Mitsubishi",
+      "linha": "Container",
+      "componente": "MMCCIII Relay Board",
+      "partNumbers": [
+        "TSA501S015",
+        "TSA501S045"
+      ],
+      "descricao": "Placa de relés MMCCIII Mitsubishi",
+      "url": "https://fcie.us/mitsubishi-MMCCIII-Relay-Board.html",
+      "imagem": "https://fcie.us/images/Products/Mitsubishi/Mitsubishi%20Container/MMCC%20III%20Relay%20Board.jpg"
+    },
+    {
+      "id": 70,
+      "fabricante": "Mitsubishi",
+      "linha": "Container",
+      "componente": "MMCCIIIA Display",
+      "partNumbers": [
+        "TSA501S077",
+        "TSA501S116",
+        "TSA501S136",
+        "TSA501S142",
+        "TSA505A033",
+        "TSA505A035",
+        "TSA505A049"
+      ],
+      "descricao": "Display MMCCIIIA Mitsubishi",
+      "url": "https://fcie.us/mitsubishi-MMCCIIIA-Display.html",
+      "imagem": "https://fcie.us/images/Products/Mitsubishi/Mitsubishi%20Container/MMCCIIIA%20Display.jpg"
+    },
+    {
+      "id": 71,
+      "fabricante": "Mitsubishi",
+      "linha": "Container",
+      "componente": "MMCCIII Display",
+      "partNumbers": [
+        "TSA501S044",
+        "TSA501S063"
+      ],
+      "descricao": "Display MMCCIII Mitsubishi",
+      "url": "https://fcie.us/mitsubishi-MMCCIII-Display.html",
+      "imagem": "https://fcie.us/images/Products/Mitsubishi/Mitsubishi%20Container/MMCC%20III%20Display.jpg"
+    },
+    {
+      "id": 72,
+      "fabricante": "Mitsubishi",
+      "linha": "Container",
+      "componente": "MMCCIII Controller",
+      "partNumbers": [
+        "TSA501S046B",
+        "TSA501S049A",
+        "TSA501S050A",
+        "TSA501S053",
+        "TSA501S054A",
+        "TSA501S055",
+        "TSA501S056",
+        "TSA501S057"
+      ],
+      "descricao": "Controlador MMCCIII Mitsubishi",
+      "url": "https://fcie.us/mitsubishi-MMCCIII-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Mitsubishi/Mitsubishi%20Container/IMG_0378.JPG"
+    },
+    {
+      "id": 73,
+      "fabricante": "Mitsubishi",
+      "linha": "Container",
+      "componente": "MMCCIIIA Relay Board",
+      "partNumbers": [
+        "TSA501S084"
+      ],
+      "descricao": "Placa de relés MMCCIIIA Mitsubishi",
+      "url": "https://fcie.us/mitsubishi-MMCCIIIA-Relay-Board.html",
+      "imagem": "https://fcie.us/images/Products/Mitsubishi/Mitsubishi%20Container/IMG_0379.JPG"
+    },
+    {
+      "id": 74,
+      "fabricante": "Mitsubishi",
+      "linha": "Container",
+      "componente": "MMCCIIIA Controller",
+      "partNumbers": [
+        "TSA501S104",
+        "TSA501S109",
+        "TSA501S112",
+        "TSA501S114",
+        "TSA501S119",
+        "TSA501S123",
+        "TSA501S124",
+        "TSA501S125",
+        "TSA501S127",
+        "TSA501S129",
+        "TSA501S131",
+        "TSA501S134",
+        "TSA501S135",
+        "TSA501S138",
+        "TSA501S140",
+        "TSA501S147",
+        "TSA501S155A",
+        "TSA501S157",
+        "TSA501S061",
+        "TSA501S070",
+        "TSA501S071",
+        "TSA501S073",
+        "TSA501S078",
+        "TSA501S079",
+        "TSA501S080",
+        "TSA501S081",
+        "TSA501S082",
+        "TSA501S085",
+        "TSA501S086",
+        "TSA501S087",
+        "TSA501S089",
+        "TSA501S092",
+        "TSA501S093",
+        "TSA501S094",
+        "TSA501S096",
+        "TSA501S103"
+      ],
+      "descricao": "Controlador MMCCIIIA Mitsubishi",
+      "url": "https://fcie.us/mitsubishi-MMCCIIIA-Controller.html",
+      "imagem": "https://fcie.us/images/Products/Mitsubishi/Mitsubishi%20Container/IMG_0384.JPG"
+    }
+  ]
+}
