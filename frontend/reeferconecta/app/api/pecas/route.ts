@@ -132,4 +132,48 @@ export async function GET() {
 
 // ============================================================
 // POST /api/pecas — cria uma nova peça e salva localmente
+
+export async function POST(request: NextRequest) {
+  try {
+    const piece = (await request.json()) as PecaForm;
+
+    // validação
+    const errors = validatePiece(piece);
+    if (errors.length) {
+      return NextResponse.json({ erro: errors.join('; ') }, { status: 400 });
+    }
+
+    // gerar QC e construir documento
+    const qc = generateQC(piece);
+    const store = loadLocalStore();
+    const nextId = (store.pecas.reduce((max, p) => Math.max(max, p.id), 0) || 0) + 1;
+    const now = new Date().toISOString();
+
+    const doc: PecaDocument = {
+      id: nextId,
+      nome: piece.nome,
+      serialNumber: piece.serialNumber,
+      fabricante: piece.fabricante,
+      localidade: piece.localidade,
+      terminal: piece.terminal,
+      tecnicoResponsavel: piece.tecnicoResponsavel,
+      partNumber: piece.partNumber,
+      dataChegada: piece.dataChegada,
+      situacaoAtual: piece.situacaoAtual,
+      imagemUrl: piece.imagemUrl,
+      dataSaida: piece.dataSaida,
+      qc,
+      createdAt: now,
+    };
+
+    store.pecas.push(doc);
+    saveLocalStore(store);
+
+    // Retorna o QC para o cliente (frontend espera data.qc) e o objeto criado
+    return NextResponse.json({ success: true, qc, peca: doc }, { status: 201 });
+  } catch (err) {
+    console.error('[POST /api/pecas] erro ao salvar:', err);
+    return NextResponse.json({ success: false, erro: 'Não foi possível salvar a peça' }, { status: 500 });
+  }
+}
 // ============================================================...[trun

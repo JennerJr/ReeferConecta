@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 type PecaForm = {
   id: string;  
@@ -26,6 +27,7 @@ type SearchResult = {
   imageUrl?: string;
 };
 
+
 const initialForm: PecaForm = {
   id:"",  
   dataChegada: "",
@@ -43,6 +45,8 @@ const initialForm: PecaForm = {
 };
 
 export default function NovoPecaPage() {
+  const router = useRouter();
+
   const [form, setForm] = useState<PecaForm>(initialForm);
   const [submitted, setSubmitted] = useState(false);
   const [searching, setSearching] = useState(false);
@@ -232,7 +236,7 @@ export default function NovoPecaPage() {
 
           {submitted && <p className="rounded-lg bg-emerald-50 p-3 text-emerald-700 md:col-span-2">Informações preenchidas com sucesso. QC gerado: <strong>{generatedQc}</strong></p>}
 
-          <button className="rounded-lg bg-sky-700 px-4 py-3 font-semibold text-white transition hover:bg-sky-800 md:col-span-2" type="submit">
+          <button className="rounded-lg bg-sky-700 px-4 py-3 font-semibold text-white transition hover:bg-sky-800 md:col-span-2" type="submit" onClick={() => router.push("/pecas")}>
             Cadastrar peça
           </button>
         </form>

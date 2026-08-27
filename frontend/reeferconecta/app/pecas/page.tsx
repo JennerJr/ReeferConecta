@@ -1,150 +1,69 @@
-import React, { useState } from 'react';
-import type { NextPage } from 'next';
-import Head from 'next/head';
+﻿"use client";
 
-interface PecaForm {
-  nome: string;
-  serialNumber: string;
-  fabricante: string;
-  terminal: string;
-  tecnicoResponsavel: string;
-  partNumber: string;
-  qc: string;
-  dataChegada: string;
-  situacaoAtual: string;
-}
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
-interface PecasResponse {
-  success: boolean;
-  data?: PecaForm[];
-  error?: string;
-}
+type Piece = {
+  id: number | string;
+  nome?: string;
+  serialNumber?: string;
+  fabricante?: string;
+  localidade?: string;
+  terminal?: string;
+  tecnicoResponsavel?: string;
+  partNumber?: string;
+  dataChegada?: string;
+  situacaoAtual?: string;
+  qc?: string;
+  imagemUrl?: string;
+  dataSaida?: string;
+  createdAt?: string;
+};
 
-const PecasList: NextPage = () => {
-  const [pecas, setPecas] = useState<PecaForm[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<Partial<PecaForm>>({
-    nome: '',
-    serialNumber: '',
-    fabricante: '',
-    terminal: '',
-    tecnicoResponsavel: '',
-    partNumber: '',
-    qc: '',
-    dataChegada: '',
-    situacaoAtual: '',
-  });
-  const [formError, setFormError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+export default function Home() {
+  const [pieces, setPieces] = useState<Piece[]>([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // Carrega as peças ao montar
-  React.useEffect(() => {
-    loadPecas();
+  useEffect(() => {
+    fetch("/api/pecas")
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.erro ?? "Não foi possível carregar as peças.");
+        // O endpoint pode retornar diretamente um array ou um objeto com campos diversos; normalizar para array de objetos
+        const normalized: Piece[] = Array.isArray(data) ? data : (data.data ?? data.pecas ?? data.dados ?? []);
+        setPieces(normalized as Piece[]);
+      })
+      .catch((requestError) => setError(requestError instanceof Error ? requestError.message : "Erro ao carregar peças."))
+      .finally(() => setLoading(false));
   }, []);
 
-  const loadPecas = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/pecas');
-      const data: PecasResponse = await res.json();
-      if (data.success && data.data) {
-        setPecas(data.data);
-      } else {
-        setError(data.error || 'Erro ao carregar peças');
-      }
-    } catch (err) {
-      setError('Não foi possível conectar ao servidor');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError(null);
-    setSubmitting(true);
-
-    try {
-      const res = await fetch('/api/pecas', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nome: form.nome,
-          serialNumber: form.serialNumber,
-          fabricante: form.fabricante,
-          terminal: form.terminal,
-          tecnicoResponsavel: form.tecnicoResponsavel,
-          partNumber: form.partNumber,
-          qc: form.qc || '',
-          dataChegada: form.dataChegada,
-          situacaoAtual: form.situacaoAtual,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        setShowForm(false);
-        setForm({
-          nome: '',
-          serialNumber: '',
-          fabricante: '',
-          terminal: '',
-          tecnicoResponsavel: '',
-          partNumber: '',
-          qc: '',
-          dataChegada: '',
-          situacaoAtual: '',
-        });
-        loadPecas();
-      } else {
-        setFormError(data.error || 'Erro ao salvar peça');
-      }
-    } catch (err) {
-      setFormError('Não foi possível conectar ao servidor');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    if (field === 'dataChegada' && value.length === 10) {
-      setForm((prev) => ({ ...prev, qc: generateQC(form, value) }));
-    }
-  };
-
-  const generateQC = (_form: Partial<PecaForm>, data: string) => {
-    const dataPart = data.replace(/-/g, '');
-    return dataPart + 'QC';
-  };
-
   return (
-    <>
-      <Head>
-        <title>Pecas - ReeferConecta</title>
-      </Head>
-      <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-        <h1>Peças Cadastradas</h1>
-
-        <button
-          onClick={() => setShowForm(!showForm)}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            marginBottom: '20px',
-          }}
-        >
-          Adicionar Peça
-        </button>
-
-        {loading && <p>Car...[truncated]
+    <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-900">
+      <section className="mx-auto max-w-6xl">
+        <header className="flex items-center justify-between gap-4">
+          <div><p className="text-sm font-semibold uppercase tracking-widest text-sky-700">ReeferConecta</p><h1 className="mt-2 text-3xl font-bold">Peças cadastradas</h1></div>
+          <Link className="rounded-lg bg-sky-700 px-4 py-2 font-semibold text-white hover:bg-sky-800" href="/pecas/novo">Nova peça</Link>
+        </header>
+        {loading && <p className="mt-8">Carregando peças...</p>}
+        {error && <p className="mt-8 rounded-lg bg-red-50 p-4 text-red-700">{error}</p>}
+        {!loading && !error && pieces.length === 0 && <p className="mt-8">Nenhuma peça cadastrada.</p>}
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          {pieces.map((piece) => (
+            <Link
+              className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-sky-500"
+              href={`/pecas/${encodeURIComponent(String(piece.id ?? ''))}`}
+              key={String(piece.id)}
+            >
+              <h2 className="font-bold">{piece.nome || "Peça sem nome"}</h2>
+              <p className="mt-2 text-sm text-slate-600">Serial: {piece.serialNumber || "Não informado"}</p>
+              <p className="text-sm text-slate-600">Fabricante: {piece.fabricante || "Não informado"}</p>
+              <p className="text-sm text-slate-600">Part Number: {piece.partNumber || "Não informado"}</p>
+              <p className="mt-2 text-xs text-slate-500">QC: {piece.qc || "Não informado"}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}
