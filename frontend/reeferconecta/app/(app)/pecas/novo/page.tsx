@@ -2,16 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import carrierParts from "@/data/carrier.json";
+import daikinParts from "@/data/daikin.json";
+import starcoolParts from "@/data/starcool.json";
+import thermokingParts from "@/data/thermoking.json";
 
 type PecaForm = {
   id: string;  
   dataChegada: string;
-  partNumber: string;
   nome: string;
   serialNumber: string;
   fabricante: string;
   localidade: string;
-  terminal: string;
   tecnicoResponsavel: string;
   dataSaida: string;
   situacaoAtual: string;
@@ -27,22 +29,40 @@ type SearchResult = {
   imageUrl?: string;
 };
 
+type CatalogPart = {
+  linha: string;
+  componente: string;
+  descricao: string;
+  imagem: string;
+};
+
+const partsByManufacturer: Record<string, CatalogPart[]> = {
+  Carrier: carrierParts,
+  Daikin: daikinParts,
+  "Star Cool": starcoolParts,
+  "Thermo King": thermokingParts,
+};
+
 
 const initialForm: PecaForm = {
   id:"",  
   dataChegada: "",
-  partNumber: "",
   nome: "",
   serialNumber: "",
   fabricante: "",
   localidade: "",
-  terminal: "",
   tecnicoResponsavel: "",
   dataSaida: "",
   situacaoAtual: "",
   qc: "",
   imagemUrl: "",
 };
+
+function getCurrentDateTimeLocal() {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
 
 export default function NovoPecaPage() {
   const router = useRouter();
@@ -53,10 +73,38 @@ export default function NovoPecaPage() {
   const [searchError, setSearchError] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [generatedQc, setGeneratedQc] = useState("");
+  const [deliveredBy, setDeliveredBy] = useState("");
 
   function updateField(field: keyof PecaForm, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
     setSubmitted(false);
+  }
+
+  function handleManufacturerChange(value: string) {
+    setForm((current) => ({
+      ...current,
+      fabricante: value,
+      nome: "",
+      imagemUrl: "",
+    }));
+    setSubmitted(false);
+  }
+
+  function handlePartNameChange(value: string) {
+    const selectedPart = (partsByManufacturer[form.fabricante] ?? []).find(
+      (part) => part.descricao === value,
+    );
+    setForm((current) => ({
+      ...current,
+      nome: value,
+      imagemUrl: selectedPart?.imagem ?? "",
+    }));
+    setSubmitted(false);
+  }
+
+  function handleSituationChange(value: string) {
+    updateField("situacaoAtual", value);
+    if (value !== "ReparoIncomum") setDeliveredBy("");
   }
 
   function handlePartNumberChange(value: string) {
@@ -71,34 +119,6 @@ export default function NovoPecaPage() {
     setSearchError("");
   }
 
-  async function searchPartNumber() {
-    if (!form.partNumber.trim()) return;
-
-    setSearching(true);
-    setSearchError("");
-    setSearchResults([]);
-
-    try {
-      const response = await fetch(`/api/partnumber?partNumber=${encodeURIComponent(form.partNumber)}`);
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Não foi possível pesquisar o Part Number.");
-
-      setSearchResults(data.results ?? []);
-      const firstResult = data.results?.[0] as SearchResult | undefined;
-      if (firstResult) {
-        setForm((current) => ({
-          ...current,
-          nome: firstResult.name,
-          fabricante: firstResult.manufacturer,
-          imagemUrl: firstResult.imageUrl ?? "",
-        }));
-      }
-    } catch (error) {
-      setSearchError(error instanceof Error ? error.message : "Erro ao pesquisar o Part Number.");
-    } finally {
-      setSearching(false);
-    }
-  }
 
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -106,7 +126,6 @@ export default function NovoPecaPage() {
     const requiredFields: Array<[keyof PecaForm, string]> = [
       ["nome", "Nome"],
       ["fabricante", "Fabricante"],
-      ["terminal", "Terminal"],
       ["tecnicoResponsavel", "Técnico Responsável"],
     ];
     const emptyField = requiredFields.find(([field]) => {
@@ -130,13 +149,13 @@ export default function NovoPecaPage() {
           serialNumber: form.serialNumber,
           fabricante: form.fabricante,
           localidade: form.localidade,
-          terminal: form.terminal,
           tecnicoResponsavel: form.tecnicoResponsavel,
-          partNumber: form.partNumber,
-          dataChegada: form.dataChegada,
-          situacaoAtual: form.situacaoAtual,
+          dataChegada: getCurrentDateTimeLocal(),
+          situacaoAtual:
+            form.situacaoAtual === "ReparoIncomum"
+              ? `Em reparo - Entregue por: ${deliveredBy.trim()}`
+              : form.situacaoAtual,
           imagemUrl: form.imagemUrl ?? "",
-          dataSaida: form.dataSaida,
         }),
       });
       const data = await response.json();
@@ -149,80 +168,87 @@ export default function NovoPecaPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-900">
+    <main className="min-h-screen bg-gray-800 px-6 py-10 text-slate-900">
       <section className="mx-auto max-w-4xl">
-        <p className="text-sm font-semibold uppercase tracking-widest text-sky-700">ReeferConecta</p>
-        <h1 className="mt-2 text-3xl font-bold">Cadastrar nova peça</h1>
-        <p className="mt-2 text-slate-600">Preencha as informações da peça.</p>
+        <p className="bg-gradient-to-br from-[#E8262C] to-[#B32025] bg-clip-text text-transparent text-sm font-bold uppercase tracking-widest">ReeferConecta</p>
+        <h1 className="mt-2 text-3xl font-bold text-white">Cadastrar nova peça</h1>
+        <p className="mt-2 text-slate-600 text-white">Preencha as informações da peça.</p>
 
-        <form className="mt-8 grid gap-5 rounded-xl border border-slate-200 bg-white p-6 shadow-sm md:grid-cols-2" onSubmit={handleSubmit}>
-          <label className="grid gap-2 text-sm font-semibold">
-            Nome
-            <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.nome} onChange={(event) => updateField("nome", event.target.value)} />
+        <form className="mt-8 grid gap-5 rounded-xl border border-slate-700 bg-gray-800 p-6 shadow-sm md:grid-cols-2" onSubmit={handleSubmit}>
+          
+          <label className="grid gap-2 text-sm font-semibold text-slate-200">
+            Fabricante
+            <select className="rounded-lg border border-slate-300  px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.fabricante} onChange={(event) => handleManufacturerChange(event.target.value)}>
+              <option className="text-black" value="">Selecione um fabricante</option>
+              <option className="text-black" value="Carrier">Carrier</option>
+              <option className="text-black" value="Daikin">Daikin</option>
+              <option className="text-black" value="Star Cool">Star Cool</option>
+              <option className="text-black" value="Thermo King">Thermo King</option>              
+            </select>
+          </label>
+          
+          <label className="grid gap-2 text-sm font-semibold text-slate-200">
+            Nome da peça
+            <select className="rounded-lg border border-slate-300  px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required disabled={!form.fabricante || !(partsByManufacturer[form.fabricante]?.length)} value={form.nome} onChange={(event) => handlePartNameChange(event.target.value)}>
+              <option value="">
+                {form.fabricante ? "Selecione uma peça" : "Selecione primeiro o fabricante"}
+              </option>
+              {(partsByManufacturer[form.fabricante] ?? []).map((part) => (
+                <option className="text-black" key={`${part.descricao}-${part.componente}`} value={part.descricao}>
+                  {part.descricao}
+                </option>
+              ))}
+            </select>
           </label>
 
-          <label className="grid gap-2 text-sm font-semibold">
+          <label className="grid gap-2 text-sm font-semibold text-slate-200">
             Serial Number
             <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.serialNumber} onChange={(event) => updateField("serialNumber", event.target.value)} />
           </label>
 
-          <label className="grid gap-2 text-sm font-semibold">
-            Fabricante
-            <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.fabricante} onChange={(event) => updateField("fabricante", event.target.value)} />
-          </label>
-
-          <label className="grid gap-2 text-sm font-semibold">
-            Terminal
-            <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.terminal} onChange={(event) => updateField("terminal", event.target.value)} />
-          </label>
-
-          <label className="grid gap-2 text-sm font-semibold">
+          <label className="grid gap-2 text-sm text-slate-200 font-semibold md:col-span-2">
             Localidade
-            <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.localidade} onChange={(event) => updateField("localidade", event.target.value)} />
+            <select className="rounded-lg border border-slate-300  px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.localidade} onChange={(event) => updateField("localidade", event.target.value)}>
+                            <option className="text-black" value="">Selecione uma localidade</option>
+              <option className="text-black" value="Santos">Santos</option>
+              <option className="text-black" value="Itajaí">Itajaí</option>
+              <option className="text-black" value="Paranaguá">Paranaguá</option>
+              <option className="text-black" value="Guarujá">Guarujá</option>
+              <option className="text-black" value="Rio Grande">Rio Grande</option>
+              
+            </select>
           </label>
 
 
-          <label className="grid gap-2 text-sm font-semibold">
+          <label className="grid gap-2 text-sm font-semibold text-slate-200">
             Técnico Responsável
             <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.tecnicoResponsavel} onChange={(event) => updateField("tecnicoResponsavel", event.target.value)} />
           </label>
-
-          <label className="grid gap-2 text-sm font-semibold">
-            Part Number
-            <div className="flex gap-2">
-              <input
-                className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
-                required
-                value={form.partNumber}
-                onChange={(event) => handlePartNumberChange(event.target.value)}
-              />
-              <button className="rounded-lg bg-slate-800 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-60" disabled={searching || !form.partNumber.trim()} onClick={searchPartNumber} type="button">
-                {searching ? "Buscando..." : "Pesquisar"}
-              </button>
-            </div>
-            <span className="font-normal text-slate-500">A busca consulta o banco local de Part Numbers.</span>
-          </label>
-
-          <label className="grid gap-2 text-sm font-semibold">
-            Data de Chegada
-            <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required type="date" value={form.dataChegada} onChange={(event) => updateField("dataChegada", event.target.value)} />
-          </label>
-
-          <label className="grid gap-2 text-sm font-semibold">
-            Data de Saida
-            <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required type="date" value={form.dataSaida} onChange={(event) => updateField("dataSaida", event.target.value)} />
-          </label>
-
-          <label className="grid gap-2 text-sm font-semibold md:col-span-2">
+          
+          <label className="grid gap-2 text-sm text-slate-200 font-semibold md:col-span-2">
             Situação Atual
-            <select className="rounded-lg border border-slate-300 bg-white px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.situacaoAtual} onChange={(event) => updateField("situacaoAtual", event.target.value)}>
-              <option value="">Selecione uma situação</option>
-              <option value="Disponível">Chego na central</option>
-              <option value="Em uso">Em reparo</option>
-              <option value="Em manutenção">Pronto para retirada</option>
-              <option value="Indisponível">Sem condições de Reparo</option>
+            <select className="rounded-lg border  border-slate-300  px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.situacaoAtual} onChange={(event) => handleSituationChange(event.target.value)}>
+              <option className="text-black" value="">Selecione uma situação</option>
+              <option className="text-black" value="ReparoComum">Em reparo - Devolver para o mesmo</option>
+              <option className="text-black" value="ReparoTroca">Em reparo - Estoque</option>
+              <option className="text-black" value="ReparoIncomum">Em reparo - Entregue por:</option>
             </select>
           </label>
+          {form.situacaoAtual === "ReparoIncomum" && (
+            <label className="grid gap-2 text-sm text-slate-200 font-semibold md:col-span-2">
+              Nome de quem entregou
+              <input
+                className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
+                required
+                value={deliveredBy}
+                onChange={(event) => {
+                  setDeliveredBy(event.target.value);
+                  setSubmitted(false);
+                }}
+                placeholder="Digite o nome"
+              />
+            </label>
+          )}
 
           {searchError && <p className="rounded-lg bg-amber-50 p-3 text-amber-800 md:col-span-2">{searchError}</p>}
           {searchResults.length > 0 && <div className="grid gap-3 rounded-lg bg-slate-50 p-4 md:col-span-2">
@@ -236,7 +262,7 @@ export default function NovoPecaPage() {
 
           {submitted && <p className="rounded-lg bg-emerald-50 p-3 text-emerald-700 md:col-span-2">Informações preenchidas com sucesso. QC gerado: <strong>{generatedQc}</strong></p>}
 
-          <button className="rounded-lg bg-sky-700 px-4 py-3 font-semibold text-white transition hover:bg-sky-800 md:col-span-2" type="submit" onClick={() => router.push("/pecas")}>
+          <button className="rounded-lg bg-gradient-to-br from-[#E8262C] to-[#B32025] px-4 py-3 font-semibold text-white transition hover:brightness-110 md:col-span-2" type="submit" onClick={() => router.push("/pecas")} >
             Cadastrar peça
           </button>
         </form>

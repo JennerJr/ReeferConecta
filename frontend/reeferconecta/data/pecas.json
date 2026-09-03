@@ -79,6 +79,85 @@
       "dataSaida": "2026-08-23",
       "qc": "20260823asd",
       "createdAt": "2026-08-23T22:10:05.954Z"
+    },
+    {
+      "id": 6,
+      "nome": "Controlador Decos IIID ",
+      "serialNumber": "123456",
+      "fabricante": "Daikin",
+      "localidade": "",
+      "terminal": "BTP",
+      "tecnicoResponsavel": "Willian",
+      "dataChegada": "2026-09-03T10:49",
+      "situacaoAtual": "Em reparo - Entregue por: Eduardo",
+      "imagemUrl": "https://fcie.us/images/Products/Daikin/Daikin%20Container/IMG_0399.JPG",
+      "qc": "202609031049",
+      "createdAt": "2026-09-03T13:49:23.900Z"
+    },
+    {
+      "id": 7,
+      "nome": "Controlador Decos IIID ",
+      "serialNumber": "asd123",
+      "fabricante": "Daikin",
+      "localidade": "Paranaguá",
+      "tecnicoResponsavel": "asd",
+      "dataChegada": "2026-09-03T11:16",
+      "situacaoAtual": "Em reparo - Entregue por: asd",
+      "imagemUrl": "https://fcie.us/images/Products/Daikin/Daikin%20Container/IMG_0399.JPG",
+      "qc": "202609031116",
+      "createdAt": "2026-09-03T14:16:18.930Z"
+    },
+    {
+      "id": 8,
+      "nome": "Placa PT/CT Zestia",
+      "serialNumber": "KR22345677890",
+      "fabricante": "Daikin",
+      "localidade": "Itajaí",
+      "tecnicoResponsavel": "Jenner",
+      "dataChegada": "2026-09-03T11:19",
+      "situacaoAtual": "Em reparo - Entregue por: Miguel",
+      "imagemUrl": "https://fcie.us/images/2024/Zestia_PT-CT.jpeg",
+      "qc": "2026/09/03-KR22345677890-8",
+      "createdAt": "2026-09-03T14:19:39.555Z"
+    },
+    {
+      "id": 9,
+      "nome": "Placa I/O MicroLink 1",
+      "serialNumber": "asd",
+      "fabricante": "Carrier",
+      "localidade": "Itajaí",
+      "tecnicoResponsavel": "asd",
+      "dataChegada": "2026-09-03T11:20",
+      "situacaoAtual": "ReparoComum",
+      "imagemUrl": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML1%20I%20O%20Board1.JPG",
+      "qc": "2026/09/03-asd-9",
+      "createdAt": "2026-09-03T14:20:57.942Z"
+    },
+    {
+      "id": 10,
+      "nome": "Controlador uP Thermo King",
+      "serialNumber": "asd",
+      "fabricante": "Thermo King",
+      "localidade": "Paranaguá",
+      "tecnicoResponsavel": "asd",
+      "dataChegada": "2026-09-03T11:23",
+      "situacaoAtual": "ReparoTroca",
+      "imagemUrl": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/TK%20Micro%20P.jpg",
+      "qc": "2026/09/03-asd-10",
+      "createdAt": "2026-09-03T14:23:00.484Z"
+    },
+    {
+      "id": 11,
+      "nome": "Controlador CIM 6.2",
+      "serialNumber": "sadasdasdasdasd",
+      "fabricante": "Star Cool",
+      "localidade": "Paranaguá",
+      "tecnicoResponsavel": "eqw",
+      "dataChegada": "2026-09-03T11:23",
+      "situacaoAtual": "Em reparo - Entregue por: asd",
+      "imagemUrl": "https://fcie.us/images/2024/818925A_1.JPEG",
+      "qc": "2026/09/03-sadasdasdasdasd-11",
+      "createdAt": "2026-09-03T14:23:40.298Z"
     }
   ]
 }

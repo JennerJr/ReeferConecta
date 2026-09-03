@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 function Bars3Icon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -34,10 +35,10 @@ const user = {
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', current: true },
-  { name: 'Almoxarifado', href: '/pecas', current: false },
-  { name: 'Part Numbers', href: '#', current: false },
-  { name: 'Reports', href: '#', current: false },
+  { name: 'Dashboard', href: '/dashboard' },
+  { name: 'Almoxarifado', href: '/pecas' },
+  { name: 'Times', href: '/times' },
+  { name: 'Reports', href: '/reports' },
 ]
 
 const userNavigation = [
@@ -51,8 +52,10 @@ function classNames(...classes: (string | boolean | undefined)[]) {
 }
 
 export default function Navbar() {
+  const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const isActive = (href: string) => href !== '#' && (pathname === href || pathname.startsWith(`${href}/`))
 
   return (
     <nav className="bg-gray-800/50">
@@ -66,15 +69,15 @@ export default function Navbar() {
                 className="size-8"
               />
             </div>
-            <div className="hidden md:block">
+            <div >
               <div className="ml-10 flex items-baseline space-x-4">
                 {navigation.map((item) => (
                   <a
                     key={item.name}
                     href={item.href}
-                    aria-current={item.current ? 'page' : undefined}
+                    aria-current={isActive(item.href) ? 'page' : undefined}
                     className={classNames(
-                      item.current ? 'bg-gray-950/50 text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white',
+                      isActive(item.href) ? 'bg-gray-950/50 text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white',
                       'rounded-md px-3 py-2 text-sm font-medium',
                     )}
                   >
@@ -127,7 +130,7 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-          <div className="-mr-2 flex md:hidden">
+          <div className="-mr-2  flex md:hidden">
             <button
               type="button"
               onClick={() => setMobileMenuOpen((prev) => !prev)}
@@ -150,9 +153,9 @@ export default function Navbar() {
               <a
                 key={item.name}
                 href={item.href}
-                aria-current={item.current ? 'page' : undefined}
+                aria-current={isActive(item.href) ? 'page' : undefined}
                 className={classNames(
-                  item.current ? 'bg-gray-950/50 text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white',
+                  isActive(item.href) ? 'bg-gray-950/50 text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white',
                   'block rounded-md px-3 py-2 text-base font-medium',
                 )}
               >

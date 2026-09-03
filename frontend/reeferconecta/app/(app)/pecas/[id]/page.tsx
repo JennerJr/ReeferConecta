@@ -12,9 +12,7 @@ type Piece = {
   serialNumber?: string;
   fabricante?: string;
   localidade?: string;
-  terminal?: string;
   tecnicoResponsavel?: string;
-  partNumber?: string;
   dataChegada?: string;
   situacaoAtual?: string;
   qc?: string;
@@ -22,6 +20,13 @@ type Piece = {
   dataSaida?: string;
   createdAt?: string;
 };
+
+function formatArrivalDate(value?: string) {
+  if (!value) return undefined;
+  const [date] = value.split("T");
+  const [year, month, day] = date.split("-");
+  return `${year}/${month}/${day}`;
+}
 
 export default function PecaPage({ params }: PageProps) {
   const { id } = use(params);
@@ -39,20 +44,6 @@ export default function PecaPage({ params }: PageProps) {
         const found = list.find((p) => String(p.id) === String(id));
         if (!found) throw new Error("Peça não encontrada.");
         setPiece(found);
-        
-        if (found.partNumber) {
-          fetch("/api/partnumber?partNumber=" + encodeURIComponent(found.partNumber))
-            .then(res => res.json())
-            .then(data => {
-              if (data.imagem) setImageUrl(data.imagem);
-              else if (found.imagemUrl) setImageUrl(found.imagemUrl);
-            })
-            .catch(() => {
-              if (found.imagemUrl) setImageUrl(found.imagemUrl);
-            });
-        } else if (found.imagemUrl) {
-          setImageUrl(found.imagemUrl);
-        }
       })
       .catch((requestError) => setError(requestError instanceof Error ? requestError.message : "Erro ao carregar peça."));
   }, [id]);
@@ -62,24 +53,22 @@ export default function PecaPage({ params }: PageProps) {
 
   const fields: [string, string|undefined|number][] = [
     ["ID", piece.id],
-    ["Data de chegada", piece.dataChegada],
+    ["Data de chegada", formatArrivalDate(piece.dataChegada)],
     ["Nome", piece.nome],
     ["Serial Number", piece.serialNumber],
     ["Fabricante", piece.fabricante],
     ["Localidade", piece.localidade],
-    ["Terminal", piece.terminal],
     ["Técnico Responsável", piece.tecnicoResponsavel],
-    ["Part Number", piece.partNumber],
     ["Data de saída", piece.dataSaida],
     ["Situação Atual", piece.situacaoAtual],
     ["QC", piece.qc],
   ];
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-900">
+    <main className="min-h-screen  px-6 py-10 text-slate-900">
       <section className="mx-auto max-w-3xl">
         <div className="flex items-center justify-between">
-          <Link className="text-sm font-semibold text-sky-700" href="/">← Voltar para peças</Link>
+          <Link className="text-sm font-semibold text-sky-700" href="/pecas">← Voltar para peças</Link>
           <button
             onClick={() => router.push(`/pecas/${id}/editar`)}
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
@@ -88,7 +77,7 @@ export default function PecaPage({ params }: PageProps) {
           </button>
         </div>
         
-        <h1 className="mt-4 text-3xl font-bold">Detalhes da peça</h1>
+        <h1 className="mt-4 text-3xl text-white font-bold">Detalhes da peça</h1>
         
         <div className="mt-8 grid gap-4 rounded-lg border border-slate-200 bg-white p-6 md:grid-cols-2">
           {fields.map(([label, value]) => (

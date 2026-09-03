@@ -10,7 +10,6 @@ interface PecaForm {
   serialNumber: string;
   fabricante: string;
   localidade: string;
-  terminal: string;
   tecnicoResponsavel: string;
   partNumber: string;
   dataChegada: string;
@@ -28,7 +27,6 @@ interface PecaDocument {
   serialNumber: string;
   fabricante: string;
   localidade: string;
-  terminal: string;
   tecnicoResponsavel: string;
   partNumber: string;
   dataChegada: string;
@@ -53,7 +51,6 @@ function validatePiece(piece: PecaForm): string[] {
     ["nome", "Nome"],
     ["serialNumber", "Número de Série"],
     ["fabricante", "Fabricante"],
-    ["terminal", "Terminal"],
     ["tecnicoResponsavel", "Técnico Responsável"],
   ];
 
@@ -63,11 +60,11 @@ function validatePiece(piece: PecaForm): string[] {
     }
   }
 
-  // Validação de formato de data (YYYY-MM-DD)
+  // Validação de data ou data e hora no formato aceito pelo input datetime-local.
   if (piece.dataChegada) {
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    const dateRegex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/;
     if (!dateRegex.test(piece.dataChegada)) {
-      errors.push("Data de chegada deve estar no formato YYYY-MM-DD");
+      errors.push("Data de chegada deve estar no formato YYYY-MM-DDTHH:mm");
     }
   }
 
@@ -75,15 +72,18 @@ function validatePiece(piece: PecaForm): string[] {
 }
 
 // ============================================================
-// Geração do QC (para este MVP, uma representação simples)
-// Baseado em data + parte-number para ser único
+// Geração do QC usando a data, o serial (quando informado) e o ID da peça.
 // ============================================================
-function generateQC(piece: PecaForm): string {
-  // Se houver partNumber, usar data + parte number
-  // Se não, usar data + timestamp
-  const dataPart = piece.dataChegada.replace(/-/g, "");
-  const partRef = piece.partNumber?.replace(/[^a-zA-Z0-9]/g, "")?.substring(0, 6) ?? "";
-  return `${dataPart}${partRef}`;
+function generateQC(piece: PecaForm, id: number): string {
+  const dataPart = piece.dataChegada.slice(0, 10).replace(/-/g, "/");
+  const serial = piece.serialNumber?.trim().replace(/[^a-zA-Z0-9]/g, "");
+  return serial ? `${dataPart}-${serial}-${id}` : `${dataPart}-${id}`;
+}
+
+function getCurrentDateTimeLocal(): string {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
 // ============================================================
@@ -136,6 +136,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const piece = (await request.json()) as PecaForm;
+    piece.dataChegada = piece.dataChegada || getCurrentDateTimeLocal();
 
     // validação
     const errors = validatePiece(piece);
@@ -143,10 +144,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ erro: errors.join('; ') }, { status: 400 });
     }
 
-    // gerar QC e construir documento
-    const qc = generateQC(piece);
     const store = loadLocalStore();
     const nextId = (store.pecas.reduce((max, p) => Math.max(max, p.id), 0) || 0) + 1;
+    const qc = generateQC(piece, nextId);
     const now = new Date().toISOString();
 
     const doc: PecaDocument = {
@@ -155,7 +155,6 @@ export async function POST(request: NextRequest) {
       serialNumber: piece.serialNumber,
       fabricante: piece.fabricante,
       localidade: piece.localidade,
-      terminal: piece.terminal,
       tecnicoResponsavel: piece.tecnicoResponsavel,
       partNumber: piece.partNumber,
       dataChegada: piece.dataChegada,

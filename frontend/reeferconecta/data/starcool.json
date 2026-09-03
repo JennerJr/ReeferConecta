@@ -1,0 +1,50 @@
+[
+  {
+    "linha": "Container",
+    "componente": "Compressor",
+    "descricao": "Compressor",
+    "imagem": "https://fcie.us/images/starcool-818658B.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Frequency Converter",
+    "descricao": "Conversor de frequência(FC)",
+    "imagem": "https://fcie.us/images/starcool-818242C.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Controller CIM5",
+    "descricao": "Controlador CIM5",
+    "imagem": "https://fcie.us/images/Products/Starcool/Starcool%20Container/Controller%20CIM5.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Controlador CIM6 Star Cool",
+    "descricao": "Controlador CIM6",
+    "imagem": "https://fcie.us/images/Products/Starcool/Starcool%20Container/Controller%20CIM6.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Controller CIM 6.2",
+    "descricao": "Controlador CIM 6.2",
+    "imagem": "https://fcie.us/images/2024/818925A_1.JPEG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Power Measurement Board",
+    "descricao": "Power Meas CIM5",
+    "imagem": "https://fcie.us/images/Products/Starcool/Starcool%20Container/power%20measurement%20board.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Power Measurement Board",
+    "descricao": "Power Meas CIM6",
+    "imagem": ""
+  },
+  {
+    "linha": "Container",
+    "componente": "User Panel CIM6 (Display/Key)",
+    "descricao": "display completo CIM6",
+    "imagem": "https://fcie.us/images/Products/Starcool/Starcool%20Container/User%20Panel,%20CIM6.jpg"
+  }
+]

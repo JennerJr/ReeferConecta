@@ -1,0 +1,104 @@
+[
+  {
+    "linha": "Container",
+    "componente": "Decos IIIc Controller",
+    "descricao": "Controlador Decos IIIC ",
+    "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/IMG_0376.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Decos IIId Controller",
+    "descricao": "Controlador Decos IIID ",
+    "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/IMG_0399.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Decos IIId Controller",
+    "descricao": "Controlador Decos IIID-1 ",
+    "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/IMG_0399.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "I/O Decos IIIC/D",
+    "descricao": "Placa I/O Decos IIIC/D",
+    "imagem": "https://fcie.us/images/2024/Zestia_I-O.JPEG"
+  },
+  {
+    "linha": "Container",
+    "componente": "CPU Board Decos IIIC",
+    "descricao": "Placa CPU Decos IIIC",
+    "imagem": "https://fcie.us/images/2024/Zestia_CPU.JPEG"
+  },
+  {
+    "linha": "Container",
+    "componente": "CPU Board Decos IIID",
+    "descricao": "Placa CPU Decos IIID",
+    "imagem": "https://fcie.us/images/2024/Zestia_CPU.JPEG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Decos IIIe Controller",
+    "descricao": "Controlador Decos IIIE/F/G ",
+    "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/Decos%20IIIe.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Decos IIIe Controller",
+    "descricao": "Controlador Decos IIIH ",
+    "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/Decos%20IIIe.jpg"
+  },
+   {
+    "linha": "Container",
+    "componente": "I/O Board Decos IIIE/F/G/H",
+    "descricao": "Placa I/O Decos IIIE/F/G/H",
+    "imagem": "https://fcie.us/images/2024/Zestia_I-O.JPEG"
+  },
+   {
+    "linha": "Container",
+    "componente": "CPU Board Decos IIIE/F/G",
+    "descricao": "Placa CPU Decos IIIE/F/G",
+    "imagem": "https://fcie.us/images/2024/Zestia_CPU.JPEG"
+  },
+  {
+    "linha": "Container",
+    "componente": "CPU Board Decos IIIH",
+    "descricao": "Placa CPU Decos IIIH",
+    "imagem": "https://fcie.us/images/2024/Zestia_CPU.JPEG"
+  },
+  {
+    "linha": "Container",
+    "componente": "PT & CT Board",
+    "descricao": "Sensor de Corrente",
+    "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/IMG_0411.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Decos IIIb/c/d LCD Board",
+    "descricao": "Display Daikin",
+    "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/DECOS%20IIIbc%20Display.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Zestia Inverter",
+    "descricao": "Inversor Zestia",
+    "imagem": "https://fcie.us/images/2024/Zestia_Inverter.JPEG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Zestia CPU Board",
+    "descricao": "Placa CPU Zestia",
+    "imagem": "https://fcie.us/images/2024/Zestia_CPU.JPEG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Zestia I/O Board",
+    "descricao": "Placa I/O Zestia",
+    "imagem": "https://fcie.us/images/2024/Zestia_I-O.JPEG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Zestia PT/CT Board",
+    "descricao": "Placa PT/CT Zestia",
+    "imagem": "https://fcie.us/images/2024/Zestia_PT-CT.jpeg"
+  }
+]

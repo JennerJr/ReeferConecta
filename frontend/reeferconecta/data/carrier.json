@@ -1,0 +1,134 @@
+[
+  {
+    "linha": "Container",
+    "componente": "Carregador de Bateria",
+    "descricao": "Carregador de bateria Carrier",
+    "imagem": "https://fcie.us/images/carrier-30-00416-xx.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Silver Battery Charger 12-00683-xx",
+    "descricao": "Carregador de bateria silver Carrier — 12-00683-xx",
+    "imagem": "https://fcie.us/images/carrier-12-00683-x.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Microprocessor MicroLink 1",
+    "descricao": "Microprocessador MicroLink 1 — 69NT42-334-xx",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML1%20Controller.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Placa lógica MicroLink 1",
+    "descricao": "Placa lógica MicroLink 1",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML1%20Logic%20Board1.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "I/O Board MicroLink 1",
+    "descricao": "Placa I/O MicroLink 1",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML1%20I%20O%20Board1.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Display MicroLink 1",
+    "descricao": "Display MicroLink 1",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML1%20Display.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Controlador MicroLink 2",
+    "descricao": "Controlador MicroLink 2",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML2i%20Controller.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Controlador MicroLink 2i",
+    "descricao": "Controlador MicroLink 2i",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML2i%20Controller.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Datacoder MicroLink 2",
+    "descricao": "Datacorder MicroLink 2",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/datacoder%20microlink2.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Controller MicroLink 3 (Yellow Label)",
+    "descricao": "Controlador MicroLink 3 — Yellow Label",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML3.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Controller MicroLink 3 (Green Label)",
+    "descricao": "Controlador MicroLink 3 — Green Label",
+    "imagem": "https://fcie.us/images/ML3_Green_Label_12-56011-xx%20(1).jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "ML5 Controller",
+    "descricao": "Controlador ML5",
+    "imagem": "https://fcie.us/images/2021/ML5_12-56015-xx.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Display Module",
+    "descricao": "Módulo de display Carrier",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/IMG_0428.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Micro Link 2i/3 Keypad",
+    "descricao": "Teclado Micro Link 2i/3",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/2i-3%20Keypad%20Microlink.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Digital Temperature Display",
+    "descricao": "Display digital de temperatura Carrier",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/Digital%20Temp%20Display.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Auto Restart Board",
+    "descricao": "Placa de reinício automático Carrier",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/IMG_0354.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Temperature Control Board 12-00214-xx",
+    "descricao": "Placa de controle de temperatura Carrier — 12-00214-xx",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/IMG_0358.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Partlow Recorder",
+    "descricao": "Gravador Partlow Carrier",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/Partlow%20Chart%20Recorder1.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Power Supply Board",
+    "descricao": "Placa de alimentação Carrier",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/Power%20Supply%20Board.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Timing & Current Board",
+    "descricao": "Placa de temporização e corrente Carrier",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/Timing%20and%20Current%20Board.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "Temperature Control Board 12-01057-xx",
+    "descricao": "Placa de controle de temperatura Carrier — 12-01057-xx / 12-01064-xx / 12-01085-xx",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/Temp%20Control%20Board.JPG"
+  },
+  {
+    "linha": "Container",
+    "componente": "CER Recorder",
+    "descricao": "Gravador CER Carrier",
+    "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/CER%20Recorder.jpg"
+  }
+]
