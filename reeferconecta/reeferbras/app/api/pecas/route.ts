@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { getSessionUser } from "@/lib/auth-session";
+import { canManagePieces } from "@/lib/authorization";
+import getMongoClient from "@/lib/mongodb";
 
 // ============================================================
 // Interface do registro de uma peça (formulário)
@@ -35,12 +36,24 @@ interface PecaDocument {
   dataSaida?: string;
   qc: string;
   createdAt: string;
+  reports?: RepairReport[];
 }
 
-// ============================================================
-// Caminho do arquivo local de fallback
-// ============================================================
-const LOCAL_DATA_FILE = path.join(process.cwd(), "data", "pecas.json");
+export interface RepairReport {
+  id: string;
+  responsavelReparo: string;
+  descricaoReparo: string;
+  situacaoAtual: string;
+  createdAt: string;
+}
+
+const PIECES_DATABASE = process.env.MONGODB_DATABASE_PECAS || "pecas";
+const PIECES_COLLECTION = "pecasdb";
+
+async function piecesCollection() {
+  const client = await getMongoClient();
+  return client.db(PIECES_DATABASE).collection<PecaDocument>(PIECES_COLLECTION);
+}
 
 // ============================================================
 // Função de validação (Zod não está disponível aqui — validação manual)
@@ -87,42 +100,15 @@ function getCurrentDateTimeLocal(): string {
 }
 
 // ============================================================
-// Helper para carregar/salvar o arquivo local
-// ============================================================
-interface LocalStore {
-  pecas: PecaDocument[];
-}
-
-function loadLocalStore(): LocalStore {
-  try {
-    if (fs.existsSync(LOCAL_DATA_FILE)) {
-      const raw = fs.readFileSync(LOCAL_DATA_FILE, "utf-8");
-      return JSON.parse(raw) as LocalStore;
-    }
-  } catch {
-    // Se o arquivo existir mas estiver corrompido, ignora e recomeça
-  }
-  return { pecas: [] };
-}
-
-function saveLocalStore(store: LocalStore): void {
-  // Garante que o diretório data/ existe
-  const dataDir = path.dirname(LOCAL_DATA_FILE);
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-  fs.writeFileSync(LOCAL_DATA_FILE, JSON.stringify(store, null, 2), "utf-8");
-}
-
-// ============================================================
-// GET /api/pecas — lista todas as peças salvas localmente
+// GET /api/pecas — lista todas as peças salvas no MongoDB
 // ============================================================
 export async function GET() {
   try {
-    const store = loadLocalStore();
-    return NextResponse.json(store.pecas, { status: 200 });
+    const collection = await piecesCollection();
+    const pieces = await collection.find({}).sort({ id: 1 }).toArray();
+    return NextResponse.json(pieces, { status: 200 });
   } catch (err) {
-    console.error("[GET /api/pecas] falha ao ler local:", err);
+    console.error("[GET /api/pecas] falha ao ler MongoDB:", err);
     return NextResponse.json(
       { success: false, error: "Não foi possível listar as peças" },
       { status: 500 }
@@ -131,10 +117,15 @@ export async function GET() {
 }
 
 // ============================================================
-// POST /api/pecas — cria uma nova peça e salva localmente
+// POST /api/pecas — cria uma nova peça e salva no MongoDB
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getSessionUser();
+    if (!canManagePieces(user?.role)) {
+      return NextResponse.json({ erro: "Entrada não autorizada" }, { status: 403 });
+    }
+
     const piece = (await request.json()) as PecaForm;
     piece.dataChegada = piece.dataChegada || getCurrentDateTimeLocal();
 
@@ -144,8 +135,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ erro: errors.join('; ') }, { status: 400 });
     }
 
-    const store = loadLocalStore();
-    const nextId = (store.pecas.reduce((max, p) => Math.max(max, p.id), 0) || 0) + 1;
+    const collection = await piecesCollection();
+    const lastPiece = await collection.findOne({}, { sort: { id: -1 } });
+    const nextId = (lastPiece?.id ?? 0) + 1;
     const qc = generateQC(piece, nextId);
     const now = new Date().toISOString();
 
@@ -165,13 +157,12 @@ export async function POST(request: NextRequest) {
       createdAt: now,
     };
 
-    store.pecas.push(doc);
-    saveLocalStore(store);
+    await collection.insertOne(doc);
 
     // Retorna o QC para o cliente (frontend espera data.qc) e o objeto criado
     return NextResponse.json({ success: true, qc, peca: doc }, { status: 201 });
   } catch (err) {
-    console.error('[POST /api/pecas] erro ao salvar:', err);
+    console.error('[POST /api/pecas] erro ao salvar no MongoDB:', err);
     return NextResponse.json({ success: false, erro: 'Não foi possível salvar a peça' }, { status: 500 });
   }
 }
@@ -181,6 +172,11 @@ export async function POST(request: NextRequest) {
 // ============================================================
 export async function PUT(request: NextRequest) {
   try {
+    const user = await getSessionUser();
+    if (!canManagePieces(user?.role)) {
+      return NextResponse.json({ erro: "Entrada não autorizada" }, { status: 403 });
+    }
+
     const input = (await request.json()) as Partial<PecaDocument>;
     const id = Number(input.id);
 
@@ -188,20 +184,28 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ erro: "ID da peça inválido" }, { status: 400 });
     }
 
-    const store = loadLocalStore();
-    const index = store.pecas.findIndex((piece) => piece.id === id);
+    const collection = await piecesCollection();
+    const current = await collection.findOne({ id });
 
-    if (index === -1) {
+    if (!current) {
       return NextResponse.json({ erro: "Peça não encontrada" }, { status: 404 });
     }
 
-    const current = store.pecas[index];
     const updated: PecaDocument = {
-      ...current,
-      ...input,
       id: current.id,
+      nome: input.nome ?? current.nome,
+      serialNumber: input.serialNumber ?? current.serialNumber,
+      fabricante: input.fabricante ?? current.fabricante,
+      localidade: input.localidade ?? current.localidade,
+      tecnicoResponsavel: input.tecnicoResponsavel ?? current.tecnicoResponsavel,
+      partNumber: input.partNumber ?? current.partNumber,
+      dataChegada: input.dataChegada ?? current.dataChegada,
+      situacaoAtual: input.situacaoAtual ?? current.situacaoAtual,
+      imagemUrl: input.imagemUrl ?? current.imagemUrl,
+      dataSaida: input.dataSaida ?? current.dataSaida,
       qc: current.qc,
       createdAt: current.createdAt,
+      reports: current.reports,
     };
     const errors = validatePiece(updated);
 
@@ -209,8 +213,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ erro: errors.join("; ") }, { status: 400 });
     }
 
-    store.pecas[index] = updated;
-    saveLocalStore(store);
+    await collection.updateOne({ id }, { $set: updated });
 
     return NextResponse.json({ success: true, peca: updated }, { status: 200 });
   } catch (err) {

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { canManagePieces } from "@/lib/authorization";
 import carrierParts from "@/data/carrier.json";
 import daikinParts from "@/data/daikin.json";
 import starcoolParts from "@/data/starcool.json";
@@ -74,6 +76,14 @@ export default function NovoPecaPage() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [generatedQc, setGeneratedQc] = useState("");
   const [deliveredBy, setDeliveredBy] = useState("");
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((response) => response.json())
+      .then((data) => setAuthorized(canManagePieces(data.user?.role)))
+      .catch(() => setAuthorized(false));
+  }, []);
 
   function updateField(field: keyof PecaForm, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -167,14 +177,22 @@ export default function NovoPecaPage() {
     }
   }
 
+  if (authorized === false) {
+    return <main className="min-h-screen bg-gray-800 px-4 py-8 text-white sm:px-6 sm:py-10">entrada não autorizada</main>;
+  }
+
+  if (authorized === null) {
+    return <main className="min-h-screen bg-gray-800 px-4 py-8 text-white sm:px-6 sm:py-10">Carregando...</main>;
+  }
+
   return (
-    <main className="min-h-screen bg-gray-800 px-6 py-10 text-slate-900">
+    <main className="min-h-screen bg-gray-800 px-4 py-8 text-slate-900 sm:px-6 sm:py-10">
       <section className="mx-auto max-w-4xl">
         <p className="bg-gradient-to-br from-[#E8262C] to-[#B32025] bg-clip-text text-transparent text-sm font-bold uppercase tracking-widest">ReeferConecta</p>
-        <h1 className="mt-2 text-3xl font-bold text-white">Cadastrar nova peça</h1>
+        <h1 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Cadastrar nova peça</h1>
         <p className="mt-2 text-slate-600 text-white">Preencha as informações da peça.</p>
 
-        <form className="mt-8 grid gap-5 rounded-xl border border-slate-700 bg-gray-800 p-6 shadow-sm md:grid-cols-2" onSubmit={handleSubmit}>
+        <form className="mt-8 grid min-w-0 gap-5 rounded-xl border border-slate-700 bg-gray-800 p-4 shadow-sm sm:p-6 md:grid-cols-2" onSubmit={handleSubmit}>
           
           <label className="grid gap-2 text-sm font-semibold text-slate-200">
             Fabricante
@@ -262,7 +280,7 @@ export default function NovoPecaPage() {
 
           {submitted && <p className="rounded-lg bg-emerald-50 p-3 text-emerald-700 md:col-span-2">Informações preenchidas com sucesso. QC gerado: <strong>{generatedQc}</strong></p>}
 
-          <button className="rounded-lg bg-gradient-to-br from-[#E8262C] to-[#B32025] px-4 py-3 font-semibold text-white transition hover:brightness-110 md:col-span-2" type="submit" onClick={() => router.push("/pecas")} >
+          <button className="w-full rounded-lg bg-gradient-to-br from-[#E8262C] to-[#B32025] px-4 py-3 font-semibold text-white transition hover:brightness-110 md:col-span-2" type="submit" onClick={() => router.push("/pecas")} >
             Cadastrar peça
           </button>
         </form>

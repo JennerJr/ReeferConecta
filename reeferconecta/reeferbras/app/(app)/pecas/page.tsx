@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { canManagePieces } from "@/lib/authorization";
 
 type Piece = {
   id: number | string;
@@ -33,6 +34,7 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string>();
   const normalizedSearch = search.trim().toLowerCase();
   const filteredPieces = pieces
     .filter((piece) =>
@@ -49,6 +51,11 @@ export default function Home() {
   const visiblePieces = filteredPieces.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   useEffect(() => {
+    fetch("/api/auth/session")
+      .then((response) => response.json())
+      .then((data) => setRole(data.user?.role))
+      .catch(() => undefined);
+
     fetch("/api/pecas")
       .then(async (response) => {
         const data = await response.json();
@@ -62,12 +69,14 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen  px-6 py-10 text-slate-900">
+    <main className="min-h-screen px-4 py-8 text-slate-900 sm:px-6 sm:py-10">
       <section className="mx-auto max-w-6xl">
-        <header className="flex items-center justify-between gap-4">
+        <header className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div><p className="bg-gradient-to-br from-[#E8262C] to-[#B32025] bg-clip-text text-transparent text-sm font-bold uppercase tracking-widest">ReeferConecta</p>
-          <h1 className="mt-2 text-3xl text-white font-bold">Peças cadastradas</h1></div>
-          <Link className="rounded-lg bg-sky-700 px-4 py-2 font-semibold text-white hover:bg-sky-800" href="/pecas/novo">Nova peça</Link>
+          <h1 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Peças cadastradas</h1></div>
+          {canManagePieces(role) && (
+            <Link className="w-full rounded-lg bg-sky-700 px-4 py-3 text-center font-semibold text-white hover:bg-sky-800 sm:w-auto" href="/pecas/novo">Nova peça</Link>
+          )}
         </header>
         {loading && <p className="mt-8">Carregando peças...</p>}
         {error && <p className="mt-8 rounded-lg bg-red-50 p-4 text-red-700">{error}</p>}
@@ -91,11 +100,11 @@ export default function Home() {
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           {visiblePieces.map((piece) => (
             <Link
-              className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-sky-500"
+              className="min-w-0 rounded-lg border border-slate-200 bg-white p-4 shadow-sm hover:border-sky-500 sm:p-5"
               href={`/pecas/${encodeURIComponent(String(piece.id ?? ''))}`}
               key={String(piece.id)}
             >
-              <h2 className="font-bold">{piece.nome || "Peça sem nome"}, {piece.fabricante || "sem fabricante informado"}, {formatArrivalDate(piece.dataChegada)}</h2>
+              <h2 className="break-words font-bold">{piece.nome || "Peça sem nome"}, {piece.fabricante || "sem fabricante informado"}, {formatArrivalDate(piece.dataChegada)}</h2>
               <p className="mt-2 text-sm text-slate-600">Serial: {piece.serialNumber || "Não informado"},QC: {piece.qc || "Não informado"}</p>
               <p className="text-sm text-slate-600">Localidade: {piece.localidade || "Não informado"}</p>
               <p className="text-sm text-slate-600">Status: {piece.situacaoAtual || "Não informado"}</p>
@@ -103,7 +112,7 @@ export default function Home() {
           ))}
         </div>
         {totalPages > 1 && (
-          <nav className="mt-8 flex items-center justify-center gap-4" aria-label="Paginação das peças">
+          <nav className="mt-8 flex flex-wrap items-center justify-center gap-3" aria-label="Paginação das peças">
             <button
               className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
               type="button"

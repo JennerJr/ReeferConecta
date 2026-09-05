@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
+import { canManagePieces } from "@/lib/authorization";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -28,8 +29,14 @@ export default function EditarPecaPage({ params }: PageProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [deliveredBy, setDeliveredBy] = useState("");
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
+    fetch("/api/auth/session")
+      .then((response) => response.json())
+      .then((data) => setAuthorized(canManagePieces(data.user?.role)))
+      .catch(() => setAuthorized(false));
+
     fetch("/api/pecas")
       .then(async (response) => {
         const data = await response.json();
@@ -83,8 +90,10 @@ export default function EditarPecaPage({ params }: PageProps) {
     }
   };
 
-  if (loading) return <main className="mx-auto max-w-3xl px-6 py-10">Carregando...</main>;
-  if (!piece) return <main className="mx-auto max-w-3xl px-6 py-10 text-red-700">{error}</main>;
+  if (loading) return <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">Carregando...</main>;
+  if (authorized === false) return <main className="mx-auto max-w-3xl px-4 py-8 text-white sm:px-6 sm:py-10">entrada não autorizada</main>;
+  if (authorized === null) return <main className="mx-auto max-w-3xl px-4 py-8 text-white sm:px-6 sm:py-10">Carregando...</main>;
+  if (!piece) return <main className="mx-auto max-w-3xl px-4 py-8 text-red-700 sm:px-6 sm:py-10">{error}</main>;
 
   const fields = [
     { label: "Nome", key: "nome" as const },
@@ -108,7 +117,7 @@ export default function EditarPecaPage({ params }: PageProps) {
   ];
 
   return (
-    <main className="min-h-screen  px-6 py-10 text-slate-900">
+    <main className="min-h-screen px-4 py-8 text-slate-900 sm:px-6 sm:py-10">
       <section className="mx-auto max-w-3xl">
         <Link className="text-sm font-semibold text-sky-700" href={`/pecas/${id}`}>
           ← Voltar para detalhes
@@ -118,7 +127,7 @@ export default function EditarPecaPage({ params }: PageProps) {
 
         {error && <div className="mt-4 rounded-lg bg-red-100 p-4 text-red-700">{error}</div>}
 
-        <form className="mt-8 space-y-4 rounded-lg text-white border border-slate-200 p-6">
+        <form className="mt-8 space-y-4 rounded-lg border border-slate-200 p-4 text-white sm:p-6">
           {fields.map(({ label, key, type, options }) => (
             <div key={key}>
               <label className="block text-sm text-white font-medium mb-2">{label}</label>
@@ -158,19 +167,19 @@ export default function EditarPecaPage({ params }: PageProps) {
             </label>
           )}
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:gap-4">
             <button
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="rounded-lg bg-green-600 px-6 py-2 font-semibold text-white hover:bg-green-700 disabled:opacity-50"
+              className="w-full rounded-lg bg-green-600 px-6 py-3 font-semibold text-white hover:bg-green-700 disabled:opacity-50 sm:w-auto"
             >
               {saving ? "Salvando..." : "💾 Salvar"}
             </button>
             <button
               type="button"
               onClick={() => router.back()}
-              className="rounded-lg bg-slate-400 px-6 py-2 font-semibold text-white hover:bg-slate-500"
+              className="w-full rounded-lg bg-slate-400 px-6 py-3 font-semibold text-white hover:bg-slate-500 sm:w-auto"
             >
               Cancelar
             </button>

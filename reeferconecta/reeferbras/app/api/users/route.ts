@@ -3,6 +3,7 @@ import { ObjectId } from "mongodb";
 import bcrypt from "bcryptjs";
 import clientPromise from "@/lib/mongodb";
 import { getSessionUser } from "@/lib/auth-session";
+import { canAccessTeams, employeeRoles } from "@/lib/authorization";
 
 type UserInput = {
   name?: string;
@@ -23,6 +24,7 @@ function normalizeUser(input: UserInput) {
 function validateUser(user: ReturnType<typeof normalizeUser>) {
   if (!user.name) return "Nome é obrigatório";
   if (!user.email || !/^\S+@\S+\.\S+$/.test(user.email)) return "E-mail inválido";
+  if (!employeeRoles.some((role) => role.toLowerCase() === user.role.toLowerCase())) return "Role inválida";
   return null;
 }
 
@@ -39,6 +41,19 @@ async function usersCollection() {
 export async function GET(request: NextRequest) {
   try {
     const sessionUser = await getSessionUser();
+    if (request.nextUrl.searchParams.get("all") === "true") {
+      if (!canAccessTeams(sessionUser?.role)) {
+        return NextResponse.json({ error: "Entrada não autorizada" }, { status: 403 });
+      }
+
+      const collection = await usersCollection();
+      const users = await collection
+        .find({}, { projection: { passwordHash: 0 } })
+        .sort({ name: 1 })
+        .toArray();
+      return NextResponse.json({ users: users.map((user) => serializeUser(user)) });
+    }
+
     const email = sessionUser?.email || request.nextUrl.searchParams.get("email")?.trim().toLowerCase();
     if (!email) return NextResponse.json({ user: null }, { status: 401 });
     const collection = await usersCollection();
@@ -53,13 +68,23 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const sessionUser = await getSessionUser();
+    if (!canAccessTeams(sessionUser?.role)) {
+      return NextResponse.json({ error: "Entrada não autorizada" }, { status: 403 });
+    }
+
     const user = normalizeUser((await request.json()) as UserInput);
     const validationError = validateUser(user);
     if (validationError) return NextResponse.json({ error: validationError }, { status: 400 });
 
     const collection = await usersCollection();
     const now = new Date();
-    const document = { ...user, createdAt: now, updatedAt: now };
+    const document = {
+      ...user,
+      passwordHash: await bcrypt.hash("reeferconecta", 12),
+      createdAt: now,
+      updatedAt: now,
+    };
     const result = await collection.insertOne(document);
 
     return NextResponse.json({ user: serializeUser({ ...document, _id: result.insertedId }) }, { status: 201 });

@@ -156,7 +156,7 @@ export default function ProfilePage() {
         <p className="mt-2 text-sm text-gray-400">Seu usuário é carregado automaticamente. Altere somente a foto do perfil.</p>
       </div>
 
-      <form onSubmit={saveUser} className="space-y-5 rounded-lg border border-white/10 bg-gray-900/70 p-6">
+      <form onSubmit={saveUser} className="space-y-5 rounded-lg border border-white/10 bg-gray-900/70 p-4 sm:p-6">
         <label className="block text-sm text-gray-300">Nome<input readOnly value={user.name} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>
         <label className="block text-sm text-gray-300">E-mail<input readOnly type="email" value={user.email} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>
         <label className="block text-sm text-gray-300">Perfil<input readOnly value={user.role} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>
@@ -171,11 +171,11 @@ export default function ProfilePage() {
           </div>
           <p className="mt-2 text-xs text-gray-500">PNG, JPG, GIF ou WEBP, até 10 MB. A imagem será reduzida para no máximo 800×800 px.</p>
         </div>
-        <div className="pt-2"><button disabled={loading || !userId} type="submit" className="rounded-md bg-emerald-400 px-5 py-3 font-semibold text-gray-950 hover:bg-emerald-300 disabled:opacity-50">Atualizar foto</button></div>
+        <div className="pt-2"><button disabled={loading || !userId} type="submit" className="w-full rounded-md bg-emerald-400 px-5 py-3 font-semibold text-gray-950 hover:bg-emerald-300 disabled:opacity-50 sm:w-auto">Atualizar foto</button></div>
         {status && <p role="status" className="text-sm text-gray-300">{status}</p>}
       </form>
 
-      <form onSubmit={changePassword} className="mt-6 space-y-5 rounded-lg border border-white/10 bg-gray-900/70 p-6">
+      <form onSubmit={changePassword} className="mt-6 space-y-5 rounded-lg border border-white/10 bg-gray-900/70 p-4 sm:p-6">
         <div>
           <h2 className="text-lg font-semibold text-white">Alterar senha</h2>
           <p className="mt-1 text-sm text-gray-400">Digite sua senha atual e escolha uma nova.</p>
@@ -183,7 +183,7 @@ export default function ProfilePage() {
         <label className="block text-sm text-gray-300">Senha atual<input required type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800 px-3 py-3 text-white outline-none focus:border-cyan-400" /></label>
         <label className="block text-sm text-gray-300">Nova senha<input required minLength={8} type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800 px-3 py-3 text-white outline-none focus:border-cyan-400" /></label>
         <label className="block text-sm text-gray-300">Confirmar nova senha<input required minLength={8} type="password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800 px-3 py-3 text-white outline-none focus:border-cyan-400" /></label>
-        <button disabled={loading || !userId} type="submit" className="rounded-md bg-cyan-400 px-5 py-3 font-semibold text-gray-950 hover:bg-cyan-300 disabled:opacity-50">Alterar senha</button>
+        <button disabled={loading || !userId} type="submit" className="w-full rounded-md bg-cyan-400 px-5 py-3 font-semibold text-gray-950 hover:bg-cyan-300 disabled:opacity-50 sm:w-auto">Alterar senha</button>
       </form>
     </section>
   )

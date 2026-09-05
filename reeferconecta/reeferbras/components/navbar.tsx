@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { canAccessTeams } from '@/lib/authorization';
 
 function Bars3Icon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -31,7 +32,7 @@ function XMarkIcon(props: React.SVGProps<SVGSVGElement>) {
 const defaultUser = {
   name: 'Usuário',
   email: '',
-  tag: 'admin',
+  role: '',
   imageUrl:
     'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
 }
@@ -94,9 +95,9 @@ export default function Navbar() {
               
               />
             </div>
-            <div >
-              <div className="ml-10 flex items-baseline space-x-4">
-                {navigation.map((item) => (
+            <div className="min-w-0">
+              <div className="ml-4 hidden flex-wrap items-baseline gap-2 lg:flex xl:ml-10">
+                {navigation.filter((item) => item.href !== '/times' || canAccessTeams(user.role)).map((item) => (
                   <a
                     key={item.name}
                     href={item.href}
@@ -112,7 +113,7 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <div className="ml-4 flex items-center md:ml-6">
               <button
                 type="button"
@@ -160,7 +161,7 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-          <div className="-mr-2  flex md:hidden">
+          <div className="-mr-2 flex lg:hidden">
             <button
               type="button"
               onClick={() => setMobileMenuOpen((prev) => !prev)}
@@ -177,9 +178,9 @@ export default function Navbar() {
       </div>
 
       {mobileMenuOpen && (
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
-            {navigation.map((item) => (
+            {navigation.filter((item) => item.href !== '/times' || canAccessTeams(user.role)).map((item) => (
               <a
                 key={item.name}
                 href={item.href}

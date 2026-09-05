@@ -1,12 +1,20 @@
 
-
+import { redirect } from 'next/navigation'
+import { getSessionUser } from '@/lib/auth-session'
 import Navbar from '@/components/navbar'
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  try {
+    const user = await getSessionUser()
+    if (!user) redirect('/login')
+  } catch {
+    redirect('/login')
+  }
+
   return (
     <div className="min-h-screen bg-gray-800">
       <Navbar />
