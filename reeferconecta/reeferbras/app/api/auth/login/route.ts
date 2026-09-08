@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import getMongoClient from "@/lib/mongodb";
+import getMongoClient, { getMongoCollectionName, getMongoDatabaseName } from "@/lib/mongodb";
 import { createSession } from "@/lib/auth-session";
+
+type UserRecord = {
+  name: string;
+  email: string;
+  role?: string;
+  imageUrl?: string;
+  passwordHash?: string;
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,10 +20,9 @@ export async function POST(request: NextRequest) {
     }
 
     const client = await getMongoClient();
-    const record = await client
-      .db(process.env.MONGODB_DATABASE || "reeferconecta")
-      .collection("creddb")
-      .findOne<{ _id: { toString(): string }; name: string; email: string; role?: string; imageUrl?: string; passwordHash?: string }>({ email });
+    const databaseName = getMongoDatabaseName();
+    const collection = client.db(databaseName).collection<UserRecord>(getMongoCollectionName());
+    const record = await collection.findOne({ email });
 
     if (!record?.passwordHash || !(await bcrypt.compare(input.password, record.passwordHash))) {
       return NextResponse.json({ error: "E-mail ou senha inválidos" }, { status: 401 });

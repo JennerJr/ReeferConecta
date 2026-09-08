@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "node:crypto";
 import { getSessionUser } from "@/lib/auth-session";
 import { canManagePieces } from "@/lib/authorization";
 import getMongoClient from "@/lib/mongodb";
@@ -37,6 +38,7 @@ interface PecaDocument {
   qc: string;
   createdAt: string;
   reports?: RepairReport[];
+  history?: PieceHistory[];
 }
 
 export interface RepairReport {
@@ -44,6 +46,14 @@ export interface RepairReport {
   responsavelReparo: string;
   descricaoReparo: string;
   situacaoAtual: string;
+  createdAt: string;
+}
+
+export interface PieceHistory {
+  id: string;
+  action: "created" | "updated" | "report";
+  details: string;
+  userName: string;
   createdAt: string;
 }
 
@@ -140,6 +150,13 @@ export async function POST(request: NextRequest) {
     const nextId = (lastPiece?.id ?? 0) + 1;
     const qc = generateQC(piece, nextId);
     const now = new Date().toISOString();
+    const history: PieceHistory = {
+      id: randomUUID(),
+      action: "created",
+      details: "Peça cadastrada",
+      userName: user?.name || "Usuário desconhecido",
+      createdAt: now,
+    };
 
     const doc: PecaDocument = {
       id: nextId,
@@ -155,6 +172,7 @@ export async function POST(request: NextRequest) {
       dataSaida: piece.dataSaida,
       qc,
       createdAt: now,
+      history: [history],
     };
 
     await collection.insertOne(doc);
@@ -206,12 +224,34 @@ export async function PUT(request: NextRequest) {
       qc: current.qc,
       createdAt: current.createdAt,
       reports: current.reports,
+      history: current.history,
     };
     const errors = validatePiece(updated);
 
     if (errors.length) {
       return NextResponse.json({ erro: errors.join("; ") }, { status: 400 });
     }
+
+    const changedFields = [
+      ["Nome", current.nome, updated.nome],
+      ["Serial Number", current.serialNumber, updated.serialNumber],
+      ["Fabricante", current.fabricante, updated.fabricante],
+      ["Localidade", current.localidade, updated.localidade],
+      ["Técnico responsável", current.tecnicoResponsavel, updated.tecnicoResponsavel],
+      ["Data de chegada", current.dataChegada, updated.dataChegada],
+      ["Data de saída", current.dataSaida, updated.dataSaida],
+      ["Situação atual", current.situacaoAtual, updated.situacaoAtual],
+    ]
+      .filter(([, previous, next]) => previous !== next)
+      .map(([label, previous, next]) => `${label}: ${previous || "vazio"} → ${next || "vazio"}`);
+    const history: PieceHistory = {
+      id: randomUUID(),
+      action: "updated",
+      details: changedFields.length ? `Alterações: ${changedFields.join("; ")}` : "Dados revisados sem alterações",
+      userName: user?.name || "Usuário desconhecido",
+      createdAt: new Date().toISOString(),
+    };
+    updated.history = [...(current.history ?? []), history];
 
     await collection.updateOne({ id }, { $set: updated });
 

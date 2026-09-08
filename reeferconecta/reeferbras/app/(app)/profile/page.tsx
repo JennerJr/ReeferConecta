@@ -159,7 +159,7 @@ export default function ProfilePage() {
       <form onSubmit={saveUser} className="space-y-5 rounded-lg border border-white/10 bg-gray-900/70 p-4 sm:p-6">
         <label className="block text-sm text-gray-300">Nome<input readOnly value={user.name} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>
         <label className="block text-sm text-gray-300">E-mail<input readOnly type="email" value={user.email} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>
-        <label className="block text-sm text-gray-300">Perfil<input readOnly value={user.role} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>
+        <label className="block text-sm text-gray-300">Setor<input readOnly value={user.role} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>
         <div className="block text-sm text-gray-300">
           Foto do perfil
           <div className="mt-2 flex flex-wrap items-center gap-4">

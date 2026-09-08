@@ -5,6 +5,16 @@ import { employeeRoles } from "@/lib/authorization";
 
 const roles = employeeRoles;
 
+function generateEmployeeEmail(name: string) {
+  const identifier = name
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+  return identifier ? `${identifier}@reeferbras.com` : "";
+}
+
 export default function NewEmployeeForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -54,7 +64,11 @@ export default function NewEmployeeForm() {
           <input
             required
             value={name}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) => {
+              const nextName = event.target.value;
+              setName(nextName);
+              setEmail(generateEmployeeEmail(nextName));
+            }}
             className="mt-2 w-full rounded-md border border-white/10 bg-gray-800 px-3 py-3 text-white outline-none focus:border-cyan-400"
           />
         </label>
@@ -63,9 +77,9 @@ export default function NewEmployeeForm() {
           E-mail
           <input
             required
-            type="email"
+            type="text"
+            readOnly
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
             className="mt-2 w-full rounded-md border border-white/10 bg-gray-800 px-3 py-3 text-white outline-none focus:border-cyan-400"
           />
         </label>

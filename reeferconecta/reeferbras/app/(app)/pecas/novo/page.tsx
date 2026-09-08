@@ -1,34 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { canManagePieces } from "@/lib/authorization";
 import carrierParts from "@/data/carrier.json";
 import daikinParts from "@/data/daikin.json";
 import starcoolParts from "@/data/starcool.json";
 import thermokingParts from "@/data/thermoking.json";
 
-type PecaForm = {
-  id: string;  
-  dataChegada: string;
+type PieceForm = {
   nome: string;
   serialNumber: string;
   fabricante: string;
   localidade: string;
   tecnicoResponsavel: string;
-  dataSaida: string;
   situacaoAtual: string;
-  qc: string;
-  imagemUrl?: string;
-};
-
-type SearchResult = {
-  name: string;
-  manufacturer: string;
-  link: string;
-  snippet: string;
-  imageUrl?: string;
+  deliveredBy: string;
+  imagemUrl: string;
 };
 
 type CatalogPart = {
@@ -45,20 +32,24 @@ const partsByManufacturer: Record<string, CatalogPart[]> = {
   "Thermo King": thermokingParts,
 };
 
+const situations = [
+  ["ReparoComum", "Em reparo - Devolver para o mesmo"],
+  ["ReparoTroca", "Em reparo - Estoque"],
+  ["ReparoIncomum", "Em reparo - Entregue por:"],
+] as const;
 
-const initialForm: PecaForm = {
-  id:"",  
-  dataChegada: "",
-  nome: "",
-  serialNumber: "",
-  fabricante: "",
-  localidade: "",
-  tecnicoResponsavel: "",
-  dataSaida: "",
-  situacaoAtual: "",
-  qc: "",
-  imagemUrl: "",
-};
+function createInitialForm(): PieceForm {
+  return {
+    nome: "",
+    serialNumber: "",
+    fabricante: "",
+    localidade: "",
+    tecnicoResponsavel: "",
+    situacaoAtual: "",
+    deliveredBy: "",
+    imagemUrl: "",
+  };
+}
 
 function getCurrentDateTimeLocal() {
   const now = new Date();
@@ -67,15 +58,12 @@ function getCurrentDateTimeLocal() {
 }
 
 export default function NovoPecaPage() {
-  const router = useRouter();
-
-  const [form, setForm] = useState<PecaForm>(initialForm);
+  const [pieceCount, setPieceCount] = useState(1);
+  const [forms, setForms] = useState<PieceForm[]>([createInitialForm()]);
   const [submitted, setSubmitted] = useState(false);
-  const [searching, setSearching] = useState(false);
-  const [searchError, setSearchError] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [generatedQc, setGeneratedQc] = useState("");
-  const [deliveredBy, setDeliveredBy] = useState("");
+  const [generatedQcs, setGeneratedQcs] = useState<string[]>([]);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -85,207 +73,157 @@ export default function NovoPecaPage() {
       .catch(() => setAuthorized(false));
   }, []);
 
-  function updateField(field: keyof PecaForm, value: string) {
-    setForm((current) => ({ ...current, [field]: value }));
+  function changePieceCount(value: number) {
+    const nextCount = Math.min(50, Math.max(1, value || 1));
+    setPieceCount(nextCount);
+    setForms((currentForms) => Array.from({ length: nextCount }, (_, index) => currentForms[index] ?? createInitialForm()));
+    setSubmitted(false);
+    setGeneratedQcs([]);
+  }
+
+  function updateField(index: number, field: keyof PieceForm, value: string) {
+    setForms((currentForms) => currentForms.map((form, formIndex) => formIndex === index ? { ...form, [field]: value } : form));
     setSubmitted(false);
   }
 
-  function handleManufacturerChange(value: string) {
-    setForm((current) => ({
-      ...current,
-      fabricante: value,
-      nome: "",
-      imagemUrl: "",
-    }));
+  function handleManufacturerChange(index: number, value: string) {
+    setForms((currentForms) => currentForms.map((form, formIndex) => formIndex === index
+      ? { ...form, fabricante: value, nome: "", imagemUrl: "" }
+      : form));
     setSubmitted(false);
   }
 
-  function handlePartNameChange(value: string) {
-    const selectedPart = (partsByManufacturer[form.fabricante] ?? []).find(
-      (part) => part.descricao === value,
-    );
-    setForm((current) => ({
-      ...current,
-      nome: value,
-      imagemUrl: selectedPart?.imagem ?? "",
-    }));
+  function handlePartNameChange(index: number, value: string) {
+    const selectedManufacturer = forms[index]?.fabricante;
+    const selectedPart = (partsByManufacturer[selectedManufacturer] ?? []).find((part) => part.descricao === value);
+    setForms((currentForms) => currentForms.map((form, formIndex) => formIndex === index
+      ? { ...form, nome: value, imagemUrl: selectedPart?.imagem ?? "" }
+      : form));
     setSubmitted(false);
   }
 
-  function handleSituationChange(value: string) {
-    updateField("situacaoAtual", value);
-    if (value !== "ReparoIncomum") setDeliveredBy("");
-  }
-
-  function handlePartNumberChange(value: string) {
-    setForm((current) => ({
-      ...current,
-      partNumber: value,
-      nome: "",
-      fabricante: "",
-    }));
-    setGeneratedQc("");
+  function handleSituationChange(index: number, value: string) {
+    setForms((currentForms) => currentForms.map((form, formIndex) => formIndex === index
+      ? { ...form, situacaoAtual: value, deliveredBy: value === "ReparoIncomum" ? form.deliveredBy : "" }
+      : form));
     setSubmitted(false);
-    setSearchError("");
   }
 
-
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError("");
+    setSubmitted(false);
+    setSaving(true);
 
-    const requiredFields: Array<[keyof PecaForm, string]> = [
-      ["nome", "Nome"],
-      ["fabricante", "Fabricante"],
-      ["tecnicoResponsavel", "Técnico Responsável"],
-    ];
-    const emptyField = requiredFields.find(([field]) => {
-      const value = form[field];
-      return typeof value !== "string" || !value.trim();
-    });
-
-    if (emptyField) {
-      setSubmitted(false);
-      setSearchError(`O campo ${emptyField[1]} é obrigatório.`);
-      return;
-    }
-
-    setSearchError("");
     try {
-      const response = await fetch("/api/pecas", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nome: form.nome,
-          serialNumber: form.serialNumber,
-          fabricante: form.fabricante,
-          localidade: form.localidade,
-          tecnicoResponsavel: form.tecnicoResponsavel,
-          dataChegada: getCurrentDateTimeLocal(),
-          situacaoAtual:
-            form.situacaoAtual === "ReparoIncomum"
-              ? `Em reparo - Entregue por: ${deliveredBy.trim()}`
-              : form.situacaoAtual,
-          imagemUrl: form.imagemUrl ?? "",
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.erro ?? "Não foi possível salvar a peça.");
-      setGeneratedQc(data.qc);
+      for (const [index, form] of forms.entries()) {
+        const requiredFields: Array<[keyof PieceForm, string]> = [
+          ["nome", "Nome"],
+          ["fabricante", "Fabricante"],
+          ["serialNumber", "Serial Number"],
+          ["localidade", "Localidade"],
+          ["tecnicoResponsavel", "Técnico Responsável"],
+          ["situacaoAtual", "Situação Atual"],
+        ];
+        const emptyField = requiredFields.find(([field]) => !form[field].trim());
+        if (emptyField) throw new Error(`Peça ${index + 1}: o campo ${emptyField[1]} é obrigatório.`);
+        if (form.situacaoAtual === "ReparoIncomum" && !form.deliveredBy.trim()) {
+          throw new Error(`Peça ${index + 1}: informe quem entregou a peça.`);
+        }
+      }
+
+      const qcs: string[] = [];
+      for (const form of forms) {
+        const response = await fetch("/api/pecas", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nome: form.nome,
+            serialNumber: form.serialNumber,
+            fabricante: form.fabricante,
+            localidade: form.localidade,
+            tecnicoResponsavel: form.tecnicoResponsavel,
+            dataChegada: getCurrentDateTimeLocal(),
+            situacaoAtual: form.situacaoAtual === "ReparoIncomum"
+              ? `Em reparo - Entregue por: ${form.deliveredBy.trim()}`
+              : situations.find(([value]) => value === form.situacaoAtual)?.[1] ?? form.situacaoAtual,
+            imagemUrl: form.imagemUrl,
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.erro ?? "Não foi possível salvar uma das peças.");
+        qcs.push(data.qc);
+      }
+
+      setGeneratedQcs(qcs);
       setSubmitted(true);
-    } catch (error) {
-      setSearchError(error instanceof Error ? error.message : "Não foi possível salvar no banco local.");
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Não foi possível salvar as peças.");
+    } finally {
+      setSaving(false);
     }
   }
 
-  if (authorized === false) {
-    return <main className="min-h-screen bg-gray-800 px-4 py-8 text-white sm:px-6 sm:py-10">entrada não autorizada</main>;
-  }
-
-  if (authorized === null) {
-    return <main className="min-h-screen bg-gray-800 px-4 py-8 text-white sm:px-6 sm:py-10">Carregando...</main>;
-  }
+  if (authorized === false) return <main className="min-h-screen bg-gray-800 px-4 py-8 text-white">Entrada não autorizada</main>;
+  if (authorized === null) return <main className="min-h-screen bg-gray-800 px-4 py-8 text-white">Carregando...</main>;
 
   return (
     <main className="min-h-screen bg-gray-800 px-4 py-8 text-slate-900 sm:px-6 sm:py-10">
       <section className="mx-auto max-w-4xl">
         <p className="bg-gradient-to-br from-[#E8262C] to-[#B32025] bg-clip-text text-transparent text-sm font-bold uppercase tracking-widest">ReeferConecta</p>
-        <h1 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Cadastrar nova peça</h1>
-        <p className="mt-2 text-slate-600 text-white">Preencha as informações da peça.</p>
+        <h1 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Cadastrar novas peças</h1>
+        <p className="mt-2 text-white">Preencha os dados de cada peça para cadastrar várias no mesmo envio.</p>
 
-        <form className="mt-8 grid min-w-0 gap-5 rounded-xl border border-slate-700 bg-gray-800 p-4 shadow-sm sm:p-6 md:grid-cols-2" onSubmit={handleSubmit}>
-          
-          <label className="grid gap-2 text-sm font-semibold text-slate-200">
-            Fabricante
-            <select className="rounded-lg border border-slate-300  px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.fabricante} onChange={(event) => handleManufacturerChange(event.target.value)}>
-              <option className="text-black" value="">Selecione um fabricante</option>
-              <option className="text-black" value="Carrier">Carrier</option>
-              <option className="text-black" value="Daikin">Daikin</option>
-              <option className="text-black" value="Star Cool">Star Cool</option>
-              <option className="text-black" value="Thermo King">Thermo King</option>              
-            </select>
-          </label>
-          
-          <label className="grid gap-2 text-sm font-semibold text-slate-200">
-            Nome da peça
-            <select className="rounded-lg border border-slate-300  px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required disabled={!form.fabricante || !(partsByManufacturer[form.fabricante]?.length)} value={form.nome} onChange={(event) => handlePartNameChange(event.target.value)}>
-              <option value="">
-                {form.fabricante ? "Selecione uma peça" : "Selecione primeiro o fabricante"}
-              </option>
-              {(partsByManufacturer[form.fabricante] ?? []).map((part) => (
-                <option className="text-black" key={`${part.descricao}-${part.componente}`} value={part.descricao}>
-                  {part.descricao}
-                </option>
-              ))}
-            </select>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <label className="grid max-w-xs gap-2 text-sm font-semibold text-slate-200">
+            Quantidade de peças
+            <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" min="1" max="50" value={pieceCount} onChange={(event) => changePieceCount(Number(event.target.value))} required />
           </label>
 
-          <label className="grid gap-2 text-sm font-semibold text-slate-200">
-            Serial Number
-            <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.serialNumber} onChange={(event) => updateField("serialNumber", event.target.value)} />
-          </label>
+          {forms.map((form, index) => (
+            <section className="grid min-w-0 gap-5 rounded-xl border border-slate-700 bg-gray-800 p-4 shadow-sm sm:p-6 md:grid-cols-2" key={index}>
+              <h2 className="text-xl font-semibold text-white md:col-span-2">Peça {index + 1}</h2>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Fabricante
+                <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.fabricante} onChange={(event) => handleManufacturerChange(index, event.target.value)}>
+                  <option value="">Selecione um fabricante</option>
+                  {Object.keys(partsByManufacturer).map((manufacturer) => <option className="text-black" key={manufacturer} value={manufacturer}>{manufacturer}</option>)}
+                </select>
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Nome da peça
+                <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required disabled={!form.fabricante} value={form.nome} onChange={(event) => handlePartNameChange(index, event.target.value)}>
+                  <option value="">{form.fabricante ? "Selecione uma peça" : "Selecione primeiro o fabricante"}</option>
+                  {(partsByManufacturer[form.fabricante] ?? []).map((part) => <option className="text-black" key={`${part.descricao}-${part.componente}`} value={part.descricao}>{part.descricao}</option>)}
+                </select>
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Serial Number
+                <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.serialNumber} onChange={(event) => updateField(index, "serialNumber", event.target.value)} />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Localidade
+                <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.localidade} onChange={(event) => updateField(index, "localidade", event.target.value)}>
+                  <option value="">Selecione uma localidade</option>
+                  {["Santos", "Itajaí", "Paranaguá", "Guarujá", "Rio Grande"].map((location) => <option className="text-black" key={location} value={location}>{location}</option>)}
+                </select>
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Técnico Responsável
+                <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.tecnicoResponsavel} onChange={(event) => updateField(index, "tecnicoResponsavel", event.target.value)} />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200 md:col-span-2">Situação Atual
+                <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.situacaoAtual} onChange={(event) => handleSituationChange(index, event.target.value)}>
+                  <option value="">Selecione uma situação</option>
+                  {situations.map(([value, label]) => <option className="text-black" key={value} value={value}>{label}</option>)}
+                </select>
+              </label>
+              {form.situacaoAtual === "ReparoIncomum" && <label className="grid gap-2 text-sm font-semibold text-slate-200 md:col-span-2">Nome de quem entregou
+                <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.deliveredBy} onChange={(event) => updateField(index, "deliveredBy", event.target.value)} placeholder="Digite o nome" />
+              </label>}
+            </section>
+          ))}
 
-          <label className="grid gap-2 text-sm text-slate-200 font-semibold md:col-span-2">
-            Localidade
-            <select className="rounded-lg border border-slate-300  px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.localidade} onChange={(event) => updateField("localidade", event.target.value)}>
-                            <option className="text-black" value="">Selecione uma localidade</option>
-              <option className="text-black" value="Santos">Santos</option>
-              <option className="text-black" value="Itajaí">Itajaí</option>
-              <option className="text-black" value="Paranaguá">Paranaguá</option>
-              <option className="text-black" value="Guarujá">Guarujá</option>
-              <option className="text-black" value="Rio Grande">Rio Grande</option>
-              
-            </select>
-          </label>
-
-
-          <label className="grid gap-2 text-sm font-semibold text-slate-200">
-            Técnico Responsável
-            <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.tecnicoResponsavel} onChange={(event) => updateField("tecnicoResponsavel", event.target.value)} />
-          </label>
-          
-          <label className="grid gap-2 text-sm text-slate-200 font-semibold md:col-span-2">
-            Situação Atual
-            <select className="rounded-lg border  border-slate-300  px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100" required value={form.situacaoAtual} onChange={(event) => handleSituationChange(event.target.value)}>
-              <option className="text-black" value="">Selecione uma situação</option>
-              <option className="text-black" value="ReparoComum">Em reparo - Devolver para o mesmo</option>
-              <option className="text-black" value="ReparoTroca">Em reparo - Estoque</option>
-              <option className="text-black" value="ReparoIncomum">Em reparo - Entregue por:</option>
-            </select>
-          </label>
-          {form.situacaoAtual === "ReparoIncomum" && (
-            <label className="grid gap-2 text-sm text-slate-200 font-semibold md:col-span-2">
-              Nome de quem entregou
-              <input
-                className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
-                required
-                value={deliveredBy}
-                onChange={(event) => {
-                  setDeliveredBy(event.target.value);
-                  setSubmitted(false);
-                }}
-                placeholder="Digite o nome"
-              />
-            </label>
-          )}
-
-          {searchError && <p className="rounded-lg bg-amber-50 p-3 text-amber-800 md:col-span-2">{searchError}</p>}
-          {searchResults.length > 0 && <div className="grid gap-3 rounded-lg bg-slate-50 p-4 md:col-span-2">
-            <p className="text-sm font-semibold">Resultados encontrados</p>
-            {searchResults.map((result, index) => <button className="text-left rounded-lg border border-slate-200 bg-white p-3 hover:border-sky-500" key={`${result.link}-${result.name}-${index}`} onClick={() => setForm((current) => ({ ...current, nome: result.name, fabricante: result.manufacturer, imagemUrl: result.imageUrl ?? "" }))} type="button">
-              <span className="block font-semibold">{result.name}</span>
-              {result.manufacturer && <span className="block text-sm text-slate-600">Fabricante: {result.manufacturer}</span>}
-              <span className="mt-1 block text-sm text-slate-500">{result.snippet}</span>
-            </button>)}
-          </div>}
-
-          {submitted && <p className="rounded-lg bg-emerald-50 p-3 text-emerald-700 md:col-span-2">Informações preenchidas com sucesso. QC gerado: <strong>{generatedQc}</strong></p>}
-
-          <button className="w-full rounded-lg bg-gradient-to-br from-[#E8262C] to-[#B32025] px-4 py-3 font-semibold text-white transition hover:brightness-110 md:col-span-2" type="submit" onClick={() => router.push("/pecas")} >
-            Cadastrar peça
-          </button>
+          {error && <p className="rounded-lg bg-amber-50 p-3 text-amber-800">{error}</p>}
+          {submitted && <p className="rounded-lg bg-emerald-50 p-3 text-emerald-700">{generatedQcs.length} peças cadastradas com sucesso. QCs gerados: <strong>{generatedQcs.join(", ")}</strong></p>}
+          <button className="w-full rounded-lg bg-gradient-to-br from-[#E8262C] to-[#B32025] px-4 py-3 font-semibold text-white transition hover:brightness-110 disabled:opacity-50" disabled={saving} type="submit">{saving ? `Cadastrando ${pieceCount} peças...` : `Cadastrar ${pieceCount} peças`}</button>
         </form>
       </section>
     </main>
-
   );
 }

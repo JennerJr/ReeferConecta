@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import bcrypt from "bcryptjs";
-import clientPromise from "@/lib/mongodb";
+import clientPromise, { getMongoCollectionName, getMongoDatabaseName } from "@/lib/mongodb";
 import { getSessionUser } from "@/lib/auth-session";
 import { canAccessTeams, employeeRoles } from "@/lib/authorization";
 
@@ -13,9 +13,15 @@ type UserInput = {
 };
 
 function normalizeUser(input: UserInput) {
+  const name = input.name?.trim() ?? "";
+  const emailIdentifier = name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
   return {
-    name: input.name?.trim() ?? "",
-    email: input.email?.trim().toLowerCase() ?? "",
+    name,
+    email: emailIdentifier ? `${emailIdentifier}@reeferbras.com` : "",
     role: input.role?.trim() || "user",
     imageUrl: input.imageUrl?.trim() || "",
   };
@@ -35,7 +41,7 @@ function serializeUser(user: Record<string, unknown> | null) {
 
 async function usersCollection() {
   const client = await clientPromise();
-  return client.db(process.env.MONGODB_DATABASE || "reeferconecta").collection("creddb");
+  return client.db(getMongoDatabaseName()).collection(getMongoCollectionName());
 }
 
 export async function GET(request: NextRequest) {

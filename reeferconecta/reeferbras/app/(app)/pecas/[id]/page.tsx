@@ -21,6 +21,7 @@ type Piece = {
   dataSaida?: string;
   createdAt?: string;
   reports?: RepairReport[];
+  history?: PieceHistory[];
 };
 
 type RepairReport = {
@@ -28,6 +29,14 @@ type RepairReport = {
   responsavelReparo: string;
   descricaoReparo: string;
   situacaoAtual: string;
+  createdAt: string;
+};
+
+type PieceHistory = {
+  id: string;
+  action: "created" | "updated" | "report";
+  details: string;
+  userName: string;
   createdAt: string;
 };
 
@@ -99,7 +108,7 @@ export default function PecaPage({ params }: PageProps) {
 
         <nav className="mt-6 flex gap-2 border-b border-slate-600 pb-2" aria-label="Navegação da peça">
           <Link className="rounded-lg bg-sky-700 px-4 py-2 text-sm font-semibold text-white" href={`/pecas/${id}`}>Dados da peça</Link>
-          <Link className="rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-500" href={`/pecas/${id}#reports`}>Reports ({piece.reports?.length ?? 0})</Link>
+          <Link className="rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-500" href={`/pecas/${id}/reports`}>Reports ({piece.reports?.length ?? 0})</Link>
         </nav>
         
         <div className="mt-8 grid gap-4 rounded-lg border border-slate-200 bg-white p-4 md:grid-cols-2 sm:p-6">
@@ -107,6 +116,27 @@ export default function PecaPage({ params }: PageProps) {
             <p key={label}><strong>{label}:</strong> {value ?? "Não informado"}</p>
           ))}
         </div>
+
+        <section className="mt-6 rounded-lg border border-slate-200 bg-white p-4 sm:p-6">
+          <h2 className="text-xl font-semibold">Histórico da peça</h2>
+          {!piece.history?.length ? <p className="mt-4 text-slate-600">Nenhuma alteração registrada.</p> : (
+            <ol className="mt-4 grid gap-3">
+              {[...piece.history]
+                .sort((first, second) => new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime())
+                .map((entry) => (
+                  <li className="border-l-2 border-sky-600 pl-4" key={entry.id}>
+                    <p className="font-semibold text-slate-900">
+                      {entry.action === "report" ? "Report realizado" : entry.action === "updated" ? "Peça alterada" : "Peça cadastrada"}
+                    </p>
+                    <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{entry.details}</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {new Date(entry.createdAt).toLocaleString("pt-BR")} · por {entry.userName}
+                    </p>
+                  </li>
+                ))}
+            </ol>
+          )}
+        </section>
         
         {imageUrl && (
           <div className="mt-6 rounded-lg border border-slate-200 bg-white p-6">
@@ -120,22 +150,6 @@ export default function PecaPage({ params }: PageProps) {
           </div>
         )}
 
-        <section id="reports" className="mt-6 rounded-lg border border-slate-200 bg-white p-4 sm:p-6">
-          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-            <h2 className="text-xl font-semibold">Reports de reparo</h2>
-            {canManagePieces(role) && <Link className="rounded-lg bg-red-700 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-red-800" href="/reports/novo">Novo report</Link>}
-          </div>
-          {!piece.reports?.length ? <p className="mt-4 text-slate-600">Nenhum report registrado.</p> : (
-            <div className="mt-4 grid gap-4">
-              {piece.reports.map((report) => <article className="rounded-lg border border-slate-200 p-4" key={report.id}>
-                <p><strong>Responsável:</strong> {report.responsavelReparo}</p>
-                <p><strong>Situação:</strong> {report.situacaoAtual}</p>
-                <p className="mt-2 whitespace-pre-wrap"><strong>Descrição:</strong> {report.descricaoReparo}</p>
-                <p className="mt-2 text-sm text-slate-500">{new Date(report.createdAt).toLocaleString("pt-BR")}</p>
-              </article>)}
-            </div>
-          )}
-        </section>
       </section>
     </main>
   );

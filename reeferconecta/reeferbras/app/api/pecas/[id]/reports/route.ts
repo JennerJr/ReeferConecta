@@ -17,6 +17,15 @@ type PieceDocument = {
   qc: string;
   situacaoAtual?: string;
   reports?: RepairReport[];
+  history?: PieceHistory[];
+};
+
+type PieceHistory = {
+  id: string;
+  action: "created" | "updated" | "report";
+  details: string;
+  userName: string;
+  createdAt: string;
 };
 
 const databaseName = process.env.MONGODB_DATABASE_PECAS || "pecas";
@@ -40,8 +49,8 @@ export async function POST(
     const body = (await request.json()) as Partial<RepairReport> & { qc?: string };
     const responsavelReparo = body.responsavelReparo?.trim();
     const descricaoReparo = body.descricaoReparo?.trim();
-    const situacaoAtual = body.situacaoAtual?.trim();
-    if (!responsavelReparo || !descricaoReparo || !situacaoAtual || !body.qc?.trim()) {
+    const submittedSituation = body.situacaoAtual?.trim();
+    if (!responsavelReparo || !descricaoReparo || !submittedSituation || !body.qc?.trim()) {
       return NextResponse.json({ erro: "Preencha o QC, responsável, descrição e situação." }, { status: 400 });
     }
 
@@ -56,6 +65,11 @@ export async function POST(
       return NextResponse.json({ erro: "QC não corresponde à peça selecionada." }, { status: 400 });
     }
 
+    const replacement = submittedSituation === "Sem condições de reparo"
+      ? "Sem condições de reparo"
+      : "OK";
+    const situacaoAtual = piece.situacaoAtual?.replace(/^Em reparo\b/i, replacement) || submittedSituation;
+
     const report: RepairReport = {
       id: randomUUID(),
       responsavelReparo,
@@ -63,9 +77,22 @@ export async function POST(
       situacaoAtual,
       createdAt: new Date().toISOString(),
     };
+    const history: PieceHistory = {
+      id: randomUUID(),
+      action: "report",
+      details: `Report criado. Situação: ${situacaoAtual}. Descrição: ${descricaoReparo}`,
+      userName: user?.name || "Usuário desconhecido",
+      createdAt: report.createdAt,
+    };
     await collection.updateOne(
       { id },
-      { $push: { reports: report }, $set: { situacaoAtual } },
+      {
+        $set: {
+          situacaoAtual,
+          reports: [...(piece.reports ?? []), report],
+          history: [...(piece.history ?? []), history],
+        },
+      },
     );
 
     return NextResponse.json({ success: true, report }, { status: 201 });
