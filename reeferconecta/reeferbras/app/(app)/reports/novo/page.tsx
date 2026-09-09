@@ -6,6 +6,10 @@ import { useRouter } from "next/navigation";
 
 type Piece = { id: number; qc?: string; nome?: string; fabricante?: string };
 
+const visualInspectionOptions = ["BIELA", "BOMBA DE LUBRIFICAÇÃO", "BORNE", "BUCHA", "CAMISA", "EIXO GIRA BREQUIM", "ESTATOR", "FILTRO", "PISTÕES", "PLACA DE VÁLVULAS"];
+const mechanicalAnalysisOptions = ["Anel Guia do SCROLL", "Bucha Exêntrica", "Bucha do Mancal", "Cabeçote", "Conjunto de virabrequim", "Disco de compressão", "Mancal de virabrequim", "Mola do mecanismo de flutuação", "Selo Flutuante", "SCROLL fixo", "SCROLL movel", "Válvula de Retenção"];
+const functionTestOptions = ["Corrente de operação entre 3A à 8A (BANCADA)", "Pressurização", "320 Psi à 400 Psi", "Teste em Container \"Baby\""];
+
 const situations = [
   "OK",
   "Sem condições de reparo",
@@ -19,6 +23,22 @@ export default function NovoReportPage() {
   const [responsavelReparo, setResponsavelReparo] = useState("");
   const [descricaoReparo, setDescricaoReparo] = useState("");
   const [situacaoAtual, setSituacaoAtual] = useState("");
+  const [role, setRole] = useState("");
+  const [resistencia, setResistencia] = useState("");
+  const [surge, setSurge] = useState(["", "", ""]);
+  const [mega, setMega] = useState("");
+  const [simulador, setSimulador] = useState("");
+  const [corrente, setCorrente] = useState("");
+  const [transformador, setTransformador] = useState("");
+  const [visualInspections, setVisualInspections] = useState<string[]>([]);
+  const [ordemServico, setOrdemServico] = useState("");
+  const [serialNumberReport, setSerialNumberReport] = useState("");
+  const [estatorTrocado, setEstatorTrocado] = useState("");
+  const [scroll, setScroll] = useState("");
+  const [reparoFalange, setReparoFalange] = useState("");
+  const [mechanicalAnalysis, setMechanicalAnalysis] = useState<string[]>([]);
+  const [functionTests, setFunctionTests] = useState<string[]>([]);
+  const [otherFunctionTest, setOtherFunctionTest] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [checking, setChecking] = useState(false);
@@ -27,7 +47,10 @@ export default function NovoReportPage() {
   useEffect(() => {
     fetch("/api/auth/session")
       .then((response) => response.json())
-      .then((data) => setResponsavelReparo(data.user?.name ?? ""))
+      .then((data) => {
+        setResponsavelReparo(data.user?.name ?? "");
+        setRole(data.user?.role?.trim().toLowerCase() ?? "");
+      })
       .catch(() => undefined);
   }, []);
 
@@ -43,6 +66,14 @@ export default function NovoReportPage() {
     setQcs((currentQcs) => currentQcs.map((currentQc, currentIndex) => currentIndex === index ? value : currentQc));
     setPieces([]);
     setMessage("");
+  }
+
+  function changeSurge(index: number, value: string) {
+    setSurge((current) => current.map((measurement, measurementIndex) => measurementIndex === index ? value : measurement));
+  }
+
+  function toggleSelection(value: string, selected: string[], setSelected: (values: string[]) => void) {
+    setSelected(selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value]);
   }
 
   async function validateQcs(event: React.FormEvent) {
@@ -74,6 +105,10 @@ export default function NovoReportPage() {
   async function saveReport(event: React.FormEvent) {
     event.preventDefault();
     if (!pieces.length) return;
+    if (role === "lab.elétrica" && surge.some(Boolean) && surge.some((measurement) => !measurement.trim())) {
+      setError("Preencha as três medições de Surge ou deixe todas vazias.");
+      return;
+    }
     setSaving(true);
     setError("");
     try {
@@ -81,7 +116,13 @@ export default function NovoReportPage() {
         const response = await fetch(`/api/pecas/${piece.id}/reports`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ qc: qcs[index], responsavelReparo, descricaoReparo, situacaoAtual }),
+          body: JSON.stringify({
+            qc: qcs[index], responsavelReparo, descricaoReparo, situacaoAtual,
+            resistencia, surge: surge.filter(Boolean).join(" / "), mega, simulador, corrente, transformador,
+            inspeçãoVisual: visualInspections.join(" / "), ordemServico, serialNumberReport, estatorTrocado,
+            scroll, reparoFalange, analiseMecanica: mechanicalAnalysis.join(" / "),
+            testeFuncionamento: functionTests.join(" / "), outroTesteFuncionamento: otherFunctionTest,
+          }),
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.erro ?? `Não foi possível salvar o report do QC ${qcs[index]}.`);
@@ -128,7 +169,7 @@ export default function NovoReportPage() {
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-200">
               Descrição do reparo
-              <textarea className="min-h-32 rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={descricaoReparo} onChange={(event) => setDescricaoReparo(event.target.value)} required />
+              <textarea className="min-h-32 rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={descricaoReparo} onChange={(event) => setDescricaoReparo(event.target.value)} />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-200">
               Situação atual
@@ -137,6 +178,26 @@ export default function NovoReportPage() {
                 {situations.map((situation) => <option key={situation} value={situation}>{situation}</option>)}
               </select>
             </label>
+            {role === "lab.elétrica" && <div className="grid gap-5 rounded-lg border border-slate-600 p-4">
+              <h2 className="text-lg font-semibold text-white">Medições elétricas</h2>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Resistência (Ω)<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" step="any" value={resistencia} onChange={(event) => setResistencia(event.target.value)} /></label>
+              <fieldset className="grid gap-2 text-sm font-semibold text-slate-200"><legend>Surge (%)</legend><div className="grid gap-3 sm:grid-cols-3">{surge.map((measurement, index) => <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" key={index} aria-label={`Medição Surge ${index + 1}`} type="number" step="any" value={measurement} onChange={(event) => changeSurge(index, event.target.value)} />)}</div></fieldset>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Mega (Ω)<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" step="any" value={mega} onChange={(event) => setMega(event.target.value)} /></label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Simulador<select className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-black outline-none" value={simulador} onChange={(event) => setSimulador(event.target.value)}><option value="">Não informado</option><option value="Passou">Passou</option><option value="Não passou">Não passou</option></select></label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Corrente (A)<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" step="any" value={corrente} onChange={(event) => setCorrente(event.target.value)} /></label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Transformador (V AC)<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" step="any" value={transformador} onChange={(event) => setTransformador(event.target.value)} /></label>
+            </div>}
+            {role === "cereco" && <div className="grid gap-5 rounded-lg border border-slate-600 p-4">
+              <h2 className="text-lg font-semibold text-white">Dados do Cereco</h2>
+              <fieldset className="grid gap-2 text-sm font-semibold text-slate-200"><legend>Inspeção visual</legend><div className="grid gap-2 sm:grid-cols-2">{visualInspectionOptions.map((option) => <label className="flex items-center gap-2 font-normal" key={option}><input type="checkbox" checked={visualInspections.includes(option)} onChange={() => toggleSelection(option, visualInspections, setVisualInspections)} />{option}</label>)}</div></fieldset>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Ordem de serviço<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" value={ordemServico} onChange={(event) => setOrdemServico(event.target.value)} /></label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Serial number<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={serialNumberReport} onChange={(event) => setSerialNumberReport(event.target.value)} pattern="[A-Za-z0-9]+" /></label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Estator trocado<select className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-black outline-none" value={estatorTrocado} onChange={(event) => setEstatorTrocado(event.target.value)}><option value="">Não informado</option><option value="Sim">Sim</option><option value="Não">Não</option></select></label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">SCROLL<select className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-black outline-none" value={scroll} onChange={(event) => { setScroll(event.target.value); if (event.target.value !== "Sim") { setReparoFalange(""); setMechanicalAnalysis([]); } }}><option value="">Não informado</option><option value="Sim">Sim</option><option value="Não">Não</option></select></label>
+              {scroll === "Sim" && <div className="grid gap-5 rounded-lg border border-slate-700 p-3"><label className="grid gap-2 text-sm font-semibold text-slate-200">Reparo da falange<select className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-black outline-none" value={reparoFalange} onChange={(event) => setReparoFalange(event.target.value)}><option value="">Não informado</option><option value="Sim">Sim</option><option value="Não">Não</option></select></label><fieldset className="grid gap-2 text-sm font-semibold text-slate-200"><legend>Análise mecânica</legend><div className="grid gap-2 sm:grid-cols-2">{mechanicalAnalysisOptions.map((option) => <label className="flex items-center gap-2 font-normal" key={option}><input type="checkbox" checked={mechanicalAnalysis.includes(option)} onChange={() => toggleSelection(option, mechanicalAnalysis, setMechanicalAnalysis)} />{option}</label>)}</div></fieldset></div>}
+              <fieldset className="grid gap-2 text-sm font-semibold text-slate-200"><legend>Teste de funcionamento</legend><div className="grid gap-2">{functionTestOptions.map((option) => <label className="flex items-center gap-2 font-normal" key={option}><input type="checkbox" checked={functionTests.includes(option)} onChange={() => toggleSelection(option, functionTests, setFunctionTests)} />{option}</label>)}</div></fieldset>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Outro teste<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={otherFunctionTest} onChange={(event) => setOtherFunctionTest(event.target.value)} /></label>
+            </div>}
             <button className="rounded-lg bg-red-700 px-4 py-3 font-semibold text-white hover:bg-red-800 disabled:opacity-50" disabled={saving} type="submit">{saving ? `Salvando ${pieces.length} reports...` : `Salvar ${pieces.length} reports`}</button>
           </div>}
         </form>

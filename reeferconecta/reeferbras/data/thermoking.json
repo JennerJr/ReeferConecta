@@ -106,5 +106,25 @@
     "componente": "SG+ Display",
     "descricao": "Display SG+ Thermo King",
     "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/SG+%20Display.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Evaporador Trífasico",
+    "descricao": "Evaporador Trífasico "
+  },
+  {
+    "linha": "Container",
+    "componente": "Evaporador Monofásico",
+    "descricao": "Evaporador Monofásico "
+  },
+  {
+    "linha": "Container",
+    "componente": "Condensador Trífasico",
+    "descricao": "Condensador Trífasico "
+  },
+   {
+    "linha": "Container",
+    "componente": "Condensador monofásico",
+    "descricao": "Condensador Monofásico"
   }
 ]

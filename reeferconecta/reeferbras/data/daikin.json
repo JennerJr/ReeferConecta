@@ -68,7 +68,7 @@
   {
     "linha": "Container",
     "componente": "PT & CT Board",
-    "descricao": "Sensor de Corrente",
+    "descricao": "Sensor de Corrente Decos",
     "imagem": "https://fcie.us/images/Products/Daikin/Daikin%20Container/IMG_0411.JPG"
   },
   {
@@ -98,7 +98,27 @@
   {
     "linha": "Container",
     "componente": "Zestia PT/CT Board",
-    "descricao": "Placa PT/CT Zestia",
+    "descricao": "Sensor de Corrente Zestia",
     "imagem": "https://fcie.us/images/2024/Zestia_PT-CT.jpeg"
+  }, 
+  {
+    "linha": "Container",
+    "componente": "Evaporador Trífasico",
+    "descricao": "Evaporador Trífasico "
+  },
+  {
+    "linha": "Container",
+    "componente": "Evaporador Monofásico",
+    "descricao": "Evaporador Monofásico "
+  },
+  {
+    "linha": "Container",
+    "componente": "Condensador Trífasico",
+    "descricao": "Condensador Trífasico "
+  },
+   {
+    "linha": "Container",
+    "componente": "Condensador monofásico",
+    "descricao": "Condensador Monofásico"
   }
 ]

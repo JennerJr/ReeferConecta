@@ -8,6 +8,21 @@ type RepairReport = {
   responsavelReparo: string;
   descricaoReparo: string;
   situacaoAtual: string;
+  resistencia?: string;
+  surge?: string;
+  mega?: string;
+  simulador?: string;
+  corrente?: string;
+  transformador?: string;
+  inspeçãoVisual?: string;
+  ordemServico?: string;
+  serialNumberReport?: string;
+  estatorTrocado?: string;
+  scroll?: string;
+  reparoFalange?: string;
+  analiseMecanica?: string;
+  testeFuncionamento?: string;
+  outroTesteFuncionamento?: string;
   createdAt: string;
 };
 
@@ -35,7 +50,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/pecas")
+    fetch("/api/pecas?reports=visible")
       .then(async (response) => {
         const data = await response.json();
         if (!response.ok) throw new Error(data.erro ?? "Não foi possível carregar os reports.");
@@ -59,10 +74,25 @@ export default function ReportsPage() {
     report.responsavelReparo,
     report.descricaoReparo,
     report.situacaoAtual,
+    report.resistencia,
+    report.surge,
+    report.mega,
+    report.simulador,
+    report.corrente,
+    report.transformador,
+    report.inspeçãoVisual,
+    report.ordemServico,
+    report.serialNumberReport,
+    report.estatorTrocado,
+    report.scroll,
+    report.reparoFalange,
+    report.analiseMecanica,
+    report.testeFuncionamento,
+    report.outroTesteFuncionamento,
     report.pieceName,
     report.manufacturer,
     report.qc,
-  ].some((value) => value.toLowerCase().includes(normalizedSearch)));
+  ].filter((value): value is string => Boolean(value)).some((value) => value.toLowerCase().includes(normalizedSearch)));
   const totalPages = Math.max(1, Math.ceil(filteredReports.length / pageSize));
   const visibleReports = filteredReports.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
@@ -84,7 +114,24 @@ export default function ReportsPage() {
           {visibleReports.map((report) => <article className="rounded-lg border border-slate-700 bg-white p-4 shadow-sm sm:p-5" key={`${report.pieceId}-${report.id}`}>
             <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start"><div><h2 className="font-bold text-slate-900">{report.pieceName} · {report.manufacturer}</h2><p className="mt-1 text-sm text-slate-600">QC: {report.qc}</p></div><Link className="text-sm font-semibold text-sky-700 hover:text-sky-900" href={`/pecas/${report.pieceId}/reports`}>Ver peça</Link></div>
             <div className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2"><p><strong>Usuário:</strong> {report.responsavelReparo}</p><p><strong>Situação:</strong> {report.situacaoAtual}</p></div>
-            <p className="mt-3 whitespace-pre-wrap text-slate-800"><strong>Descrição:</strong> {report.descricaoReparo}</p>
+            {(report.resistencia || report.surge || report.mega || report.simulador || report.corrente || report.transformador || report.inspeçãoVisual || report.ordemServico || report.serialNumberReport || report.estatorTrocado || report.scroll || report.reparoFalange || report.analiseMecanica || report.testeFuncionamento || report.outroTesteFuncionamento) && <div className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
+              {report.resistencia && <p><strong>Resistência:</strong> {report.resistencia}</p>}
+              {report.surge && <p><strong>Surge:</strong> {report.surge}</p>}
+              {report.mega && <p><strong>Mega:</strong> {report.mega}</p>}
+              {report.simulador && <p><strong>Simulador:</strong> {report.simulador}</p>}
+              {report.corrente && <p><strong>Corrente:</strong> {report.corrente}</p>}
+              {report.transformador && <p><strong>Transformador:</strong> {report.transformador}</p>}
+              {report.inspeçãoVisual && <p><strong>Inspeção visual:</strong> {report.inspeçãoVisual}</p>}
+              {report.ordemServico && <p><strong>Ordem de serviço:</strong> {report.ordemServico}</p>}
+              {report.serialNumberReport && <p><strong>Serial number:</strong> {report.serialNumberReport}</p>}
+              {report.estatorTrocado && <p><strong>Estator trocado:</strong> {report.estatorTrocado}</p>}
+              {report.scroll && <p><strong>SCROLL:</strong> {report.scroll}</p>}
+              {report.reparoFalange && <p><strong>Reparo da falange:</strong> {report.reparoFalange}</p>}
+              {report.analiseMecanica && <p><strong>Análise mecânica:</strong> {report.analiseMecanica}</p>}
+              {report.testeFuncionamento && <p><strong>Teste de funcionamento:</strong> {report.testeFuncionamento}</p>}
+              {report.outroTesteFuncionamento && <p><strong>Outro teste:</strong> {report.outroTesteFuncionamento}</p>}
+            </div>}
+            {report.descricaoReparo && <p className="mt-3 whitespace-pre-wrap text-slate-800"><strong>Descrição:</strong> {report.descricaoReparo}</p>}
             <p className="mt-3 text-xs text-slate-500">{new Date(report.createdAt).toLocaleString("pt-BR")}</p>
           </article>)}
         </div>

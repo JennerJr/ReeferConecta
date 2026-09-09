@@ -112,11 +112,31 @@ function getCurrentDateTimeLocal(): string {
 // ============================================================
 // GET /api/pecas — lista todas as peças salvas no MongoDB
 // ============================================================
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const collection = await piecesCollection();
     const pieces = await collection.find({}).sort({ id: 1 }).toArray();
-    return NextResponse.json(pieces, { status: 200 });
+    if (request.nextUrl.searchParams.get("reports") !== "visible") {
+      return NextResponse.json(pieces, { status: 200 });
+    }
+
+    const user = await getSessionUser();
+    if (!user) {
+      return NextResponse.json({ erro: "Sessão não encontrada" }, { status: 401 });
+    }
+
+    const canViewAllReports = user.role.trim().toLowerCase() === "enc";
+    const currentUserName = user.name.trim().toLowerCase();
+    const visiblePieces = canViewAllReports
+      ? pieces
+      : pieces.map((piece) => ({
+          ...piece,
+          reports: piece.reports?.filter(
+            (report) => report.responsavelReparo.trim().toLowerCase() === currentUserName,
+          ),
+        }));
+
+    return NextResponse.json(visiblePieces, { status: 200 });
   } catch (err) {
     console.error("[GET /api/pecas] falha ao ler MongoDB:", err);
     return NextResponse.json(

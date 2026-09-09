@@ -46,5 +46,25 @@
     "componente": "User Panel CIM6 (Display/Key)",
     "descricao": "display completo CIM6",
     "imagem": "https://fcie.us/images/Products/Starcool/Starcool%20Container/User%20Panel,%20CIM6.jpg"
+  },
+  {
+    "linha": "Container",
+    "componente": "Evaporador Trífasico",
+    "descricao": "Evaporador Trífasico "
+  },
+  {
+    "linha": "Container",
+    "componente": "Evaporador Monofásico",
+    "descricao": "Evaporador Monofásico "
+  },
+  {
+    "linha": "Container",
+    "componente": "Condensador Trífasico",
+    "descricao": "Condensador Trífasico "
+  },
+   {
+    "linha": "Container",
+    "componente": "Condensador monofásico",
+    "descricao": "Condensador Monofásico"
   }
 ]

@@ -22,7 +22,7 @@ type CatalogPart = {
   linha: string;
   componente: string;
   descricao: string;
-  imagem: string;
+  imagem?: string;
 };
 
 const partsByManufacturer: Record<string, CatalogPart[]> = {
@@ -107,6 +107,37 @@ export default function NovoPecaPage() {
       ? { ...form, situacaoAtual: value, deliveredBy: value === "ReparoIncomum" ? form.deliveredBy : "" }
       : form));
     setSubmitted(false);
+  }
+
+  function selectImage(index: number, file?: File) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Selecione um arquivo de imagem válido.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const image = new Image();
+      image.onload = () => {
+        const maxSize = 1200;
+        const scale = Math.min(1, maxSize / Math.max(image.naturalWidth, image.naturalHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+        const context = canvas.getContext("2d");
+        if (!context) {
+          setError("Não foi possível processar a imagem.");
+          return;
+        }
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        updateField(index, "imagemUrl", canvas.toDataURL("image/jpeg", 0.82));
+      };
+      image.onerror = () => setError("Não foi possível carregar a imagem.");
+      image.src = String(reader.result);
+    };
+    reader.onerror = () => setError("Não foi possível ler a imagem.");
+    reader.readAsDataURL(file);
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -216,6 +247,20 @@ export default function NovoPecaPage() {
               {form.situacaoAtual === "ReparoIncomum" && <label className="grid gap-2 text-sm font-semibold text-slate-200 md:col-span-2">Nome de quem entregou
                 <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.deliveredBy} onChange={(event) => updateField(index, "deliveredBy", event.target.value)} placeholder="Digite o nome" />
               </label>}
+              <div className="grid gap-3 text-sm font-semibold text-slate-200 md:col-span-2">
+                <span>Imagem da peça</span>
+                <div className="flex flex-wrap gap-3">
+                  <label className="cursor-pointer rounded-lg border border-slate-400 px-4 py-2 text-center font-semibold text-white hover:bg-slate-700">
+                    Escolher imagem
+                    <input className="sr-only" type="file" accept="image/*" onChange={(event) => selectImage(index, event.target.files?.[0])} />
+                  </label>
+                  <label className="cursor-pointer rounded-lg border border-sky-400 px-4 py-2 text-center font-semibold text-sky-200 hover:bg-sky-900/40">
+                    Tirar foto
+                    <input className="sr-only" type="file" accept="image/*" capture="environment" onChange={(event) => selectImage(index, event.target.files?.[0])} />
+                  </label>
+                </div>
+                {form.imagemUrl && <img className="h-32 w-32 rounded-lg border border-slate-600 object-cover" src={form.imagemUrl} alt={`Prévia da imagem da peça ${index + 1}`} />}
+              </div>
             </section>
           ))}
 

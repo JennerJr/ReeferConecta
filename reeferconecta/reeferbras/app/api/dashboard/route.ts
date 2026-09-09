@@ -36,10 +36,23 @@ export async function GET() {
         .filter((user) => user.name && user.role)
         .map((user) => [user.name!.trim().toLowerCase(), user.role!.trim().toLowerCase()]),
     );
-    const sectors = employeeRoles.filter((role) => role !== "almox");
-    const reportCounts = new Map<string, number>(sectors.map((sector) => [sector, 0]));
+    const sessionRole = sessionUser.role.trim().toLowerCase();
+    const canViewAllDashboard = sessionRole === "enc" || sessionRole === "dev";
+    const currentUserName = sessionUser.name.trim().toLowerCase();
+    const piecesWithUserReports = canViewAllDashboard
+      ? pieces
+      : pieces
+        .map((piece) => ({
+          ...piece,
+          reports: piece.reports?.filter((report) => report.responsavelReparo?.trim().toLowerCase() === currentUserName),
+        }))
+        .filter((piece) => (piece.reports?.length ?? 0) > 0);
+    const allSectors = employeeRoles.filter((role) => role !== "almox");
+    const sectors = canViewAllDashboard ? allSectors : allSectors.filter((sector) => sector === sessionRole);
+    const reportCounts = new Map<string, number>(allSectors.map((sector) => [sector, 0]));
+    const reportPieces = canViewAllDashboard ? pieces : piecesWithUserReports;
 
-    for (const piece of pieces) {
+    for (const piece of reportPieces) {
       for (const report of piece.reports ?? []) {
         const role = report.responsavelReparo ? roleByName.get(report.responsavelReparo.trim().toLowerCase()) : undefined;
         if (role && role !== "almox" && reportCounts.has(role)) {
@@ -51,8 +64,8 @@ export async function GET() {
     return NextResponse.json({
       reportsBySector: sectors.map((sector) => ({ sector, count: reportCounts.get(sector) ?? 0 })),
       pieces: {
-        new: pieces.length,
-        ok: pieces.filter((piece) => piece.situacaoAtual?.trim().toLowerCase().startsWith("ok")).length,
+        new: piecesWithUserReports.length,
+        ok: piecesWithUserReports.filter((piece) => piece.situacaoAtual?.trim().toLowerCase().startsWith("ok")).length,
       },
     });
   } catch (error) {

@@ -11,6 +11,21 @@ type RepairReport = {
   responsavelReparo: string;
   descricaoReparo: string;
   situacaoAtual: string;
+  resistencia?: string;
+  surge?: string;
+  mega?: string;
+  simulador?: string;
+  corrente?: string;
+  transformador?: string;
+  inspeçãoVisual?: string;
+  ordemServico?: string;
+  serialNumberReport?: string;
+  estatorTrocado?: string;
+  scroll?: string;
+  reparoFalange?: string;
+  analiseMecanica?: string;
+  testeFuncionamento?: string;
+  outroTesteFuncionamento?: string;
   createdAt: string;
 };
 
@@ -35,7 +50,7 @@ export default function PieceReportsPage({ params }: PageProps) {
       .then((data) => setRole(data.user?.role))
       .catch(() => undefined);
 
-    fetch("/api/pecas")
+    fetch("/api/pecas?reports=visible")
       .then(async (response) => {
         const data = await response.json();
         if (!response.ok) throw new Error(data.erro ?? "Não foi possível carregar a peça.");
@@ -68,14 +83,31 @@ export default function PieceReportsPage({ params }: PageProps) {
               <h2 className="text-xl font-semibold">Histórico de reports</h2>
               <p className="mt-1 text-sm text-slate-500">Situação atual: {piece.situacaoAtual || "Não informada"}</p>
             </div>
-            {canManagePieces(role) && <Link className="rounded-lg bg-red-700 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-red-800" href="/reports/novo">Novo report</Link>}
+            {(canManagePieces(role) || role === "cereco" || role === "lab.elétrica") && <Link className="rounded-lg bg-red-700 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-red-800" href="/reports/novo">Novo report</Link>}
           </div>
           {!piece.reports?.length ? <p className="mt-6 text-slate-600">Nenhum report registrado.</p> : (
             <div className="mt-6 grid gap-4">
               {piece.reports.map((report) => <article className="rounded-lg border border-slate-200 p-4" key={report.id}>
                 <p><strong>Responsável:</strong> {report.responsavelReparo}</p>
                 <p><strong>Situação:</strong> {report.situacaoAtual}</p>
-                <p className="mt-2 whitespace-pre-wrap"><strong>Descrição:</strong> {report.descricaoReparo}</p>
+                {(report.resistencia || report.surge || report.mega || report.simulador || report.corrente || report.transformador || report.inspeçãoVisual || report.ordemServico || report.serialNumberReport || report.estatorTrocado || report.scroll || report.reparoFalange || report.analiseMecanica || report.testeFuncionamento || report.outroTesteFuncionamento) && <div className="mt-2 grid gap-1 sm:grid-cols-2">
+                  {report.resistencia && <p><strong>Resistência:</strong> {report.resistencia}</p>}
+                  {report.surge && <p><strong>Surge:</strong> {report.surge}</p>}
+                  {report.mega && <p><strong>Mega:</strong> {report.mega}</p>}
+                  {report.simulador && <p><strong>Simulador:</strong> {report.simulador}</p>}
+                  {report.corrente && <p><strong>Corrente:</strong> {report.corrente}</p>}
+                  {report.transformador && <p><strong>Transformador:</strong> {report.transformador}</p>}
+                  {report.inspeçãoVisual && <p><strong>Inspeção visual:</strong> {report.inspeçãoVisual}</p>}
+                  {report.ordemServico && <p><strong>Ordem de serviço:</strong> {report.ordemServico}</p>}
+                  {report.serialNumberReport && <p><strong>Serial number:</strong> {report.serialNumberReport}</p>}
+                  {report.estatorTrocado && <p><strong>Estator trocado:</strong> {report.estatorTrocado}</p>}
+                  {report.scroll && <p><strong>SCROLL:</strong> {report.scroll}</p>}
+                  {report.reparoFalange && <p><strong>Reparo da falange:</strong> {report.reparoFalange}</p>}
+                  {report.analiseMecanica && <p><strong>Análise mecânica:</strong> {report.analiseMecanica}</p>}
+                  {report.testeFuncionamento && <p><strong>Teste de funcionamento:</strong> {report.testeFuncionamento}</p>}
+                  {report.outroTesteFuncionamento && <p><strong>Outro teste:</strong> {report.outroTesteFuncionamento}</p>}
+                </div>}
+                {report.descricaoReparo && <p className="mt-2 whitespace-pre-wrap"><strong>Descrição:</strong> {report.descricaoReparo}</p>}
                 <p className="mt-2 text-sm text-slate-500">{new Date(report.createdAt).toLocaleString("pt-BR")}</p>
               </article>)}
             </div>
