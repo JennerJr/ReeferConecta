@@ -2,6 +2,8 @@ import getMongoClient, { getMongoCollectionName, getMongoDatabaseName } from "@/
 import { employeeRoles } from "@/lib/authorization";
 import { getSessionUser } from "@/lib/auth-session";
 
+export const dynamic = "force-dynamic";
+
 type Report = { responsavelReparo?: string };
 type Piece = { situacaoAtual?: string; reports?: Report[] };
 type User = { name?: string; role?: string };
