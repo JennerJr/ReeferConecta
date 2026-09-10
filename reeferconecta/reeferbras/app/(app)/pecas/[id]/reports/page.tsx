@@ -59,7 +59,7 @@ export default function PieceReportsPage({ params }: PageProps) {
         if (!found) throw new Error("Peça não encontrada.");
         setPiece(found);
       })
-      .catch((requestError) => setError(requestError instanceof Error ? requestError.message : "Erro ao carregar reports."));
+      .catch((requestError) => setError(requestError instanceof Error ? requestError.message : "Erro ao carregar relatórios."));
   }, [id]);
 
   if (error) return <main className="mx-auto max-w-3xl px-4 py-8 text-red-700 sm:px-6 sm:py-10">{error}</main>;
@@ -69,23 +69,23 @@ export default function PieceReportsPage({ params }: PageProps) {
     <main className="min-h-screen px-4 py-8 text-slate-900 sm:px-6 sm:py-10">
       <section className="mx-auto max-w-3xl">
         <Link className="text-sm font-semibold text-sky-700" href="/pecas">← Voltar para peças</Link>
-        <h1 className="mt-4 text-3xl font-bold text-white">Reports da peça</h1>
+        <h1 className="mt-4 text-3xl font-bold text-white">Relatórios da peça</h1>
         <p className="mt-2 text-slate-300">{piece.nome || "Peça sem nome"} {piece.fabricante ? `· ${piece.fabricante}` : ""} · QC: {piece.qc || "Não informado"}</p>
 
         <nav className="mt-6 flex flex-wrap gap-2 border-b border-slate-600 pb-2" aria-label="Navegação da peça">
           <Link className="rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-500" href={`/pecas/${id}`}>Dados da peça</Link>
-          <Link className="rounded-lg bg-sky-700 px-4 py-2 text-sm font-semibold text-white" href={`/pecas/${id}/reports`}>Reports ({piece.reports?.length ?? 0})</Link>
+          <Link className="rounded-lg bg-sky-700 px-4 py-2 text-sm font-semibold text-white" href={`/pecas/${id}/reports`}>Relatórios ({piece.reports?.length ?? 0})</Link>
         </nav>
 
         <section className="mt-8 rounded-lg border border-slate-200 bg-white p-4 sm:p-6">
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
             <div>
-              <h2 className="text-xl font-semibold">Histórico de reports</h2>
+              <h2 className="text-xl font-semibold">Histórico de relatórios</h2>
               <p className="mt-1 text-sm text-slate-500">Situação atual: {piece.situacaoAtual || "Não informada"}</p>
             </div>
-            {(canManagePieces(role) || role === "cereco" || role === "lab.elétrica") && <Link className="rounded-lg bg-red-700 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-red-800" href="/reports/novo">Novo report</Link>}
+            {(canManagePieces(role) || role === "cereco" || role === "lab.elétrica") && <Link className="rounded-lg bg-red-700 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-red-800" href="/reports/novo">Novo relatório</Link>}
           </div>
-          {!piece.reports?.length ? <p className="mt-6 text-slate-600">Nenhum report registrado.</p> : (
+          {!piece.reports?.length ? <p className="mt-6 text-slate-600">Nenhum relatório registrado.</p> : (
             <div className="mt-6 grid gap-4">
               {piece.reports.map((report) => <article className="rounded-lg border border-slate-200 p-4" key={report.id}>
                 <p><strong>Responsável:</strong> {report.responsavelReparo}</p>

@@ -98,10 +98,10 @@ export default function NovoReportSemQcPage() {
         })) }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.erro ?? "Não foi possível salvar os reports.");
+      if (!response.ok) throw new Error(data.erro ?? "Não foi possível salvar os relatórios.");
       router.push("/reports");
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Não foi possível salvar os reports.");
+      setError(requestError instanceof Error ? requestError.message : "Não foi possível salvar os relatórios.");
     } finally {
       setSaving(false);
     }
@@ -110,16 +110,16 @@ export default function NovoReportSemQcPage() {
   return (
     <main className="min-h-screen bg-gray-800 px-4 py-8 text-slate-900 sm:px-6 sm:py-10">
       <section className="mx-auto max-w-3xl">
-        <Link className="text-sm font-semibold text-sky-400" href="/reports">← Voltar para reports</Link>
-        <h1 className="mt-4 text-3xl font-bold text-white">Novo report sem QC</h1>
-        <p className="mt-2 text-slate-300">Os reports não ficam vinculados a uma peça. A ordem de serviço é opcional.</p>
+        <Link className="text-sm font-semibold text-sky-400" href="/reports">← Voltar para relatórios</Link>
+        <h1 className="mt-4 text-3xl font-bold text-white">Novo relatório sem QC</h1>
+        <p className="mt-2 text-slate-300">Os relatórios não ficam vinculados a uma peça. A ordem de serviço é opcional.</p>
         <form className="mt-8 space-y-6" onSubmit={submit}>
-          <label className="grid max-w-xs gap-2 text-sm font-semibold text-slate-200">Quantidade de reports
+          <label className="grid max-w-xs gap-2 text-sm font-semibold text-slate-200">Quantidade de relatórios
             <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white" type="number" min="1" max="50" value={forms.length} onChange={(event) => setForms((current) => { const nextLength = Math.min(50, Math.max(1, Number(event.target.value) || 1)); const template = current[0] ?? createForm(); return Array.from({ length: nextLength }, (_, index) => current[index] ?? cloneForAdditionalReport(template)); })} />
           </label>
           {forms.map((form, index) => (
             <section className="grid gap-5 rounded-xl border border-slate-700 p-4 sm:p-6" key={index}>
-              <h2 className="text-xl font-semibold text-white">Report {index + 1}</h2>
+              <h2 className="text-xl font-semibold text-white">Relatório {index + 1}</h2>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Nome da peça<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white" value={form.nomePeca} onChange={(event) => update(index, "nomePeca", event.target.value)} required /></label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Técnico responsável pelo reparo<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white" value={currentUserName} readOnly /></label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Ordem de serviço (opcional)<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white" type="number" value={form.ordemServico} onChange={(event) => update(index, "ordemServico", event.target.value)} /></label>
@@ -139,7 +139,7 @@ export default function NovoReportSemQcPage() {
             </section>
           ))}
           {error && <p className="rounded-lg bg-red-100 p-3 text-red-700">{error}</p>}
-          <button className="rounded-lg bg-red-700 px-4 py-3 font-semibold text-white disabled:opacity-50" disabled={saving} type="submit">{saving ? "Salvando..." : `Salvar ${forms.length} report(s)`}</button>
+          <button className="rounded-lg bg-red-700 px-4 py-3 font-semibold text-white disabled:opacity-50" disabled={saving} type="submit">{saving ? "Salvando..." : `Salvar ${forms.length} relatório(s)`}</button>
         </form>
       </section>
     </main>

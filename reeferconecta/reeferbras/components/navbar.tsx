@@ -41,7 +41,7 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard' },
   { name: 'Almoxarifado', href: '/pecas' },
   { name: 'Times', href: '/times' },
-  { name: 'Reports', href: '/reports' },
+  { name: 'Relatórios', href: '/reports' },
 ]
 
 const logoNavigation = [{name: 'logo', href: '/'}]
@@ -55,11 +55,16 @@ function classNames(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(' ')
 }
 
+type ReportNotification = { id: string; message: string; createdAt: string; read: boolean }
+
 export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [notifications, setNotifications] = useState<ReportNotification[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
   const [user, setUser] = useState(defaultUser)
   const isActive = (href: string) => href !== '#' && (pathname === href || pathname.startsWith(`${href}/`))
 
@@ -76,12 +81,91 @@ export default function Navbar() {
     }
   }
 
+  function loadNotifications() {
+    fetch('/api/notifications')
+      .then((response) => response.json())
+      .then((data) => {
+        setNotifications(data.notifications ?? [])
+        setUnreadCount(data.unreadCount ?? 0)
+      })
+      .catch(() => undefined)
+  }
+
+  async function markNotificationRead(id: string) {
+    try {
+      await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      loadNotifications()
+    } catch (error) {
+      console.error('[Navbar] mark notification read failed', error)
+    }
+  }
+
+  async function markAllNotificationsRead() {
+    try {
+      await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ all: true }),
+      })
+      loadNotifications()
+    } catch (error) {
+      console.error('[Navbar] mark all notifications read failed', error)
+    }
+  }
+
+  function toggleNotifications() {
+    setProfileMenuOpen(false)
+    setNotificationsOpen((prev) => !prev)
+  }
+
   useEffect(() => {
     fetch('/api/auth/session')
       .then((response) => response.json())
       .then((data) => { if (data.user) setUser({ ...defaultUser, ...data.user }) })
       .catch(() => undefined)
   }, [])
+
+  useEffect(() => {
+    loadNotifications()
+    const interval = setInterval(loadNotifications, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const notificationsPanel = (
+    <div className="absolute right-0 z-20 mt-2 w-80 max-w-[calc(100vw-2rem)] origin-top-right rounded-md bg-gray-800 p-3 shadow-lg outline-1 -outline-offset-1 outline-white/10">
+      <div className="flex items-center justify-between gap-2 px-1 pb-2">
+        <span className="text-sm font-semibold text-white">Notificações</span>
+        {unreadCount > 0 && (
+          <button type="button" onClick={() => void markAllNotificationsRead()} className="text-xs font-medium text-cyan-300 hover:text-cyan-200">
+            Marcar todas como lidas
+          </button>
+        )}
+      </div>
+      <div className="max-h-80 overflow-y-auto">
+        {notifications.length === 0 ? (
+          <p className="px-1 py-3 text-sm text-gray-400">Nenhuma notificação por enquanto.</p>
+        ) : notifications.map((notification) => (
+          <button
+            key={notification.id}
+            type="button"
+            onClick={() => void markNotificationRead(notification.id)}
+            className={classNames(
+              'block w-full rounded-md px-2 py-2 text-left text-sm',
+              notification.read ? 'text-gray-400' : 'bg-gray-700/60 text-white',
+            )}
+          >
+            <p>{notification.message}</p>
+            <p className="mt-1 text-xs text-gray-400">{new Date(notification.createdAt).toLocaleString('pt-BR')}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+
 
   return (
     <nav className="bg-gray-800/50">
@@ -118,14 +202,23 @@ export default function Navbar() {
           </div>
           <div className="hidden lg:block">
             <div className="ml-4 flex items-center md:ml-6">
-              <button
-                type="button"
-                className="relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
-              >
-                <span className="absolute -inset-1.5" />
-                <span className="sr-only">View notifications</span>
-                <BellIcon aria-hidden="true" className="size-6" />
-              </button>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={toggleNotifications}
+                  className="relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
+                >
+                  <span className="absolute -inset-1.5" />
+                  <span className="sr-only">View notifications</span>
+                  <BellIcon aria-hidden="true" className="size-6" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+                {notificationsOpen && notificationsPanel}
+              </div>
 
               <div className="relative ml-3">
                 <button
@@ -212,13 +305,20 @@ export default function Navbar() {
               </div>
               <button
                 type="button"
+                onClick={toggleNotifications}
                 className="relative ml-auto shrink-0 rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
               >
                 <span className="absolute -inset-1.5" />
                 <span className="sr-only">View notifications</span>
                 <BellIcon aria-hidden="true" className="size-6" />
+                {unreadCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
               </button>
             </div>
+            {notificationsOpen && <div className="relative">{notificationsPanel}</div>}
             <div className="mt-3 space-y-1 px-2">
               {userNavigation.map((item) => item.name === 'Sair' ? (
                 <button

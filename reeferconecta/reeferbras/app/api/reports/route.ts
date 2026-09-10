@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth-session";
 import getMongoClient from "@/lib/mongodb";
+import { notifyReportSubmitted } from "@/lib/notifications";
 
 type StandaloneReport = {
   id: string;
@@ -122,6 +123,13 @@ export async function POST(request: NextRequest) {
 
     const collection = (await getMongoClient()).db(databaseName).collection<StandaloneReport>(collectionName);
     await collection.insertMany(reports);
+
+    const actorName = user.name.trim();
+    const summary = reports.length > 1
+      ? `${actorName} enviou ${reports.length} relatórios sem QC.`
+      : `${actorName} enviou um relatório sem QC${reports[0].ordemServico ? ` (OS ${reports[0].ordemServico})` : ""}.`;
+    await notifyReportSubmitted(actorName, user.role, summary);
+
     return NextResponse.json({ success: true, reports }, { status: 201 });
   } catch (error) {
     console.error("[POST /api/reports] erro ao salvar:", error);

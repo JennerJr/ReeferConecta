@@ -80,11 +80,11 @@ export default async function Dashboard() {
         <section className="mx-auto max-w-6xl">
           <p className="text-sm font-bold uppercase tracking-widest text-red-500">ReeferConecta</p>
           <h1 className="mt-2 text-3xl font-bold text-white">Dashboard</h1>
-          <p className="mt-2 text-slate-300">Visão geral dos reports por setor e da situação das peças.</p>
+          <p className="mt-2 text-slate-300">Visão geral dos relatórios por setor e da situação das peças.</p>
           <div className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             <section className="min-w-0 rounded-xl border border-slate-700 bg-slate-900/70 p-5 sm:p-6">
               <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="min-w-0"><h2 className="text-xl font-semibold text-white">Reports por setor</h2><p className="mt-1 text-sm text-slate-400">Total: {totalReports} reports · Almoxarifado excluído</p></div>
+                <div className="min-w-0"><h2 className="text-xl font-semibold text-white">Relatórios por setor</h2><p className="mt-1 text-sm text-slate-400">Total: {totalReports} relatórios · Almoxarifado excluído</p></div>
                 <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full" style={{ background: buildConicGradient(data.reportsBySector) }}><div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">{totalReports}</div></div>
               </div>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">{data.reportsBySector.map((item, index) => <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-700 px-3 py-2" key={item.sector}><span className="flex min-w-0 items-center gap-2 text-sm text-slate-200"><span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: colors[index % colors.length] }} />{formatSector(item.sector)}</span><strong className="text-white">{item.count}</strong></div>)}</div>

@@ -1,5 +1,6 @@
 export const pieceManagementRoles = ["almox", "dev", "enc", "master"] as const;
 export const teamsAccessRoles = ["dev", "enc", "master"] as const;
+export const reportNotificationRoles = ["enc", "almox"] as const;
 export const employeeRoles = [
   "almox",
   "dev",
@@ -17,6 +18,11 @@ export function hasRole(role: string | undefined, allowedRoles: readonly string[
 export function canManagePieces(role: string | undefined) {
   return hasRole(role, pieceManagementRoles);
 }
+
+export function canReceiveReportNotifications(role: string | undefined) {
+  return hasRole(role, reportNotificationRoles);
+}
+
 
 export function canAccessTeams(role: string | undefined) {
   return hasRole(role, teamsAccessRoles);

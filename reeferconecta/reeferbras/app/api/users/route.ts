@@ -107,7 +107,7 @@ export async function PATCH(request: NextRequest) {
   try {
     const sessionUser = await getSessionUser();
     if (!sessionUser) return NextResponse.json({ error: "Sessão não encontrada" }, { status: 401 });
-    const input = (await request.json()) as Pick<UserInput, "imageUrl" | "role"> & {
+    const input = (await request.json()) as UserInput & {
       id?: string;
       currentPassword?: string;
       newPassword?: string;
@@ -115,11 +115,17 @@ export async function PATCH(request: NextRequest) {
     if (!input.id || !ObjectId.isValid(input.id)) {
       return NextResponse.json({ error: "ID do usuário inválido" }, { status: 400 });
     }
-    if (input.id !== sessionUser._id) {
+
+    const isSelf = input.id === sessionUser._id;
+    const isManager = canAccessTeams(sessionUser.role);
+    if (!isSelf && !isManager) {
       return NextResponse.json({ error: "Você só pode alterar seu próprio perfil" }, { status: 403 });
     }
 
     if (input.currentPassword !== undefined || input.newPassword !== undefined) {
+      if (!isSelf) {
+        return NextResponse.json({ error: "Não é possível alterar a senha de outro usuário por aqui" }, { status: 403 });
+      }
       if (!input.currentPassword || !input.newPassword || input.newPassword.length < 8) {
         return NextResponse.json({ error: "A nova senha deve ter pelo menos 8 caracteres" }, { status: 400 });
       }
@@ -133,6 +139,32 @@ export async function PATCH(request: NextRequest) {
         { $set: { passwordHash: await bcrypt.hash(input.newPassword, 12), updatedAt: new Date() } },
       );
       return NextResponse.json({ success: true });
+    }
+
+    const collection = await usersCollection();
+
+    // Um gestor de times editando outro usuário pode alterar nome, e-mail e setor.
+    if (!isSelf) {
+      const name = input.name?.trim();
+      const email = input.email?.trim().toLowerCase();
+      const requestedRole = input.role?.trim();
+      if (!name) return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 });
+      if (!email || !/^\S+@\S+\.\S+$/.test(email)) return NextResponse.json({ error: "E-mail inválido" }, { status: 400 });
+      const role = requestedRole
+        ? employeeRoles.find((allowedRole) => allowedRole.toLowerCase() === requestedRole.toLowerCase())
+        : undefined;
+      if (requestedRole && !role) return NextResponse.json({ error: "Setor inválido" }, { status: 400 });
+
+      const emailInUse = await collection.findOne({ email, _id: { $ne: new ObjectId(input.id) } });
+      if (emailInUse) return NextResponse.json({ error: "Já existe um usuário com este e-mail" }, { status: 409 });
+
+      const result = await collection.findOneAndUpdate(
+        { _id: new ObjectId(input.id) },
+        { $set: { name, email, ...(role ? { role } : {}), updatedAt: new Date() } },
+        { returnDocument: "after" },
+      );
+      if (!result) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+      return NextResponse.json({ user: serializeUser(result) });
     }
 
     const imageUrl = input.imageUrl?.trim() || "";
@@ -159,7 +191,6 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "A imagem processada deve ter no máximo 10 MB" }, { status: 400 });
     }
 
-    const collection = await usersCollection();
     const result = await collection.findOneAndUpdate(
       { _id: new ObjectId(input.id) },
       { $set: { imageUrl, role, ...(primaryRole ? { primaryRole } : {}), updatedAt: new Date() } },
@@ -177,9 +208,17 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser || !canAccessTeams(sessionUser.role)) {
+      return NextResponse.json({ error: "Entrada não autorizada" }, { status: 403 });
+    }
+
     const id = request.nextUrl.searchParams.get("id");
     if (!id || !ObjectId.isValid(id)) {
       return NextResponse.json({ error: "ID do usuário inválido" }, { status: 400 });
+    }
+    if (id === sessionUser._id) {
+      return NextResponse.json({ error: "Você não pode excluir sua própria conta" }, { status: 403 });
     }
 
     const collection = await usersCollection();

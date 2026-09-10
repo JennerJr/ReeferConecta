@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth-session";
 import getMongoClient from "@/lib/mongodb";
+import { notifyReportSubmitted } from "@/lib/notifications";
 
 type RepairReport = {
   id: string;
@@ -63,7 +64,7 @@ export async function POST(
       return NextResponse.json({ erro: "ID da peça inválido" }, { status: 400 });
     }
 
-    const body = (await request.json()) as Partial<RepairReport> & { qc?: string };
+    const body = (await request.json()) as Partial<RepairReport> & { qc?: string; notify?: boolean };
     const responsavelReparo = user.name.trim();
     const descricaoReparo = body.descricaoReparo?.trim() || undefined;
     const submittedSituation = body.situacaoAtual?.trim();
@@ -145,6 +146,10 @@ export async function POST(
         },
       },
     );
+
+    if (body.notify !== false) {
+      await notifyReportSubmitted(responsavelReparo, user.role, `${responsavelReparo} enviou um relatório para a peça QC ${piece.qc}.`);
+    }
 
     return NextResponse.json({ success: true, report }, { status: 201 });
   } catch (error) {

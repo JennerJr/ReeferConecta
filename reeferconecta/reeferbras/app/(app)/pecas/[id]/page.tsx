@@ -108,7 +108,7 @@ export default function PecaPage({ params }: PageProps) {
 
         <nav className="mt-6 flex flex-wrap gap-2 border-b border-slate-600 pb-2" aria-label="Navegação da peça">
           <Link className="rounded-lg bg-sky-700 px-4 py-2 text-sm font-semibold text-white" href={`/pecas/${id}`}>Dados da peça</Link>
-          <Link className="rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-500" href={`/pecas/${id}/reports`}>Reports ({piece.reports?.length ?? 0})</Link>
+          <Link className="rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-500" href={`/pecas/${id}/reports`}>Relatórios ({piece.reports?.length ?? 0})</Link>
         </nav>
         
         <div className="mt-8 grid gap-4 rounded-lg border border-slate-200 bg-white p-4 md:grid-cols-2 sm:p-6">
@@ -126,7 +126,7 @@ export default function PecaPage({ params }: PageProps) {
                 .map((entry) => (
                   <li className="border-l-2 border-sky-600 pl-4" key={entry.id}>
                     <p className="font-semibold text-slate-900">
-                      {entry.action === "report" ? "Report realizado" : entry.action === "updated" ? "Peça alterada" : "Peça cadastrada"}
+                      {entry.action === "report" ? "Relatório realizado" : entry.action === "updated" ? "Peça alterada" : "Peça cadastrada"}
                     </p>
                     <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{entry.details}</p>
                     <p className="mt-1 text-xs text-slate-500">

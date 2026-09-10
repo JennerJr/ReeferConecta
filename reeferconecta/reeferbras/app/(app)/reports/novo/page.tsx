@@ -94,7 +94,7 @@ export default function NovoReportPage() {
       const invalidIndex = foundPieces.findIndex((piece) => !piece);
       if (invalidIndex !== -1) throw new Error(`QC inválido: ${normalizedQcs[invalidIndex]}.`);
       setPieces(foundPieces as Piece[]);
-      setMessage(`${foundPieces.length} QC(s) válido(s). Os reports foram liberados.`);
+      setMessage(`${foundPieces.length} QC(s) válido(s). Os relatórios foram liberados.`);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Não foi possível validar o QC.");
     } finally {
@@ -122,14 +122,22 @@ export default function NovoReportPage() {
             inspeçãoVisual: visualInspections.join(" / "), ordemServico, serialNumberReport, estatorTrocado,
             scroll, reparoFalange, analiseMecanica: mechanicalAnalysis.join(" / "),
             testeFuncionamento: functionTests.join(" / "), outroTesteFuncionamento: otherFunctionTest,
+            notify: pieces.length === 1,
           }),
         });
         const data = await response.json();
-        if (!response.ok) throw new Error(data.erro ?? `Não foi possível salvar o report do QC ${qcs[index]}.`);
+        if (!response.ok) throw new Error(data.erro ?? `Não foi possível salvar o relatório do QC ${qcs[index]}.`);
       }));
+      if (pieces.length > 1) {
+        await fetch("/api/notifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ count: pieces.length }),
+        }).catch(() => undefined);
+      }
       router.push(`/pecas/${pieces[0].id}`);
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Não foi possível salvar o report.");
+      setError(requestError instanceof Error ? requestError.message : "Não foi possível salvar o relatório.");
     } finally {
       setSaving(false);
     }
@@ -138,13 +146,13 @@ export default function NovoReportPage() {
   return (
     <main className="min-h-screen bg-gray-800 px-4 py-8 text-slate-900 sm:px-6 sm:py-10">
       <section className="mx-auto max-w-3xl">
-        <Link className="text-sm font-semibold text-sky-400" href="/reports">← Voltar para reports</Link>
-        <h1 className="mt-4 text-3xl font-bold text-white">Novo report</h1>
+        <Link className="text-sm font-semibold text-sky-400" href="/reports">← Voltar para relatórios</Link>
+        <h1 className="mt-4 text-3xl font-bold text-white">Novo relatório</h1>
         <p className="mt-2 text-slate-300">Informe o QC da peça para liberar o registro do reparo.</p>
 
         <form className="mt-8 space-y-5 rounded-xl border border-slate-700 bg-gray-800 p-4 sm:p-6" onSubmit={pieces.length ? saveReport : validateQcs}>
           <label className="grid max-w-xs gap-2 text-sm font-semibold text-slate-200">
-            Quantidade de reports
+            Quantidade de relatórios
             <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" min="1" max="50" value={reportCount} onChange={(event) => changeReportCount(Number(event.target.value))} required />
           </label>
 
@@ -198,7 +206,7 @@ export default function NovoReportPage() {
               <fieldset className="grid gap-2 rounded-lg border border-slate-300 p-4 text-sm font-semibold text-slate-200"><legend className="px-2 font-semibold text-slate-200">Teste de funcionamento</legend><div className="grid gap-2">{functionTestOptions.map((option) => <label className="flex items-center gap-2 font-normal" key={option}><input type="checkbox" checked={functionTests.includes(option)} onChange={() => toggleSelection(option, functionTests, setFunctionTests)} />{option}</label>)}</div></fieldset>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Outro teste<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={otherFunctionTest} onChange={(event) => setOtherFunctionTest(event.target.value)} /></label>
             </div>}
-            <button className="rounded-lg bg-red-700 px-4 py-3 font-semibold text-white hover:bg-red-800 disabled:opacity-50" disabled={saving} type="submit">{saving ? `Salvando ${pieces.length} reports...` : `Salvar ${pieces.length} reports`}</button>
+            <button className="rounded-lg bg-red-700 px-4 py-3 font-semibold text-white hover:bg-red-800 disabled:opacity-50" disabled={saving} type="submit">{saving ? `Salvando ${pieces.length} relatórios...` : `Salvar ${pieces.length} relatórios`}</button>
           </div>}
         </form>
       </section>

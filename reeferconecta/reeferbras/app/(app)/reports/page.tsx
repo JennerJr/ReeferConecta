@@ -89,15 +89,15 @@ export default function ReportsPage() {
     <main className="min-h-screen px-4 py-8 text-slate-900 sm:px-6 sm:py-10">
       <section className="mx-auto max-w-5xl">
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div><p className="text-sm font-bold uppercase tracking-widest text-red-500">ReeferConecta</p><h1 className="mt-2 text-3xl font-bold text-white">Reports</h1><p className="mt-2 text-slate-300">Todos os reports realizados pelos usuários.</p></div>
-          <div className="flex flex-wrap gap-2"><Link className="rounded-lg bg-sky-700 px-4 py-2 font-semibold text-white hover:bg-sky-800" href="/reports/novo">Novo Report</Link><Link className="rounded-lg bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-800" href="/reports/novo-sem-qc">Novo report sem QC</Link></div>
+          <div><p className="text-sm font-bold uppercase tracking-widest text-red-500">ReeferConecta</p><h1 className="mt-2 text-3xl font-bold text-white">Relatórios</h1><p className="mt-2 text-slate-300">Todos os relatórios realizados pelos usuários.</p></div>
+          <div className="flex flex-wrap gap-2"><Link className="rounded-lg bg-sky-700 px-4 py-2 font-semibold text-white hover:bg-sky-800" href="/reports/novo">Novo Relatório</Link><Link className="rounded-lg bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-800" href="/reports/novo-sem-qc">Novo relatório sem QC</Link></div>
         </div>
 
-        {!loading && !error && reports.length > 0 && <input className="mt-8 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-600" type="search" placeholder="Buscar por usuário, peça, QC, situação ou descrição..." value={search} onChange={(event) => { setSearch(event.target.value); setCurrentPage(1); }} aria-label="Buscar reports" />}
-        {loading && <p className="mt-8 text-slate-300">Carregando reports...</p>}
+        {!loading && !error && reports.length > 0 && <input className="mt-8 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-600" type="search" placeholder="Buscar por usuário, peça, QC, situação ou descrição..." value={search} onChange={(event) => { setSearch(event.target.value); setCurrentPage(1); }} aria-label="Buscar relatórios" />}
+        {loading && <p className="mt-8 text-slate-300">Carregando relatórios...</p>}
         {error && <p className="mt-8 rounded-lg bg-red-100 p-4 text-red-700">{error}</p>}
-        {!loading && !error && reports.length === 0 && <p className="mt-8 rounded-lg bg-white p-6 text-slate-600">Nenhum report registrado.</p>}
-        {!loading && !error && reports.length > 0 && filteredReports.length === 0 && <p className="mt-8 text-slate-300">Nenhum report encontrado para essa busca.</p>}
+        {!loading && !error && reports.length === 0 && <p className="mt-8 rounded-lg bg-white p-6 text-slate-600">Nenhum relatório registrado.</p>}
+        {!loading && !error && reports.length > 0 && filteredReports.length === 0 && <p className="mt-8 text-slate-300">Nenhum relatório encontrado para essa busca.</p>}
 
         <div className="mt-8 grid gap-4">
           {visibleReports.map((report) => <article className="rounded-lg border border-slate-700 bg-white p-4 shadow-sm sm:p-5" key={`${report.pieceId ?? "sem-peca"}-${report.id}`}>
@@ -125,7 +125,7 @@ export default function ReportsPage() {
           </article>)}
         </div>
 
-        {totalPages > 1 && <nav className="mt-8 flex items-center justify-center gap-4" aria-label="Paginação dos reports"><button className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-50" type="button" disabled={currentPage === 1} onClick={() => setCurrentPage((page) => page - 1)}>Anterior</button><span className="text-sm text-slate-300">Página {currentPage} de {totalPages}</span><button className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-50" type="button" disabled={currentPage === totalPages} onClick={() => setCurrentPage((page) => page + 1)}>Próxima</button></nav>}
+        {totalPages > 1 && <nav className="mt-8 flex items-center justify-center gap-4" aria-label="Paginação dos relatórios"><button className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-50" type="button" disabled={currentPage === 1} onClick={() => setCurrentPage((page) => page - 1)}>Anterior</button><span className="text-sm text-slate-300">Página {currentPage} de {totalPages}</span><button className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-50" type="button" disabled={currentPage === totalPages} onClick={() => setCurrentPage((page) => page + 1)}>Próxima</button></nav>}
       </section>
     </main>
   );
