@@ -7,6 +7,7 @@ type UserRecord = {
   name: string;
   email: string;
   role?: string;
+  primaryRole?: string;
   imageUrl?: string;
   passwordHash?: string;
 };
@@ -33,6 +34,7 @@ export async function POST(request: NextRequest) {
       name: record.name,
       email: record.email,
       role: record.role || "user",
+      primaryRole: record.primaryRole,
       imageUrl: record.imageUrl || "",
     });
     return NextResponse.json({ success: true });

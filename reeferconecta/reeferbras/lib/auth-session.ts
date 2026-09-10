@@ -10,6 +10,7 @@ export type AuthUser = {
   name: string;
   email: string;
   role: string;
+  primaryRole?: string;
   imageUrl: string;
 };
 
@@ -36,6 +37,14 @@ export async function getSessionUser() {
   if (!value) return null;
   await redis.expire(`session:${sessionId}`, sessionTtlSeconds);
   return JSON.parse(value) as AuthUser;
+}
+
+export async function updateSessionUser(user: AuthUser) {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get(sessionCookie)?.value;
+  if (!sessionId) return;
+  const redis = await getRedisClient();
+  await redis.set(`session:${sessionId}`, JSON.stringify(user), { EX: sessionTtlSeconds });
 }
 
 export async function destroySession() {

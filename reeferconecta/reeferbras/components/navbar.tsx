@@ -44,9 +44,11 @@ const navigation = [
   { name: 'Reports', href: '/reports' },
 ]
 
+const logoNavigation = [{name: 'logo', href: '/'}]
+
 const userNavigation = [
   { name: 'Meu perfil', href: '/profile' },
-  { name: 'Sair', href: '/login' },
+  { name: 'Sair', href: '/login' }
 ]
 
 function classNames(...classes: (string | boolean | undefined)[]) {
@@ -90,6 +92,7 @@ export default function Navbar() {
               <Image
                 alt="Reeferbras Logo"
                 src="icons/reeferbras-r-icon.svg"
+                onClick={() => router.push('/')}
                 width={50}
                 height={50}
               

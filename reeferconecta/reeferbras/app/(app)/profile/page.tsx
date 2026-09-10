@@ -1,12 +1,14 @@
 'use client'
 
 import { FormEvent, useEffect, useState } from 'react'
+import { employeeRoles, hasRole } from '@/lib/authorization'
 
 type User = {
   _id?: string
   name: string
   email: string
   role: string
+  primaryRole?: string
   imageUrl: string
 }
 
@@ -30,7 +32,7 @@ export default function ProfilePage() {
       if (data.user) {
         setUser(data.user)
         setUserId(data.user._id)
-        setStatus('Apenas a foto pode ser alterada.')
+        setStatus(hasRole(data.user.role, ['enc', 'dev']) || hasRole(data.user.primaryRole, ['enc', 'dev']) ? 'Você pode alterar a foto e o setor.' : 'Apenas a foto pode ser alterada.')
       } else {
         setUser(emptyUser)
         setUserId('')
@@ -62,13 +64,13 @@ export default function ProfilePage() {
       const response = await fetch('/api/users', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: userId, imageUrl: user.imageUrl }),
+        body: JSON.stringify({ id: userId, imageUrl: user.imageUrl, role: user.role }),
       })
       const data = await response.json()
       if (!response.ok) throw new Error(data.error)
       setUser(data.user)
       setUserId(data.user._id)
-      setStatus('Foto atualizada com sucesso.')
+      setStatus('Perfil atualizado com sucesso.')
     } catch (error) {
       setStatus(error instanceof Error ? error.message : 'Não foi possível salvar o usuário')
     } finally {
@@ -153,13 +155,13 @@ export default function ProfilePage() {
       <div className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-widest text-cyan-400">Conta</p>
         <h1 className="mt-2 text-3xl font-semibold text-white">Perfil do usuário</h1>
-        <p className="mt-2 text-sm text-gray-400">Seu usuário é carregado automaticamente. Altere somente a foto do perfil.</p>
+        <p className="mt-2 text-sm text-gray-400">Seu usuário é carregado automaticamente. Usuários ENC e DEV também podem alterar o setor.</p>
       </div>
 
       <form onSubmit={saveUser} className="space-y-5 rounded-lg border border-white/10 bg-gray-900/70 p-4 sm:p-6">
         <label className="block text-sm text-gray-300">Nome<input readOnly value={user.name} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>
         <label className="block text-sm text-gray-300">E-mail<input readOnly type="email" value={user.email} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>
-        <label className="block text-sm text-gray-300">Setor<input readOnly value={user.role} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>
+        { (hasRole(user.role, ['enc', 'dev']) || hasRole(user.primaryRole, ['enc', 'dev'])) ? <label className="block text-sm text-gray-300">Setor<select value={user.role} onChange={(event) => setUser((currentUser) => ({ ...currentUser, role: event.target.value }))} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800 px-3 py-3 text-white outline-none focus:border-cyan-400">{user.primaryRole && <option className="text-black" value={user.primaryRole}>Retornar ao setor primário ({user.primaryRole})</option>}{employeeRoles.map((role) => <option className="text-black" key={role} value={role}>{role}</option>)}</select></label> : <label className="block text-sm text-gray-300">Setor<input readOnly value={user.role} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>}
         <div className="block text-sm text-gray-300">
           Foto do perfil
           <div className="mt-2 flex flex-wrap items-center gap-4">
@@ -171,7 +173,7 @@ export default function ProfilePage() {
           </div>
           <p className="mt-2 text-xs text-gray-500">PNG, JPG, GIF ou WEBP, até 10 MB. A imagem será reduzida para no máximo 800×800 px.</p>
         </div>
-        <div className="pt-2"><button disabled={loading || !userId} type="submit" className="w-full rounded-md bg-emerald-400 px-5 py-3 font-semibold text-gray-950 hover:bg-emerald-300 disabled:opacity-50 sm:w-auto">Atualizar foto</button></div>
+        <div className="pt-2"><button disabled={loading || !userId} type="submit" className="w-full rounded-md bg-emerald-400 px-5 py-3 font-semibold text-gray-950 hover:bg-emerald-300 disabled:opacity-50 sm:w-auto">Atualizar perfil</button></div>
         {status && <p role="status" className="text-sm text-gray-300">{status}</p>}
       </form>
 

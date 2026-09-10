@@ -23,9 +23,41 @@ html,
 body {
   min-height: 100%;
   overflow-x: hidden;
+  width: 100%;
   background-color: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+input,
+textarea,
+select,
+button {
+  max-width: 100%;
+}
+
+label,
+p,
+legend,
+th,
+td,
+h1,
+h2,
+h3 {
+  overflow-wrap: anywhere;
 }
 
 input,

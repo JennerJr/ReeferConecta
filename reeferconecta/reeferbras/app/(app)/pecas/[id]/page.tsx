@@ -106,7 +106,7 @@ export default function PecaPage({ params }: PageProps) {
         
         <h1 className="mt-4 text-3xl text-white font-bold">Detalhes da peça</h1>
 
-        <nav className="mt-6 flex gap-2 border-b border-slate-600 pb-2" aria-label="Navegação da peça">
+        <nav className="mt-6 flex flex-wrap gap-2 border-b border-slate-600 pb-2" aria-label="Navegação da peça">
           <Link className="rounded-lg bg-sky-700 px-4 py-2 text-sm font-semibold text-white" href={`/pecas/${id}`}>Dados da peça</Link>
           <Link className="rounded-lg bg-slate-600 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-500" href={`/pecas/${id}/reports`}>Reports ({piece.reports?.length ?? 0})</Link>
         </nav>

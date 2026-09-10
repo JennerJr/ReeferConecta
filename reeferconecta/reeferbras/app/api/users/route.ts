@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import bcrypt from "bcryptjs";
 import clientPromise, { getMongoCollectionName, getMongoDatabaseName } from "@/lib/mongodb";
-import { getSessionUser } from "@/lib/auth-session";
-import { canAccessTeams, employeeRoles } from "@/lib/authorization";
+import { getSessionUser, updateSessionUser } from "@/lib/auth-session";
+import { canAccessTeams, employeeRoles, hasRole } from "@/lib/authorization";
 
 type UserInput = {
   name?: string;
@@ -107,7 +107,7 @@ export async function PATCH(request: NextRequest) {
   try {
     const sessionUser = await getSessionUser();
     if (!sessionUser) return NextResponse.json({ error: "Sessão não encontrada" }, { status: 401 });
-    const input = (await request.json()) as Pick<UserInput, "imageUrl"> & {
+    const input = (await request.json()) as Pick<UserInput, "imageUrl" | "role"> & {
       id?: string;
       currentPassword?: string;
       newPassword?: string;
@@ -116,7 +116,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "ID do usuário inválido" }, { status: 400 });
     }
     if (input.id !== sessionUser._id) {
-      return NextResponse.json({ error: "Você só pode alterar sua própria foto" }, { status: 403 });
+      return NextResponse.json({ error: "Você só pode alterar seu próprio perfil" }, { status: 403 });
     }
 
     if (input.currentPassword !== undefined || input.newPassword !== undefined) {
@@ -136,6 +136,20 @@ export async function PATCH(request: NextRequest) {
     }
 
     const imageUrl = input.imageUrl?.trim() || "";
+    const requestedRole = input.role?.trim();
+    const canChangeRole = hasRole(sessionUser.role, ["enc", "dev"]);
+    const isCurrentRole = Boolean(requestedRole && requestedRole.toLowerCase() === sessionUser.role.toLowerCase());
+    const isPrimaryRoleReturn = Boolean(requestedRole && sessionUser.primaryRole && requestedRole.toLowerCase() === sessionUser.primaryRole.toLowerCase());
+    if (requestedRole && !canChangeRole && !isCurrentRole && !isPrimaryRoleReturn) {
+      return NextResponse.json({ error: "Somente usuários ENC e DEV podem alterar o setor" }, { status: 403 });
+    }
+    if (requestedRole && !employeeRoles.some((role) => role.toLowerCase() === requestedRole.toLowerCase())) {
+      return NextResponse.json({ error: "Setor inválido" }, { status: 400 });
+    }
+    const role = requestedRole
+      ? employeeRoles.find((allowedRole) => allowedRole.toLowerCase() === requestedRole.toLowerCase())!
+      : sessionUser.role;
+    const primaryRole = sessionUser.primaryRole || (canChangeRole ? sessionUser.role : undefined);
     const validRemoteImage = /^https?:\/\//i.test(imageUrl);
     const validLocalImage = /^data:image\/(png|jpeg|gif|webp);base64,/i.test(imageUrl);
     if (imageUrl && !validRemoteImage && !validLocalImage) {
@@ -148,12 +162,13 @@ export async function PATCH(request: NextRequest) {
     const collection = await usersCollection();
     const result = await collection.findOneAndUpdate(
       { _id: new ObjectId(input.id) },
-      { $set: { imageUrl, updatedAt: new Date() } },
+      { $set: { imageUrl, role, ...(primaryRole ? { primaryRole } : {}), updatedAt: new Date() } },
       { returnDocument: "after" },
     );
 
     if (!result) return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
-    return NextResponse.json({ user: serializeUser(result) });
+    await updateSessionUser({ ...sessionUser, imageUrl, role, primaryRole });
+    return NextResponse.json({ user: serializeUser({ ...sessionUser, imageUrl, role, primaryRole }) });
   } catch (error) {
     console.error("[PATCH /api/users]", error);
     return NextResponse.json({ error: "Não foi possível atualizar o usuário" }, { status: 500 });
