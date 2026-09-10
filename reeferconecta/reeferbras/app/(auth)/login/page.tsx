@@ -35,7 +35,7 @@ export default function LoginPage() {
 	return (
 		<main className="flex min-h-screen flex-col justify-center bg-gray-900 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
 			<div className="mx-auto w-full max-w-sm">
-				<h1 className="text-center text-2xl font-semibold text-white sm:text-3xl">ReeferConecta</h1>
+				<img src="icons/reeferbras-logotipo.svg" alt= "Reeferbras Logo" className="mx-auto h-25 w-auto" />
 				<p className="mt-2 text-center text-sm text-gray-400">Entre na sua conta</p>
 				<form onSubmit={submit} className="mt-8 space-y-5">
 					<label className="block text-sm text-gray-200">E-mail<input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-md bg-white/5 px-3 py-3 text-white outline outline-1 outline-white/10 focus:outline-cyan-400" /></label>
