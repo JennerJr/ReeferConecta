@@ -155,7 +155,7 @@ export default function ProfilePage() {
       <div className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-widest text-cyan-400">Conta</p>
         <h1 className="mt-2 text-3xl font-semibold text-white">Perfil do usuário</h1>
-        <p className="mt-2 text-sm text-gray-400">Seu usuário é carregado automaticamente. Usuários ENC e DEV também podem alterar o setor.</p>
+        <p className="mt-2 text-sm text-gray-400">Seu usuário é carregado automaticamente.</p>
       </div>
 
       <form onSubmit={saveUser} className="space-y-5 rounded-lg border border-white/10 bg-gray-900/70 p-4 sm:p-6">
