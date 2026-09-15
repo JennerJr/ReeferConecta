@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { canManagePieces } from "@/lib/authorization";
+import { printPieceLabels } from "@/lib/labels";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -54,6 +55,8 @@ export default function PecaPage({ params }: PageProps) {
   const [error, setError] = useState("");
   const [imageUrl, setImageUrl] = useState<string>("");
   const [role, setRole] = useState<string>();
+  const [printingLabel, setPrintingLabel] = useState(false);
+  const [printError, setPrintError] = useState("");
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -76,6 +79,22 @@ export default function PecaPage({ params }: PageProps) {
   if (error) return <main className="mx-auto max-w-3xl px-4 py-8 text-red-700 sm:px-6 sm:py-10">{error}</main>;
   if (!piece) return <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">Carregando...</main>;
 
+  async function handleReprintLabel() {
+    if (!piece?.qc) {
+      setPrintError("Esta peça não possui um QC para gerar etiqueta.");
+      return;
+    }
+    setPrintingLabel(true);
+    setPrintError("");
+    try {
+      await printPieceLabels([piece.qc]);
+    } catch (labelError) {
+      setPrintError(labelError instanceof Error ? labelError.message : "Não foi possível gerar a etiqueta.");
+    } finally {
+      setPrintingLabel(false);
+    }
+  }
+
   const fields: [string, string|undefined|number][] = [
     ["ID", piece.id],
     ["Data de chegada", formatArrivalDate(piece.dataChegada)],
@@ -94,15 +113,25 @@ export default function PecaPage({ params }: PageProps) {
       <section className="mx-auto max-w-3xl">
         <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
           <Link className="text-sm font-semibold text-sky-700" href="/pecas">← Voltar para peças</Link>
-          {canManagePieces(role) && (
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <button
-              onClick={() => router.push(`/pecas/${id}/editar`)}
-              className="w-full rounded-lg bg-blue-600 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-blue-700 sm:w-auto"
+              onClick={handleReprintLabel}
+              disabled={printingLabel}
+              className="w-full rounded-lg bg-emerald-700 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-emerald-800 disabled:opacity-50 sm:w-auto"
             >
-              Editar peça
+              {printingLabel ? "Gerando etiqueta..." : "Reimprimir etiqueta"}
             </button>
-          )}
+            {canManagePieces(role) && (
+              <button
+                onClick={() => router.push(`/pecas/${id}/editar`)}
+                className="w-full rounded-lg bg-blue-600 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-blue-700 sm:w-auto"
+              >
+                Editar peça
+              </button>
+            )}
+          </div>
         </div>
+        {printError && <p className="mt-3 rounded-lg bg-amber-50 p-3 text-amber-800">{printError}</p>}
         
         <h1 className="mt-4 text-3xl text-white font-bold">Detalhes da peça</h1>
 

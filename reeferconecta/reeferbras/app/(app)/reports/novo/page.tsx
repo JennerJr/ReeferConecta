@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Piece = { id: number; qc?: string; nome?: string; fabricante?: string };
+type BarcodeDetectorResult = { rawValue: string };
+type BarcodeDetectorInstance = { detect(source: HTMLVideoElement): Promise<BarcodeDetectorResult[]> };
+type BarcodeDetectorConstructor = new (options?: { formats?: string[] }) => BarcodeDetectorInstance;
 
 const visualInspectionOptions = ["BIELA", "BOMBA DE LUBRIFICAÇÃO", "BORNE", "BUCHA", "CAMISA", "EIXO GIRA BREQUIM", "ESTATOR", "FILTRO", "PISTÕES", "PLACA DE VÁLVULAS"];
 const mechanicalAnalysisOptions = ["Anel Guia do SCROLL", "Bucha Exêntrica", "Bucha do Mancal", "Cabeçote", "Conjunto de virabrequim", "Disco de compressão", "Mancal de virabrequim", "Mola do mecanismo de flutuação", "Selo Flutuante", "SCROLL fixo", "SCROLL movel", "Válvula de Retenção"];
@@ -43,6 +46,77 @@ export default function NovoReportPage() {
   const [error, setError] = useState("");
   const [checking, setChecking] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [scannerIndex, setScannerIndex] = useState<number | null>(null);
+  const [scannerError, setScannerError] = useState("");
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (scannerIndex === null) return;
+
+    const targetIndex = scannerIndex;
+    const videoElement = videoRef.current;
+    let active = true;
+    let animationFrame = 0;
+    let stream: MediaStream | undefined;
+    const detectorConstructor = (window as Window & { BarcodeDetector?: BarcodeDetectorConstructor }).BarcodeDetector;
+
+    async function startScanner() {
+      if (!detectorConstructor) {
+        setScannerError("A leitura pela câmera não é compatível com este navegador. Use um leitor conectado ou digite o QC.");
+        return;
+      }
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setScannerError("A câmera não está disponível neste dispositivo ou contexto.");
+        return;
+      }
+
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+        if (!active || !videoElement) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+
+        const video = videoElement;
+        video.srcObject = stream;
+        await video.play();
+        const detector = new detectorConstructor({
+          formats: ["qr_code", "code_128", "code_39", "code_93", "codabar", "ean_13", "ean_8", "itf", "upc_a", "upc_e"],
+        });
+
+        const scan = async () => {
+          if (!active) return;
+          try {
+            const detected = await detector.detect(video);
+            const value = detected.find((item) => item.rawValue.trim())?.rawValue.trim();
+            if (value) {
+              changeQc(targetIndex, value);
+              setScannerIndex(null);
+              return;
+            }
+          } catch {
+            // A frame can fail while the camera is focusing; keep scanning.
+          }
+          if (active) animationFrame = requestAnimationFrame(() => { void scan(); });
+        };
+        animationFrame = requestAnimationFrame(() => { void scan(); });
+      } catch (requestError) {
+        if (active) {
+          setScannerError(requestError instanceof DOMException && requestError.name === "NotAllowedError"
+            ? "Permita o acesso à câmera para ler o código."
+            : "Não foi possível iniciar a câmera.");
+        }
+      }
+    }
+
+    void startScanner();
+    return () => {
+      active = false;
+      cancelAnimationFrame(animationFrame);
+      stream?.getTracks().forEach((track) => track.stop());
+      if (videoElement) videoElement.srcObject = null;
+    };
+  }, [scannerIndex]);
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -66,6 +140,11 @@ export default function NovoReportPage() {
     setQcs((currentQcs) => currentQcs.map((currentQc, currentIndex) => currentIndex === index ? value : currentQc));
     setPieces([]);
     setMessage("");
+  }
+
+  function openScanner(index: number) {
+    setScannerError("");
+    setScannerIndex(index);
   }
 
   function changeSurge(index: number, value: string) {
@@ -160,7 +239,12 @@ export default function NovoReportPage() {
             {qcs.map((qc, index) => (
               <label className="grid gap-2 text-sm font-semibold text-slate-200" key={index}>
                 QC da peça {index + 1}
-                <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={qc} onChange={(event) => changeQc(index, event.target.value)} required />
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <input className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={qc} onChange={(event) => changeQc(index, event.target.value)} required />
+                  <button className="rounded-lg bg-sky-700 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-800" type="button" onClick={() => openScanner(index)}>
+                    Ler código
+                  </button>
+                </div>
               </label>
             ))}
           </div>
@@ -210,6 +294,22 @@ export default function NovoReportPage() {
           </div>}
         </form>
       </section>
+      {scannerIndex !== null && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="scanner-title">
+        <div className="w-full max-w-lg rounded-xl border border-slate-600 bg-gray-800 p-5 shadow-xl">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold text-white" id="scanner-title">Ler QC da peça {scannerIndex + 1}</h2>
+              <p className="mt-1 text-sm text-slate-300">Aponte a câmera para o código de barras ou QR code.</p>
+            </div>
+            <button className="text-2xl leading-none text-slate-300 hover:text-white" type="button" onClick={() => setScannerIndex(null)} aria-label="Fechar leitor">×</button>
+          </div>
+          <video className="mt-4 aspect-video w-full rounded-lg bg-black object-cover" ref={videoRef} autoPlay muted playsInline />
+          {scannerError && <p className="mt-3 rounded-lg bg-red-100 p-3 text-sm text-red-700">{scannerError}</p>}
+          <button className="mt-4 w-full rounded-lg border border-slate-500 px-4 py-2 font-semibold text-white hover:bg-slate-700" type="button" onClick={() => setScannerIndex(null)}>
+            Fechar
+          </button>
+        </div>
+      </div>}
     </main>
   );
 }

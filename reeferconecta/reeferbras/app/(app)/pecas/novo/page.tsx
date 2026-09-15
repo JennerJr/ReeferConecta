@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { canManagePieces } from "@/lib/authorization";
+import { printPieceLabels } from "@/lib/labels";
 import carrierParts from "@/data/carrier.json";
 import daikinParts from "@/data/daikin.json";
 import starcoolParts from "@/data/starcool.json";
@@ -65,6 +66,7 @@ export default function NovoPecaPage() {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
+  const [printingLabels, setPrintingLabels] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -84,6 +86,16 @@ export default function NovoPecaPage() {
   function updateField(index: number, field: keyof PieceForm, value: string) {
     setForms((currentForms) => currentForms.map((form, formIndex) => formIndex === index ? { ...form, [field]: value } : form));
     setSubmitted(false);
+  }
+
+  function handleSerialNumberKeyDown(index: number, event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter" || event.key === "Tab") {
+      const scannedValue = event.currentTarget.value.trim();
+      if (scannedValue) {
+        updateField(index, "serialNumber", scannedValue);
+      }
+      event.preventDefault();
+    }
   }
 
   function handleManufacturerChange(index: number, value: string) {
@@ -140,6 +152,18 @@ export default function NovoPecaPage() {
     reader.readAsDataURL(file);
   }
 
+  async function handlePrintLabels(qcs: string[]) {
+    if (qcs.length === 0) return;
+    setPrintingLabels(true);
+    try {
+      await printPieceLabels(qcs);
+    } catch (printError) {
+      setError(printError instanceof Error ? printError.message : "Não foi possível gerar as etiquetas.");
+    } finally {
+      setPrintingLabels(false);
+    }
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -188,6 +212,7 @@ export default function NovoPecaPage() {
 
       setGeneratedQcs(qcs);
       setSubmitted(true);
+      await handlePrintLabels(qcs);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Não foi possível salvar as peças.");
     } finally {
@@ -227,7 +252,15 @@ export default function NovoPecaPage() {
                 </select>
               </label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Serial Number
-                <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.serialNumber} onChange={(event) => updateField(index, "serialNumber", event.target.value)} />
+                <input
+                  className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none"
+                  required
+                  value={form.serialNumber}
+                  onFocus={(event) => event.target.select()}
+                  onKeyDown={(event) => handleSerialNumberKeyDown(index, event)}
+                  onChange={(event) => updateField(index, "serialNumber", event.target.value)}
+                  placeholder="Leia o código de barras ou digite o serial"
+                />
               </label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Localidade
                 <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.localidade} onChange={(event) => updateField(index, "localidade", event.target.value)}>
@@ -265,7 +298,19 @@ export default function NovoPecaPage() {
           ))}
 
           {error && <p className="rounded-lg bg-amber-50 p-3 text-amber-800">{error}</p>}
-          {submitted && <p className="rounded-lg bg-emerald-50 p-3 text-emerald-700">{generatedQcs.length} peças cadastradas com sucesso. QCs gerados: <strong>{generatedQcs.join(", ")}</strong></p>}
+          {submitted && (
+            <div className="grid gap-3 rounded-lg bg-emerald-50 p-3 text-emerald-700">
+              <p>{generatedQcs.length} peças cadastradas com sucesso. QCs gerados: <strong>{generatedQcs.join(", ")}</strong></p>
+              <button
+                className="w-fit rounded-lg border border-emerald-600 px-4 py-2 font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50"
+                type="button"
+                disabled={printingLabels}
+                onClick={() => handlePrintLabels(generatedQcs)}
+              >
+                {printingLabels ? "Gerando etiquetas..." : "Imprimir etiquetas novamente"}
+              </button>
+            </div>
+          )}
           <button className="w-full rounded-lg bg-gradient-to-br from-[#E8262C] to-[#B32025] px-4 py-3 font-semibold text-white transition hover:brightness-110 disabled:opacity-50" disabled={saving} type="submit">{saving ? `Cadastrando ${pieceCount} peças...` : `Cadastrar ${pieceCount} peças`}</button>
         </form>
       </section>
