@@ -9,6 +9,7 @@ type BarcodeDetectorResult = { rawValue: string };
 type BarcodeDetectorInstance = { detect(source: HTMLVideoElement): Promise<BarcodeDetectorResult[]> };
 type BarcodeDetectorConstructor = new (options?: { formats?: string[] }) => BarcodeDetectorInstance;
 
+const barcodeFormats = ["qr_code", "code_128", "code_39", "code_93", "codabar", "ean_13", "ean_8", "itf", "upc_a", "upc_e"];
 const visualInspectionOptions = ["BIELA", "BOMBA DE LUBRIFICAÇÃO", "BORNE", "BUCHA", "CAMISA", "EIXO GIRA BREQUIM", "ESTATOR", "FILTRO", "PISTÕES", "PLACA DE VÁLVULAS"];
 const mechanicalAnalysisOptions = ["Anel Guia do SCROLL", "Bucha Exêntrica", "Bucha do Mancal", "Cabeçote", "Conjunto de virabrequim", "Disco de compressão", "Mancal de virabrequim", "Mola do mecanismo de flutuação", "Selo Flutuante", "SCROLL fixo", "SCROLL movel", "Válvula de Retenção"];
 const functionTestOptions = ["Corrente de operação entre 3A à 8A (BANCADA)", "Pressurização", "320 Psi à 400 Psi", "Teste em Container \"Baby\""];
@@ -58,18 +59,10 @@ export default function NovoReportPage() {
     let active = true;
     let animationFrame = 0;
     let stream: MediaStream | undefined;
+    let stopFallbackScanner: (() => void) | undefined;
     const detectorConstructor = (window as Window & { BarcodeDetector?: BarcodeDetectorConstructor }).BarcodeDetector;
 
-    async function startScanner() {
-      if (!detectorConstructor) {
-        setScannerError("A leitura pela câmera não é compatível com este navegador. Use um leitor conectado ou digite o QC.");
-        return;
-      }
-      if (!navigator.mediaDevices?.getUserMedia) {
-        setScannerError("A câmera não está disponível neste dispositivo ou contexto.");
-        return;
-      }
-
+    async function startNativeScanner(Detector: BarcodeDetectorConstructor) {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
         if (!active || !videoElement) {
@@ -80,8 +73,8 @@ export default function NovoReportPage() {
         const video = videoElement;
         video.srcObject = stream;
         await video.play();
-        const detector = new detectorConstructor({
-          formats: ["qr_code", "code_128", "code_39", "code_93", "codabar", "ean_13", "ean_8", "itf", "upc_a", "upc_e"],
+        const detector = new Detector({
+          formats: barcodeFormats,
         });
 
         const scan = async () => {
@@ -109,10 +102,51 @@ export default function NovoReportPage() {
       }
     }
 
-    void startScanner();
+    async function startFallbackScanner() {
+      try {
+        const { BrowserMultiFormatReader } = await import("@zxing/browser");
+        if (!active || !videoElement) return;
+
+        const reader = new BrowserMultiFormatReader();
+        const controls = await reader.decodeFromConstraints(
+          { video: { facingMode: { ideal: "environment" } }, audio: false },
+          videoElement,
+          (result, _error, scannerControls) => {
+            if (!active) return;
+
+            const value = result?.getText().trim();
+            if (value) {
+              scannerControls.stop();
+              changeQc(targetIndex, value);
+              setScannerIndex(null);
+            }
+          },
+        );
+        stopFallbackScanner = controls.stop;
+        if (!active) controls.stop();
+      } catch (requestError) {
+        if (active) {
+          setScannerError(requestError instanceof DOMException && requestError.name === "NotAllowedError"
+            ? "Permita o acesso à câmera para ler o código."
+            : "Não foi possível iniciar a câmera.");
+        }
+      }
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      void Promise.resolve().then(() => {
+        if (active) setScannerError("A câmera não está disponível neste dispositivo ou contexto.");
+      });
+    } else if (detectorConstructor) {
+      void startNativeScanner(detectorConstructor);
+    } else {
+      void startFallbackScanner();
+    }
+
     return () => {
       active = false;
       cancelAnimationFrame(animationFrame);
+      stopFallbackScanner?.();
       stream?.getTracks().forEach((track) => track.stop());
       if (videoElement) videoElement.srcObject = null;
     };
