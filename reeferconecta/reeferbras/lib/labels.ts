@@ -18,7 +18,7 @@ async function generateLabelAssets(qc: string) {
   return { qc, barcodeDataUrl, qrDataUrl };
 }
 
-// Monta e abre a janela de impressão com uma etiqueta de 100mm x 25mm por QC.
+// Monta e abre a janela de impressão com uma etiqueta de 50mm x 25mm por QC.
 export async function printPieceLabels(qcs: string[]) {
   const validQcs = qcs.filter((qc) => qc.trim().length > 0);
   if (validQcs.length === 0) {
@@ -46,17 +46,17 @@ export async function printPieceLabels(qcs: string[]) {
         <meta charset="utf-8" />
         <title>Etiquetas de peças</title>
         <style>
-          @page { size: 100mm 25mm; margin: 0; }
+          @page { size: 50mm 25mm; margin: 0; }
           * { box-sizing: border-box; }
           html, body { margin: 0; padding: 0; }
           .label {
-            width: 100mm;
+            width: 50mm;
             height: 25mm;
-            padding: 2mm;
+            padding: 1.5mm;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 2mm;
+            gap: 1mm;
             overflow: hidden;
             page-break-after: always;
           }
@@ -69,16 +69,16 @@ export async function printPieceLabels(qcs: string[]) {
             align-items: center;
             justify-content: center;
           }
-          .barcode { width: 100%; max-width: 68mm; height: 15mm; object-fit: contain; }
+          .barcode { width: 100%; max-width: 32mm; height: 13mm; object-fit: contain; }
           .qc-text {
             margin-top: 1mm;
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 8pt;
+            font-size: 6pt;
             font-weight: bold;
             text-align: center;
             white-space: nowrap;
           }
-          .qr { width: 20mm; height: 20mm; flex-shrink: 0; }
+          .qr { width: 16mm; height: 16mm; flex-shrink: 0; }
         </style>
       </head>
       <body>${labelsHtml}</body>
