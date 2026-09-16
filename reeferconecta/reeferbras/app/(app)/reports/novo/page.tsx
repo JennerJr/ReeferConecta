@@ -299,9 +299,9 @@ export default function NovoReportPage() {
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-200">
               Situação atual
-              <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-black outline-none" value={situacaoAtual} onChange={(event) => setSituacaoAtual(event.target.value)} required>
+              <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={situacaoAtual} onChange={(event) => setSituacaoAtual(event.target.value)} required>
                 <option value="">Selecione uma situação</option>
-                {situations.map((situation) => <option key={situation} value={situation}>{situation}</option>)}
+                {situations.map((situation) => <option className="text-black" key={situation} value={situation}>{situation}</option>)}
               </select>
             </label>
             {role === "lab.elétrica" && <div className="grid gap-5 rounded-lg border border-slate-600 p-4">
@@ -309,7 +309,7 @@ export default function NovoReportPage() {
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Resistência (Ω)<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" step="any" value={resistencia} onChange={(event) => setResistencia(event.target.value)} /></label>
               <fieldset className="grid gap-2 text-sm font-semibold text-slate-200"><legend>Surge (%)</legend><div className="grid gap-3 sm:grid-cols-3">{surge.map((measurement, index) => <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" key={index} aria-label={`Medição Surge ${index + 1}`} type="number" step="any" value={measurement} onChange={(event) => changeSurge(index, event.target.value)} />)}</div></fieldset>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Mega (Ω)<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" step="any" value={mega} onChange={(event) => setMega(event.target.value)} /></label>
-              <label className="grid gap-2 text-sm font-semibold text-slate-200">Simulador<select className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-black outline-none" value={simulador} onChange={(event) => setSimulador(event.target.value)}><option value="">Não informado</option><option value="Passou">Passou</option><option value="Não passou">Não passou</option></select></label>
+              <label className="grid gap-2 text-sm text-black font-semibold text-slate-200">Simulador<select className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={simulador} onChange={(event) => setSimulador(event.target.value)}><option className="text-black" value="">Não informado</option><option className="text-black" value="Passou">Passou</option><option className="text-black" value="Não passou">Não passou</option></select></label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Corrente (A)<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" step="any" value={corrente} onChange={(event) => setCorrente(event.target.value)} /></label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Transformador (V AC)<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" step="any" value={transformador} onChange={(event) => setTransformador(event.target.value)} /></label>
             </div>}
