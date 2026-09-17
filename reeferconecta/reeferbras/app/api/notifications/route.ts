@@ -13,16 +13,23 @@ async function notificationsCollection() {
   return client.db(databaseName).collection<NotificationDocument>(collectionName);
 }
 
+function notificationsQuery(userId: string, receivesReportNotifications: boolean) {
+  return receivesReportNotifications
+    ? { $or: [{ recipientUserIds: userId }, { recipientUserIds: { $exists: false } }] }
+    : { recipientUserIds: userId };
+}
+
 export async function GET() {
   try {
     const user = await getSessionUser();
     if (!user) return NextResponse.json({ error: "Sessão não encontrada" }, { status: 401 });
-    if (!canReceiveReportNotifications(user.role)) {
-      return NextResponse.json({ notifications: [], unreadCount: 0 });
-    }
 
     const collection = await notificationsCollection();
-    const documents = await collection.find({}).sort({ createdAt: -1 }).limit(50).toArray();
+    const documents = await collection
+      .find(notificationsQuery(user._id, canReceiveReportNotifications(user.role)))
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .toArray();
     const notifications = documents.map((document) => ({
       id: document._id.toString(),
       message: document.message,
@@ -62,17 +69,15 @@ export async function PATCH(request: NextRequest) {
   try {
     const user = await getSessionUser();
     if (!user) return NextResponse.json({ error: "Sessão não encontrada" }, { status: 401 });
-    if (!canReceiveReportNotifications(user.role)) {
-      return NextResponse.json({ error: "Entrada não autorizada" }, { status: 403 });
-    }
 
     const input = (await request.json()) as { id?: string; all?: boolean };
     const collection = await notificationsCollection();
+    const query = notificationsQuery(user._id, canReceiveReportNotifications(user.role));
 
     if (input.all) {
-      await collection.updateMany({ readBy: { $ne: user._id } }, { $addToSet: { readBy: user._id } });
+      await collection.updateMany({ $and: [query, { readBy: { $ne: user._id } }] }, { $addToSet: { readBy: user._id } });
     } else if (input.id && ObjectId.isValid(input.id)) {
-      await collection.updateOne({ _id: new ObjectId(input.id) }, { $addToSet: { readBy: user._id } });
+      await collection.updateOne({ $and: [query, { _id: new ObjectId(input.id) }] }, { $addToSet: { readBy: user._id } });
     } else {
       return NextResponse.json({ error: "Informe o id da notificação ou all" }, { status: 400 });
     }

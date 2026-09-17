@@ -49,13 +49,8 @@ export default function NewEmployeeForm() {
   }
 
   return (
-    <details className="mt-8 max-w-2xl rounded-lg border border-white/10 bg-gray-900/70 p-4 sm:p-6">
-      <summary className="cursor-pointer list-none text-2xl font-semibold text-white marker:hidden">
-        <span className="flex items-center justify-between gap-4">
-          Adicionar novo funcionário
-          <span className="text-cyan-400" aria-hidden="true">+</span>
-        </span>
-      </summary>
+    <section className="mt-6 max-w-2xl rounded-lg border border-white/10 bg-gray-900/70 p-4 sm:p-6">
+      <h2 className="text-2xl font-semibold text-white">Cadastrar funcionário</h2>
       <p className="mt-2 text-sm text-gray-400">A senha inicial será reeferconecta.</p>
 
       <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
@@ -105,6 +100,6 @@ export default function NewEmployeeForm() {
           {saving ? "Cadastrando..." : "Cadastrar funcionário"}
         </button>
       </form>
-    </details>
+    </section>
   );
 }

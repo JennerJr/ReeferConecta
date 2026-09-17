@@ -12,7 +12,8 @@ type User = { name?: string; role?: string };
 type RecentOkReport = { id: string; pieceName: string; responsibleName: string; createdAt: string };
 
 const piecesDatabase = process.env.MONGODB_DATABASE_PECAS || "pecas";
-const filterableSectors = ["lab.elétrica", "lab.eletronica", "cereco"] as const;
+const encFilterableSectors = ["lab.elétrica", "lab.eletronica", "cereco"] as const;
+const masterFilterableSectors = ["enc"] as const;
 const periods = ["all", "1-month", "3-months", "6-months", "1-year", "custom"] as const;
 
 function formatSector(sector: string) {
@@ -49,19 +50,20 @@ async function getDashboardData(filters: { sector: string; employee: string; per
   ]);
   const roleByName = new Map(users.filter((user) => user.name && user.role).map((user) => [user.name!.trim().toLowerCase(), user.role!.trim().toLowerCase()]));
   const sessionRole = sessionUser.role.trim().toLowerCase();
-  const canViewAllDashboard = sessionRole === "enc" || sessionRole === "dev";
+  const canViewAllDashboard = sessionRole === "enc" || sessionRole === "dev" || sessionRole === "master";
   const currentUserName = sessionUser.name.trim().toLowerCase();
-  const canFilterReports = sessionRole === "enc";
-  const selectedSector = canFilterReports && filterableSectors.includes(filters.sector as (typeof filterableSectors)[number])
+  const filterableSectors: readonly string[] = sessionRole === "master" ? masterFilterableSectors : encFilterableSectors;
+  const canFilterReports = sessionRole === "enc" || sessionRole === "master";
+  const selectedSector = canFilterReports && filterableSectors.includes(filters.sector)
     ? filters.sector
-    : "";
+    : sessionRole === "master" ? "enc" : "";
   const employees = users
     .flatMap((user) => {
       const name = user.name?.trim();
       const role = user.role?.trim().toLowerCase();
       return name && role ? [{ name, role }] : [];
     })
-    .filter((user) => filterableSectors.includes(user.role as (typeof filterableSectors)[number]))
+    .filter((user) => filterableSectors.includes(user.role))
     .sort((first, second) => first.name.localeCompare(second.name, "pt-BR"));
   const validEmployee = selectedSector
     ? employees.find((user) => user.role === selectedSector && user.name.toLowerCase() === filters.employee.toLowerCase())?.name ?? ""
@@ -94,7 +96,9 @@ async function getDashboardData(filters: { sector: string; employee: string; per
       })))
     .sort((first, second) => new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime())
     .slice(0, 10);
-  const allSectors = employeeRoles.filter((role) => !["almox", "enc", "master", "dev"].includes(role));
+  const allSectors = sessionRole === "master"
+    ? [...masterFilterableSectors]
+    : employeeRoles.filter((role) => !["almox", "enc", "master", "dev"].includes(role));
   const canViewOperationalSectorReports = canViewAllDashboard || sessionRole === "almox";
   const sectors = selectedSector
     ? [selectedSector]
