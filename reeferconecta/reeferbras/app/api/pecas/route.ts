@@ -9,11 +9,10 @@ import getMongoClient from "@/lib/mongodb";
 // ============================================================
 interface PecaForm {
   nome: string;
-  serialNumber: string;
+  serialNumber?: string;
   fabricante: string;
   localidade: string;
   tecnicoResponsavel: string;
-  partNumber: string;
   dataChegada: string;
   situacaoAtual: string;
   imagemUrl?: string;
@@ -26,11 +25,10 @@ interface PecaForm {
 interface PecaDocument {
   id: number;
   nome: string;
-  serialNumber: string;
+  serialNumber?: string;
   fabricante: string;
   localidade: string;
   tecnicoResponsavel: string;
-  partNumber: string;
   dataChegada: string;
   situacaoAtual: string;
   imagemUrl?: string;
@@ -72,7 +70,6 @@ function validatePiece(piece: PecaForm): string[] {
   const errors: string[] = [];
   const requiredFields: Array<[keyof PecaForm, string]> = [
     ["nome", "Nome"],
-    ["serialNumber", "Número de Série"],
     ["fabricante", "Fabricante"],
     ["tecnicoResponsavel", "Técnico Responsável"],
   ];
@@ -185,7 +182,6 @@ export async function POST(request: NextRequest) {
       fabricante: piece.fabricante,
       localidade: piece.localidade,
       tecnicoResponsavel: piece.tecnicoResponsavel,
-      partNumber: piece.partNumber,
       dataChegada: piece.dataChegada,
       situacaoAtual: piece.situacaoAtual,
       imagemUrl: piece.imagemUrl,
@@ -236,7 +232,6 @@ export async function PUT(request: NextRequest) {
       fabricante: input.fabricante ?? current.fabricante,
       localidade: input.localidade ?? current.localidade,
       tecnicoResponsavel: input.tecnicoResponsavel ?? current.tecnicoResponsavel,
-      partNumber: input.partNumber ?? current.partNumber,
       dataChegada: input.dataChegada ?? current.dataChegada,
       situacaoAtual: input.situacaoAtual ?? current.situacaoAtual,
       imagemUrl: input.imagemUrl ?? current.imagemUrl,

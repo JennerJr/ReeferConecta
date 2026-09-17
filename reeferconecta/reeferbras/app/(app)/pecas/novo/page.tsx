@@ -7,6 +7,7 @@ import carrierParts from "@/data/carrier.json";
 import daikinParts from "@/data/daikin.json";
 import starcoolParts from "@/data/starcool.json";
 import thermokingParts from "@/data/thermoking.json";
+import { useRouter } from "next/navigation";  
 
 type PieceForm = {
   nome: string;
@@ -18,6 +19,7 @@ type PieceForm = {
   deliveredBy: string;
   imagemUrl: string;
 };
+
 
 type CatalogPart = {
   linha: string;
@@ -59,6 +61,7 @@ function getCurrentDateTimeLocal() {
 }
 
 export default function NovoPecaPage() {
+  const router = useRouter();
   const [pieceCount, setPieceCount] = useState(1);
   const [forms, setForms] = useState<PieceForm[]>([createInitialForm()]);
   const [submitted, setSubmitted] = useState(false);
@@ -175,7 +178,6 @@ export default function NovoPecaPage() {
         const requiredFields: Array<[keyof PieceForm, string]> = [
           ["nome", "Nome"],
           ["fabricante", "Fabricante"],
-          ["serialNumber", "Serial Number"],
           ["localidade", "Localidade"],
           ["tecnicoResponsavel", "Técnico Responsável"],
           ["situacaoAtual", "Situação Atual"],
@@ -254,7 +256,6 @@ export default function NovoPecaPage() {
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Serial Number
                 <input
                   className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none"
-                  required
                   value={form.serialNumber}
                   onFocus={(event) => event.target.select()}
                   onKeyDown={(event) => handleSerialNumberKeyDown(index, event)}
@@ -311,7 +312,7 @@ export default function NovoPecaPage() {
               </button>
             </div>
           )}
-          <button className="w-full rounded-lg bg-gradient-to-br from-[#E8262C] to-[#B32025] px-4 py-3 font-semibold text-white transition hover:brightness-110 disabled:opacity-50" disabled={saving} type="submit">{saving ? `Cadastrando ${pieceCount} peças...` : `Cadastrar ${pieceCount} peças`}</button>
+          <button className="w-full rounded-lg bg-gradient-to-br from-[#E8262C] to-[#B32025] px-4 py-3 font-semibold text-white transition hover:brightness-110 disabled:opacity-50" onClick={() => router.push('/pecas')} disabled={saving} type="submit">{saving ? `Cadastrando ${pieceCount} peças...` : `Cadastrar ${pieceCount} peças`} </button>
         </form>
       </section>
     </main>

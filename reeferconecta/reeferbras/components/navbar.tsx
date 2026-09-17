@@ -42,6 +42,7 @@ const navigation = [
   { name: 'Almoxarifado', href: '/pecas' },
   { name: 'Times', href: '/times' },
   { name: 'Relatórios', href: '/reports' },
+  {name: 'chamados', href: '/chamados'},
 ]
 
 const logoNavigation = [{name: 'logo', href: '/'}]
