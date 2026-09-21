@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
     const history: PieceHistory = {
       id: randomUUID(),
       action: "created",
-      details: "Peça cadastrada",
+      details: "chamado aberto",
       userName: user?.name || "Usuário desconhecido",
       createdAt: now,
     };

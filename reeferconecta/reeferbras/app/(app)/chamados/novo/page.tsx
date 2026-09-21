@@ -1,12 +1,11 @@
 'use client';
 
 import Link from "next/link";
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useState} from 'react';
 import { useRouter } from 'next/navigation';
-import { setErrorMap } from "better-auth";
 
 type Piece = {
-    id: string
+    id: number;
     titulo: string;
     descricao: string;
     status: string;
@@ -29,10 +28,9 @@ const [descricao, setDescricao] = useState("");
 const [status, setStatus] = useState(situations[0]);
 const [pedidoPor, setPedidoPor] = useState("");
 const [role, setRole] = useState("");
-const [criadoEm, setCriadoEm] = useState("");
 const [saving, setSaving] = useState(false);
 const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
+const [message, setMessage] = useState("");
 
 
 useEffect(() => {
@@ -49,6 +47,8 @@ async function saveChamado(event: React.FormEvent){
     event.preventDefault();
     setSaving(true);
     setError("");
+    setMessage("");
+
     try {
 
         await Promise.all(pieces.map(async (piece, index) => {
@@ -61,7 +61,7 @@ async function saveChamado(event: React.FormEvent){
                     descricao,
                     status,
                     pedidoPor,
-                    criadoEm,  
+                    criadoEm: new Date().toISOString(),
                 }),
              });
             const data = await response.json();
@@ -83,7 +83,7 @@ return(
                     {message && <p className="rounded-lg bg-emerald-50 p-3 text-emerald-700">{message}</p>}
                     {error && <p className="rounded-lg bg-red-100 p-3 text-red-700">{error}</p>}
 
-                    {pieces.length > 0 && <div className="grid gap-5">
+            <div className="grid gap-5">
             <label className="grid gap-2 text-sm font-semibold text-slate-200">
               Nome
               <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={pedidoPor} onChange={(event) => setPedidoPor(event.target.value)} required />
@@ -103,13 +103,13 @@ return(
                 {situations.map((situation) => <option className="text-black" key={situation} value={situation}>{situation}</option>)}
               </select>
             </label>
-                <button className="rounded-lg bg-red-700 px-4 py-3 font-semibold text-white hover:bg-red-800 disabled:opacity-50" disabled={saving} type="submit">{saving ? `Abrindo ${pieces.length} Chamados...` : `Abrir ${pieces.length} Chamados`}</button>
+                <button className="rounded-lg bg-red-700 px-4 py-3 font-semibold text-white hover:bg-red-800 disabled:opacity-50" disabled={saving} type="submit">{saving ? `Abrindo Chamado...` : `Abrir Chamado`}</button>
 
-            </div>}
+            </div>
                 </form>
         </section>
     </main>
-)
+);
 
 
 }
