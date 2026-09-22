@@ -5,13 +5,21 @@ import getMongoClient from "@/lib/mongodb";
 import { notifyReportSubmitted } from "@/lib/notifications";
 
 type standAloneChamado = {
-    id: number;
     titulo: string;
     descricao: string;
-    status: string;
     pedidoPor: string;
     criadoEm: string;
     history?: ChamadoHistory[];
+}
+
+type chamadoDoc = {
+  id: number;
+  titulo: string;
+  descricao: string;
+  status: string;
+  pedidoPor: string;
+  criadoEm: string;
+  history?: ChamadoHistory[];
 }
 
 export interface ChamadoHistory {
@@ -27,7 +35,7 @@ const databaseName = process.env.MONGODB_DATABASE_CHAMADOS || "chamados";
 const collectionName = "chamadosdb";
 async function chamadosCollection() {
   const client = await getMongoClient();
-  return client.db(databaseName).collection<standAloneChamado>(collectionName);
+  return client.db(databaseName).collection<chamadoDoc>(collectionName);
 }
 
 function getCurrentDateTimeLocal(): string {
@@ -44,7 +52,6 @@ function validatePiece(piece: standAloneChamado): string[] {
   const requiredFields: Array<[keyof standAloneChamado, string]> = [
     ["titulo", "Título"],
     ["descricao", "Descrição"],
-    ["status", "Status"],
     ["pedidoPor", "Pedido Por"],
   ];
 
@@ -122,16 +129,16 @@ try {
     const history: ChamadoHistory = {
       id: randomUUID(),
       action: "created",
-      details: "Peça cadastrada",
+      details: "Chamado Aberto",
       userName: user?.name || "Usuário desconhecido",
       criadoEm: now,
     };
 
-    const doc: standAloneChamado = {
+    const doc: chamadoDoc = {
       id: nextId,
       titulo: piece.titulo,
       descricao: piece.descricao,
-      status: piece.status,
+      status: "aberto",
       pedidoPor: piece.pedidoPor,
       criadoEm: now,
       history: [history],

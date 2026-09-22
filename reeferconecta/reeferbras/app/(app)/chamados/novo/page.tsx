@@ -13,24 +13,24 @@ type Piece = {
     criadoEm: string;
 }
 
-const situations = [
-    'Aberto',
-    'Em andamento',
-    'Concluído',
-    'Cancelado'
-];
-
 export default function NovoChamadoPage() {
 const router = useRouter();
-const [pieces, setPieces] = useState<Piece[]>([]);
 const [titulo, setTitulo] = useState("");
 const [descricao, setDescricao] = useState("");
-const [status, setStatus] = useState(situations[0]);
 const [pedidoPor, setPedidoPor] = useState("");
+const [submitted, setSubmitted] = useState(false);
 const [role, setRole] = useState("");
 const [saving, setSaving] = useState(false);
 const [error, setError] = useState("");
 const [message, setMessage] = useState("");
+
+
+function getCurrentDateTimeLocal() {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
 
 
 useEffect(() => {
@@ -43,32 +43,39 @@ useEffect(() => {
     .catch(()=> undefined);
 }, [])
 
-async function saveChamado(event: React.FormEvent){
+async function saveChamado(event: React.FormEvent<HTMLFormElement>){
     event.preventDefault();
     setSaving(true);
+    setSubmitted(true);
     setError("");
     setMessage("");
 
-    try {
+     try {
+        const requiredFields: Array<[keyof Piece, string]> = [
+          ["titulo", "Titulo"],
+          ["descricao", "Descrição"],
+          ["pedidoPor", "Pedido Por"],
+        ];
+        const emptyField = requiredFields.find(([field]) => !eval(field).trim());
+        if (emptyField) throw new Error(`O campo ${emptyField[1]} é obrigatório.`);
 
-        await Promise.all(pieces.map(async (piece, index) => {
-            const response = await fetch(`/api/pecas/${piece.id}/chamadas`, {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    id: piece.id,
-                    titulo,
-                    descricao,
-                    status,
-                    pedidoPor,
-                    criadoEm: new Date().toISOString(),
-                }),
-             });
-            const data = await response.json();
-            if(!response.ok) throw new Error(data.erro ?? 'não foi possivel fazer o chamado')
-        }));
-        router.push(`/pecas/${pieces[0].id}`);
-    } catch (requestError) {
+        const response = await fetch("/api/chamados", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            titulo: titulo,
+            descricao: descricao,
+            status  : "Aberto",
+            pedidoPor: pedidoPor,
+            criadoEm: getCurrentDateTimeLocal(),
+
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.erro ?? "Não foi possível realizar o chamado.");
+        setMessage("Chamado salvo com sucesso.");
+        setSubmitted(true);
+    }  catch (requestError) {
         setError(requestError instanceof Error? requestError.message: "não foi possivel abrir o chamado")
     } finally {
         setSaving(false);
@@ -77,7 +84,7 @@ async function saveChamado(event: React.FormEvent){
 return(
     <main className="min-h-screen bg-gray-800 px-4 py-8 text-slate-900 sm:px-6 sm:py-10">
         <section className="mx-auto max-w-3xl">
-            <Link className="text-sm font-semibold text-sky-400" href="/reports">← Voltar para chamados</Link>
+            <Link className="text-sm font-semibold text-sky-400" href="/chamados">← Voltar para chamados</Link>
                 <h1 className="mt-4 text-3xl font-bold text-white">Novo Chamado</h1>
                 <form className="mt-8 space-y-5 rounded-xl border border-slate-700 bg-gray-800 p-4 sm:p-6" onSubmit={saveChamado}>
                     {message && <p className="rounded-lg bg-emerald-50 p-3 text-emerald-700">{message}</p>}
@@ -95,13 +102,6 @@ return(
             <label className="grid gap-2 text-sm font-semibold text-slate-200">
               Descrição do Chamado
               <textarea className="min-h-32 rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={descricao} onChange={(event) => setDescricao(event.target.value)} required />
-            </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-200">
-              Situação atual
-              <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={status} onChange={(event) => setStatus(event.target.value)} required>
-                <option value="">Selecione uma situação</option>
-                {situations.map((situation) => <option className="text-black" key={situation} value={situation}>{situation}</option>)}
-              </select>
             </label>
                 <button className="rounded-lg bg-red-700 px-4 py-3 font-semibold text-white hover:bg-red-800 disabled:opacity-50" disabled={saving} type="submit">{saving ? `Abrindo Chamado...` : `Abrir Chamado`}</button>
 

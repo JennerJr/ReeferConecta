@@ -44,8 +44,8 @@ type PieceHistory = {
 function formatArrivalDate(value?: string) {
   if (!value) return undefined;
   const [date] = value.split("T");
-  const [year, month, day] = date.split("-");
-  return `${year}/${month}/${day}`;
+  const [day, month, year] = date.split("-");
+  return `${day}/${month}/${year}`;
 }
 
 export default function PecaPage({ params }: PageProps) {
