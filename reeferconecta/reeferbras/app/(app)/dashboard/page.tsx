@@ -1,8 +1,10 @@
+
 import getMongoClient, { getMongoCollectionName, getMongoDatabaseName } from "@/lib/mongodb";
-import { employeeRoles } from "@/lib/authorization";
+import { employeeRoles} from "@/lib/authorization";
 import { getSessionUser } from "@/lib/auth-session";
 import DashboardFilters from "./dashboard-filters";
 import DashboardReportsTabs from "./dashboard-reports-tabs";
+import GenIndReport from "@/components/gen-IndReport";
 
 export const dynamic = "force-dynamic";
 
@@ -130,7 +132,7 @@ async function getDashboardData(filters: { sector: string; employee: string; per
   };
 }
 
-export default async function Dashboard({
+export default async function Dashboard({  
   searchParams,
 }: {
   searchParams: Promise<{ sector?: string | string[]; employee?: string | string[]; period?: string | string[]; startDate?: string | string[]; endDate?: string | string[] }>;
@@ -158,7 +160,10 @@ export default async function Dashboard({
       <main className="min-h-screen px-4 py-8 text-slate-900 sm:px-6 sm:py-10">
         <section className="mx-auto max-w-6xl">
           <p className="text-sm font-bold uppercase tracking-widest text-red-500">ReeferConecta</p>
+          <header className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <h1 className="mt-2 text-3xl font-bold text-white">Dashboard</h1>
+          <GenIndReport/>
+          </header>
           <p className="mt-2 text-slate-300">Visão geral dos relatórios por setor e da situação das peças.</p>
           {data.filters && <DashboardFilters {...data.filters} />}
           <DashboardReportsTabs reportsBySector={data.reportsBySector} pieceCategories={pieceCategories} />
