@@ -27,7 +27,7 @@ type Piece = {
 function formatArrivalDate(value?: string) {
   if (!value) return "não informada";
   const [date] = value.split("T");
-  const [day, month, year] = date.split("-");
+  const [year, month, day] = date.split("-");
   return `${day}/${month}/${year}`;
 }
 

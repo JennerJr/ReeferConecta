@@ -14,7 +14,7 @@ type chamado ={
 function formatArrivalDate(value?: string) {
   if (!value) return "não informada";
   const [date] = value.split("T");
-  const [day, month, year] = date.split("-");
+  const [year, month, day] = date.split("-");
   return `${day}/${month}/${year}`;
 }
 
@@ -75,7 +75,7 @@ export default function ChamadosPage() {
               <h2 className="break-words font-bold">{chamado.titulo || "Chamado sem título"}</h2>
               <p className="mt-2 text-sm text-slate-600">Usuário: {chamado.pedidoPor || "Não informado"}, Situação: {chamado.status || "Não informado"}</p>
               <p className="text-sm text-slate-600">Descrição: {chamado.descricao || "Não informado"}</p>
-              <p className="text-sm text-slate-600">Criado em: {chamado.criadoEm ? new Date(chamado.criadoEm).toLocaleString("pt-BR") : "Não informado"}</p>
+              <p className="text-sm text-slate-600">Criado em: {formatArrivalDate(chamado.criadoEm) ?? "Não informado"}</p>
             </Link>
           ))}
         </div>

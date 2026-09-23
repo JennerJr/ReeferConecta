@@ -27,7 +27,7 @@ type chamadosHystory = {
 function formatArrivalDate(value?: string) {
   if (!value) return undefined;
   const [date] = value.split("T");
-  const [day, month, year] = date.split("-");
+  const [year, month, day] = date.split("-");
   return `${day}/${month}/${year}`;
 }
 
