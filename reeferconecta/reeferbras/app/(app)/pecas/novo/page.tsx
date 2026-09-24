@@ -7,6 +7,7 @@ import carrierParts from "@/data/carrier.json";
 import daikinParts from "@/data/daikin.json";
 import starcoolParts from "@/data/starcool.json";
 import thermokingParts from "@/data/thermoking.json";
+import reeferbrasfunc from "@/data/reeferbrasfunc.json";
 import { useRouter } from "next/navigation";  
 
 type PieceForm = {

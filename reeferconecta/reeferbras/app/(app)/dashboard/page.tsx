@@ -1,4 +1,3 @@
-
 import getMongoClient, { getMongoCollectionName, getMongoDatabaseName } from "@/lib/mongodb";
 import { employeeRoles} from "@/lib/authorization";
 import { getSessionUser } from "@/lib/auth-session";
@@ -9,11 +8,13 @@ import GenIndReport from "@/components/gen-IndReport";
 export const dynamic = "force-dynamic";
 
 type Report = { id?: string; responsavelReparo?: string; situacaoAtual?: string; createdAt?: string };
+type ExternalReport = Report & { nomePeca?: string };
 type Piece = { nome?: string; situacaoAtual?: string; reports?: Report[] };
 type User = { name?: string; role?: string };
 type RecentOkReport = { id: string; pieceName: string; responsibleName: string; createdAt: string };
 
 const piecesDatabase = process.env.MONGODB_DATABASE_PECAS || "pecas";
+const reportsDataBase = process.env.MONGODB_DATABASE_REPORTS || "reports";
 const encFilterableSectors = ["lab.elétrica", "lab.eletronica", "cereco"] as const;
 const masterFilterableSectors = ["enc"] as const;
 const periods = ["all", "1-month", "3-months", "6-months", "1-year", "custom"] as const;
@@ -46,10 +47,26 @@ async function getDashboardData(filters: { sector: string; employee: string; per
   const client = await getMongoClient();
   const sessionUser = await getSessionUser();
   if (!sessionUser) throw new Error("Sessão não encontrada");
-  const [pieces, users] = await Promise.all([
+  const [pieces, users, reports] = await Promise.all([
     client.db(piecesDatabase).collection<Piece>("pecasdb").find({}, { projection: { nome: 1, situacaoAtual: 1, reports: 1 } }).toArray(),
     client.db(getMongoDatabaseName()).collection<User>(getMongoCollectionName()).find({}, { projection: { name: 1, role: 1 } }).toArray(),
+    client.db(reportsDataBase).collection<ExternalReport>("reportsdb").find({}, { projection: { responsavelReparo: 1, situacaoAtual: 1, createdAt: 1, nomePeca: 1 } }).toArray(),
   ]);
+  const normalizeName = (name?: string) => name?.trim().toLowerCase() ?? "";
+  const piecesByName = new Map<string, Piece & { reports: Report[] }>(
+    pieces.map((piece) => [normalizeName(piece.nome), { ...piece, reports: [...(piece.reports ?? [])] }]),
+  );
+  for (const { nomePeca, ...externalReport } of reports) {
+    const key = normalizeName(nomePeca);
+    if (!key) continue;
+    const existingPiece = piecesByName.get(key);
+    if (existingPiece) {
+      existingPiece.reports.push(externalReport);
+    } else {
+      piecesByName.set(key, { nome: nomePeca?.trim(), situacaoAtual: undefined, reports: [externalReport] });
+    }
+  }
+  const combinedPieces = Array.from(piecesByName.values());
   const roleByName = new Map(users.filter((user) => user.name && user.role).map((user) => [user.name!.trim().toLowerCase(), user.role!.trim().toLowerCase()]));
   const sessionRole = sessionUser.role.trim().toLowerCase();
   const canViewAllDashboard = sessionRole === "enc" || sessionRole === "dev" || sessionRole === "master";
@@ -84,7 +101,7 @@ async function getDashboardData(filters: { sector: string; employee: string; per
     return (!selectedSector || reportRole === selectedSector)
       && (!validEmployee || responsibleName === validEmployee.toLowerCase());
   };
-  const piecesWithFilteredReports = pieces
+  const piecesWithFilteredReports = combinedPieces
     .map((piece) => ({ ...piece, reports: piece.reports?.filter(matchesReportFilter) }))
     .filter((piece) => (piece.reports?.length ?? 0) > 0);
   const recentOkReports: RecentOkReport[] = piecesWithFilteredReports
@@ -106,7 +123,7 @@ async function getDashboardData(filters: { sector: string; employee: string; per
     ? [selectedSector]
     : canViewOperationalSectorReports ? allSectors : allSectors.filter((sector) => sector === sessionRole);
   const reportCounts = new Map<string, number>(allSectors.map((sector) => [sector, 0]));
-  const piecesForSectorReport = sessionRole === "almox" ? pieces : piecesWithFilteredReports;
+  const piecesForSectorReport = sessionRole === "almox" ? combinedPieces : piecesWithFilteredReports;
   for (const piece of piecesForSectorReport) {
     for (const report of piece.reports ?? []) {
       const role = report.responsavelReparo ? roleByName.get(report.responsavelReparo.trim().toLowerCase()) : undefined;

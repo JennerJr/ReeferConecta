@@ -1,0 +1,141 @@
+[
+    {
+    "Região" : "Norte",
+    "Localidade" : "Manaus/AM",
+    "funcionario" : ["Leoncio", "Raildo"]
+    },
+
+    {
+        "Região" : "Norte",
+        "Localidade" : "Belém/PA",
+        "funcionario" : "Leoncio"
+    },
+
+    {
+        "Região" : "Sul",
+        "Localidade" : "Paranaguá/PR",
+        "funcionario" : "Leandro"
+    },
+
+    {
+        "Região" : "Sul",
+        "Localidade" : "Itajaí/SC",
+        "funcionario" : "Darlan"
+    },
+
+    {
+        "Região" :"Sul",
+        "Localidade": "Itapoa/SC",
+        "funcionario" : "Helio"
+    },
+
+    {
+        "Região" : "Sul",
+        "Localidade": "Cambé/PR",
+        "funcionario" : "Joesley"
+    },
+
+    {
+        "Região" : "Sul",
+        "Localidade": "Cascavel/PR",
+        "funcionario" : "Marcio Severi"
+    },
+
+    {
+        "Região" : "Sul",
+        "Localidade": "Rio Grande/RS",
+        "funcionario" : "Willian"
+    },
+
+    {
+        "Região" : "Nordeste",
+        "Localidade": "Caucaia/CE",
+        "funcionario": "Mauro"
+    },
+
+    {
+        "Região" : "Nordeste",
+        "Localidade": "Salvador/BA",
+        "funcionario": "Adriano"
+    },
+
+    {
+        "Região" : "Nordeste",
+        "Localidade":"Suape/PE",
+        "funcionario": "Fabio Costa"
+    },
+
+    {
+        "Região" : "Nordeste",
+        "Localidade": "Petrolina/PE",
+        "funcionario": "Nielton"
+    },
+
+    {
+        "Região" : "Nordeste",
+        "Localidade": "Natal/RN",
+        "funcionario": "Thiago"
+    },
+
+    {
+        "Região" : "Sudeste",
+        "Localidade": "Vitoria/ES",
+        "funcionario" : ["Murilo", "Richarlysson"]
+    },
+
+    {
+        "Região" : "Sudeste",
+        "Localidade": "Rio de Janeiro/RJ",
+        "funcionario" : "David Collantini"
+    },
+
+    {
+        "Região" : "Sudeste",
+        "Localidade": "Itaguai/RJ",
+        "funcionario" : "Andre Costa"
+    },
+
+    {
+        "Região" : "Sudeste",
+        "Localidade": "Lins/SP",
+        "funcionario" : ["Joesley", "Rogelio"]
+    },
+
+    {
+        "Região" : "Sudeste",
+        "Localidade":"Sumaré/SP",
+        "funcionario" : "Clayton RealReefer"
+    },
+
+    {
+        "Região" : "Sudeste",
+        "Localidade": "São Paulo/SP",
+        "funcionario" : "Wladimir RealReefer"
+    },
+
+    {
+        "Região" : "Centro Oeste",
+        "Localidade": "Campo Grande/MS",
+        "funcionario" : "Abraão"
+    },
+
+    {
+        "Região" : "Centro Oeste",
+        "Localidade": "Nova Mutum/MT",
+        "funcionario" : "Rangel"
+    },
+
+    {
+        "Região":"Centro Oeste",
+        "Localidade": "Rondonopolis/MT",
+        "funcionario" : "Robson Generoso"
+    },
+
+    {
+        "Região" : "Centro Oeste",
+        "Localidade": "Sinop/MT",
+        "funcionario" : "Alex Rocha"
+    }
+    
+
+]
