@@ -176,7 +176,7 @@ export default function Navbar() {
             <div className="shrink-0">
               <Image
                 alt="Reeferbras Logo"
-                src="icons/icon.svg"
+                src="icons/R-logo.svg"
                 onClick={() => router.push('/')}
                 width={50}
                 height={50}
