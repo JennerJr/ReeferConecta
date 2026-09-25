@@ -9,6 +9,7 @@ type StandaloneReport = {
   responsavelReparo: string;
   descricaoReparo?: string;
   nomePeca: string;
+  pieceId?: number;
   tecnicoResponsavel: string;
   situacaoAtual: string;
   ordemServico?: string;
@@ -29,7 +30,7 @@ type StandaloneReport = {
   createdAt: string;
 };
 
-type ReportInput = Omit<StandaloneReport, "id" | "responsavelReparo" | "createdAt">;
+type ReportInput = Omit<StandaloneReport, "id" | "responsavelReparo" | "createdAt" | "pieceId">;
 
 const databaseName = process.env.MONGODB_DATABASE_PECAS || "pecas";
 const collectionName = "reportsdb";
@@ -80,6 +81,18 @@ export async function POST(request: NextRequest) {
     const inputs = body.reports ?? [];
     if (!inputs.length || inputs.length > 50) return NextResponse.json({ erro: "Envie entre 1 e 50 reports." }, { status: 400 });
 
+    const client = await getMongoClient();
+    const pieces = await client.db(databaseName).collection<Piece>("pecasdb").find({}, { projection: { id: 1, nome: 1 } }).toArray();
+    const normalizeName = (value?: string) => value?.trim().toLowerCase() ?? "";
+    const pieceIdsByName = new Map<string, number[]>();
+    for (const piece of pieces) {
+      const key = normalizeName(piece.nome);
+      if (!key) continue;
+      const existing = pieceIdsByName.get(key);
+      if (existing) existing.push(piece.id);
+      else pieceIdsByName.set(key, [piece.id]);
+    }
+
     const reports: StandaloneReport[] = [];
     for (const input of inputs) {
       const ordemServico = input.ordemServico?.trim() || undefined;
@@ -95,10 +108,12 @@ export async function POST(request: NextRequest) {
       if (role === "cereco" && input.scroll === "Sim" && input.reparoFalange !== "Sim" && input.reparoFalange !== "Não") {
         return NextResponse.json({ erro: "Informe se houve reparo da falange." }, { status: 400 });
       }
+      const matchingPieceIds = pieceIdsByName.get(normalizeName(nomePeca)) ?? [];
       reports.push({
         ...input,
         ordemServico,
         nomePeca,
+        pieceId: matchingPieceIds.length === 1 ? matchingPieceIds[0] : undefined,
         tecnicoResponsavel: user.name.trim(),
         situacaoAtual,
         responsavelReparo: user.name.trim(),
@@ -121,7 +136,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const collection = (await getMongoClient()).db(databaseName).collection<StandaloneReport>(collectionName);
+    const collection = client.db(databaseName).collection<StandaloneReport>(collectionName);
     await collection.insertMany(reports);
 
     const actorName = user.name.trim();
