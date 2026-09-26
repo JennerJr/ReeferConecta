@@ -52,40 +52,24 @@ async function getDashboardData(filters: { sector: string; employee: string; per
     client.db(getMongoDatabaseName()).collection<User>(getMongoCollectionName()).find({}, { projection: { name: 1, role: 1 } }).toArray(),
     client.db(reportsDataBase).collection<ExternalReport>("reportsdb").find({}, { projection: { responsavelReparo: 1, situacaoAtual: 1, createdAt: 1, nomePeca: 1, pieceId: 1 } }).toArray(),
   ]);
-  const normalizeName = (name?: string) => name?.trim().toLowerCase() ?? "";
-  const externalReportsById = new Map<number, Report[]>();
-  const externalReportsByName = new Map<string, { displayName?: string; reports: Report[] }>();
-  for (const { nomePeca, pieceId, ...externalReport } of reports) {
-    if (pieceId !== undefined) {
-      const list = externalReportsById.get(pieceId);
-      if (list) list.push(externalReport);
-      else externalReportsById.set(pieceId, [externalReport]);
-      continue;
-    }
-    const key = normalizeName(nomePeca);
-    if (!key) continue;
-    const group = externalReportsByName.get(key);
-    if (group) group.reports.push(externalReport);
-    else externalReportsByName.set(key, { displayName: nomePeca?.trim(), reports: [externalReport] });
+  // Relatórios embutidos em pecasdb (piece.reports) já passaram por QC.
+  // Relatórios da coleção reportsdb são "sem QC" — como não passaram por essa
+  // checagem, cada um deles é tratado como uma peça individual na contagem,
+  // em vez de ser mesclado à peça oficial correspondente. Isso evita que
+  // vários relatórios sem QC de peças diferentes sejam agrupados como se
+  // fossem uma única peça (o que distorcia o total exibido no relatório).
+  const pieceNameById = new Map<number, string>();
+  for (const piece of pieces) {
+    if (piece.id !== undefined && piece.nome) pieceNameById.set(piece.id, piece.nome);
   }
-  const matchedIds = new Set<number>();
-  const matchedExternalKeys = new Set<string>();
-  const combinedPieces: (Piece & { reports: Report[] })[] = pieces.map((piece) => {
-    const byId = piece.id !== undefined ? externalReportsById.get(piece.id) : undefined;
-    if (byId && piece.id !== undefined) matchedIds.add(piece.id);
-    const key = normalizeName(piece.nome);
-    const byName = externalReportsByName.get(key);
-    if (byName) matchedExternalKeys.add(key);
-    return { ...piece, reports: [...(piece.reports ?? []), ...(byId ?? []), ...(byName?.reports ?? [])] };
-  });
-  for (const [id, extraReports] of externalReportsById) {
-    if (!matchedIds.has(id)) combinedPieces.push({ situacaoAtual: undefined, reports: extraReports });
-  }
-  for (const [key, group] of externalReportsByName) {
-    if (!matchedExternalKeys.has(key)) {
-      combinedPieces.push({ nome: group.displayName, situacaoAtual: undefined, reports: group.reports });
-    }
-  }
+  const combinedPieces: (Piece & { reports: Report[] })[] = [
+    ...pieces.map((piece) => ({ ...piece, reports: piece.reports ?? [] })),
+    ...reports.map(({ nomePeca, pieceId, ...externalReport }) => ({
+      nome: (pieceId !== undefined ? pieceNameById.get(pieceId) : undefined) ?? nomePeca?.trim() ?? "Peça sem nome",
+      situacaoAtual: undefined,
+      reports: [externalReport],
+    })),
+  ];
   const roleByName = new Map(users.filter((user) => user.name && user.role).map((user) => [user.name!.trim().toLowerCase(), user.role!.trim().toLowerCase()]));
   const sessionRole = sessionUser.role.trim().toLowerCase();
   const canViewAllDashboard = sessionRole === "enc" || sessionRole === "dev" || sessionRole === "master";
