@@ -1,36 +1,42 @@
 [
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "MPC2000 Controller",
     "descricao": "Controlador MPC2000 Thermo King",
     "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/IMG_0867-1.JPG"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "MPC2000 Relay Board",
     "descricao": "Placa de relés MPC2000 Thermo King",
     "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/IMG_0864-1.JPG"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "MPC3000/3000A Controller",
     "descricao": "Controlador MPC3000/3000A Thermo King",
     "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/MPC3000.JPG"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "MPC3000 Relay Board",
     "descricao": "Placa de relés MPC3000 Thermo King",
     "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/IMG_0086.JPG"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "MP4000 Controller",
     "descricao": "Controlador MP4000 Thermo King",
     "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/mp4000%20controller.jpg"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "PM4000 Power Module",
     "descricao": "Módulo de alimentação PM4000 Thermo King",
     "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/pm4000%20power%20module.jpg"
@@ -43,6 +49,7 @@
   },
   {
     "linha": "Container",
+
     "componente": "uP-D Power Module",
     "descricao": "Módulo de alimentação uP-D Thermo King",
     "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/PWR%20Mod.JPG"
@@ -85,24 +92,28 @@
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "uP-G Controller",
     "descricao": "Controlador uP-G Thermo King",
     "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/uG%20Controller.JPG"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "uP-G Relay Board",
     "descricao": "Placa de relés uP-G Thermo King",
     "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/uG%20Relay%20Board.JPG"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "SG+ Controller",
     "descricao": "Controlador SG+ Thermo King",
     "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/SG+%20Controller.jpg"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "SG+ Display",
     "descricao": "Display SG+ Thermo King",
     "imagem": "https://fcie.us/images/Products/Thermo%20King/Thermo%20King%20Container/SG+%20Display.jpg"

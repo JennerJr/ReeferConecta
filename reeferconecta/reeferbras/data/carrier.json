@@ -1,42 +1,49 @@
 [
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "Carregador de Bateria",
     "descricao": "Carregador de bateria Carrier",
     "imagem": "https://fcie.us/images/carrier-30-00416-xx.jpg"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "Controlador MicroLink 2i",
     "descricao": "Controlador MicroLink 2i",
     "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML2i%20Controller.JPG"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "Controller MicroLink 3 (Yellow Label)",
     "descricao": "Controlador MicroLink 3 — Yellow Label",
     "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/ML3.jpg"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "Controller MicroLink 3 (Green Label)",
     "descricao": "Controlador MicroLink 3 — Green Label",
     "imagem": "https://fcie.us/images/ML3_Green_Label_12-56011-xx%20(1).jpg"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "ML5 Controller",
     "descricao": "Controlador ML5",
     "imagem": "https://fcie.us/images/2021/ML5_12-56015-xx.jpg"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "Display Module",
     "descricao": "Módulo de display Carrier",
     "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/IMG_0428.JPG"
   },
   {
     "linha": "Container",
+    "setor": "lab.eletronica",
     "componente": "Micro Link 2i/3 Keypad",
     "descricao": "Teclado Micro Link 2i/3",
     "imagem": "https://fcie.us/images/Products/Carrier/Carrier%20Container/2i-3%20Keypad%20Microlink.jpg"
