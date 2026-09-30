@@ -8,73 +8,73 @@
     {
         "Região" : "Norte",
         "Localidade" : "Belém/PA",
-        "funcionario" : "Leoncio"
+        "funcionario" : ["Leoncio"]
     },
 
     {
         "Região" : "Sul",
         "Localidade" : "Paranaguá/PR",
-        "funcionario" : "Leandro"
+        "funcionario" : ["Leandro"]
     },
 
     {
         "Região" : "Sul",
         "Localidade" : "Itajaí/SC",
-        "funcionario" : "Darlan"
+        "funcionario" : ["Darlan"]
     },
 
     {
         "Região" :"Sul",
         "Localidade": "Itapoa/SC",
-        "funcionario" : "Helio"
+        "funcionario" : ["Helio"]
     },
 
     {
         "Região" : "Sul",
         "Localidade": "Cambé/PR",
-        "funcionario" : "Joesley"
+        "funcionario" : ["Joesley"]
     },
 
     {
         "Região" : "Sul",
         "Localidade": "Cascavel/PR",
-        "funcionario" : "Marcio Severi"
+        "funcionario" : ["Marcio Severi"]
     },
 
     {
         "Região" : "Sul",
         "Localidade": "Rio Grande/RS",
-        "funcionario" : "Willian"
+        "funcionario" : ["Willian"]
     },
 
     {
         "Região" : "Nordeste",
         "Localidade": "Caucaia/CE",
-        "funcionario": "Mauro"
+        "funcionario": ["Mauro"]
     },
 
     {
         "Região" : "Nordeste",
         "Localidade": "Salvador/BA",
-        "funcionario": "Adriano"
+        "funcionario": ["Adriano"]
     },
 
     {
         "Região" : "Nordeste",
         "Localidade":"Suape/PE",
-        "funcionario": "Fabio Costa"
+        "funcionario": ["Fabio Costa"]
     },
 
     {
         "Região" : "Nordeste",
         "Localidade": "Petrolina/PE",
-        "funcionario": "Nielton"
+        "funcionario": ["Nielton"]
     },
 
     {
         "Região" : "Nordeste",
         "Localidade": "Natal/RN",
-        "funcionario": "Thiago"
+        "funcionario": ["Thiago"]
     },
 
     {
@@ -86,13 +86,13 @@
     {
         "Região" : "Sudeste",
         "Localidade": "Rio de Janeiro/RJ",
-        "funcionario" : "David Collantini"
+        "funcionario" : ["David Collantini"]
     },
 
     {
         "Região" : "Sudeste",
         "Localidade": "Itaguai/RJ",
-        "funcionario" : "Andre Costa"
+        "funcionario" : ["Andre Costa"]
     },
 
     {
@@ -104,37 +104,37 @@
     {
         "Região" : "Sudeste",
         "Localidade":"Sumaré/SP",
-        "funcionario" : "Clayton RealReefer"
+        "funcionario" : ["Clayton RealReefer"]
     },
 
     {
         "Região" : "Sudeste",
         "Localidade": "São Paulo/SP",
-        "funcionario" : "Wladimir RealReefer"
+        "funcionario" : ["Wladimir RealReefer"]
     },
 
     {
         "Região" : "Centro Oeste",
         "Localidade": "Campo Grande/MS",
-        "funcionario" : "Abraão"
+        "funcionario" : ["Abraão"]
     },
 
     {
         "Região" : "Centro Oeste",
         "Localidade": "Nova Mutum/MT",
-        "funcionario" : "Rangel"
+        "funcionario" : ["Rangel"]
     },
 
     {
         "Região":"Centro Oeste",
         "Localidade": "Rondonopolis/MT",
-        "funcionario" : "Robson Generoso"
+        "funcionario" : ["Robson Generoso"]
     },
 
     {
         "Região" : "Centro Oeste",
         "Localidade": "Sinop/MT",
-        "funcionario" : "Alex Rocha"
+        "funcionario" : ["Alex Rocha"]
     }
     
 
