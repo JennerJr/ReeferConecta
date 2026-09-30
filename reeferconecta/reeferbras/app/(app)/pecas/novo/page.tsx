@@ -29,13 +29,20 @@ type CatalogPart = {
   imagem?: string;
 };
 
+type dados ={
+Localidade: string;
+funcionario: string[];
+};
+
 const partsByManufacturer: Record<string, CatalogPart[]> = {
   Carrier: carrierParts,
   Daikin: daikinParts,
   "Star Cool": starcoolParts,
   "Thermo King": thermokingParts,
 };
+const funcByRegiao: dados[] = reeferbrasfunc;
 
+const localidades =[...new Set(funcByRegiao.map((r) => r.Localidade))];
 
 
 const situations = [
@@ -63,16 +70,22 @@ function getCurrentDateTimeLocal() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
+
 export default function NovoPecaPage() {
   const router = useRouter();
   const [pieceCount, setPieceCount] = useState(1);
   const [forms, setForms] = useState<PieceForm[]>([createInitialForm()]);
   const [submitted, setSubmitted] = useState(false);
+  const [localidade, setLocalidade] = useState("");
   const [generatedQcs, setGeneratedQcs] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
-  const [printingLabels, setPrintingLabels] = useState(false);
+  const [printingLabels, setPrintingLabels] = useState(false);  
+  
+const funcionarios = funcByRegiao
+      .filter((r) => r.Localidade === localidade)
+      .flatMap((f) => f.funcionario); 
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -82,7 +95,7 @@ export default function NovoPecaPage() {
   }, []);
 
   function changePieceCount(value: number) {
-    const nextCount = Math.min(50, Math.max(1, value || 1));
+    const nextCount = Math.min(50, Math.max(0, value || 0));
     setPieceCount(nextCount);
     setForms((currentForms) => Array.from({ length: nextCount }, (_, index) => currentForms[index] ?? createInitialForm()));
     setSubmitted(false);
@@ -192,6 +205,8 @@ export default function NovoPecaPage() {
         }
       }
 
+      
+
       const qcs: string[] = [];
       for (const form of forms) {
         const response = await fetch("/api/pecas", {
@@ -238,9 +253,13 @@ export default function NovoPecaPage() {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <label className="grid max-w-xs gap-2 text-sm font-semibold text-slate-200">
             Quantidade de peças
-            <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" min="1" max="50" value={pieceCount} onChange={(event) => changePieceCount(Number(event.target.value))} required />
+            <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" min="0" max="50" value={pieceCount} onChange={(event) => changePieceCount(Number(event.target.value))} required />
           </label>
-
+          <label>
+            {pieceCount >= 2 && (
+              <button className="w-full rounded-lg bg-gradient-to-br from-[#E8262C] to-[#B32025] px-4 py-3 grid gap-2 font-semibold text-white transition hover:brightness-110 disabled:opacity-50" onClick={() => router.push('/pecas')} disabled={saving} type="submit">{saving ? `Cadastrando ${pieceCount} peças...` : `Cadastrar ${pieceCount} peças`} </button>
+            )}
+          </label>
           {forms.map((form, index) => (
             <section className="grid min-w-0 gap-5 rounded-xl border border-slate-700 bg-gray-800 p-4 shadow-sm sm:p-6 md:grid-cols-2" key={index}>
               <h2 className="text-xl font-semibold text-white md:col-span-2">Peça {index + 1}</h2>
@@ -267,13 +286,17 @@ export default function NovoPecaPage() {
                 />
               </label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Localidade
-                <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.localidade} onChange={(event) => updateField(index, "localidade", event.target.value)}>
+                <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.localidade} onChange={(event) => { updateField(index, "localidade", event.target.value); setLocalidade(event.target.value); }}>
                   <option value="">Selecione uma localidade</option>
-                  {["Santos", "Itajaí", "Paranaguá", "Guarujá", "Rio Grande"].map((location) => <option className="text-black" key={location} value={location}>{location}</option>)}
+                  {localidades.map((loc) => <option className="text-black" key={loc} value={loc}>{loc}</option>)}
                 </select>
               </label>
+
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Técnico Responsável
-                <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.tecnicoResponsavel} onChange={(event) => updateField(index, "tecnicoResponsavel", event.target.value)} />
+                <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.tecnicoResponsavel} onChange={(event) => { updateField(index, "tecnicoResponsavel", event.target.value); }}>
+                  <option value="">Selecione um técnico</option>
+                  {funcionarios.map((func) => <option className="text-black" key={func} value={func}>{func}</option>)}
+                </select>
               </label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200 md:col-span-2">Situação Atual
                 <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.situacaoAtual} onChange={(event) => handleSituationChange(index, event.target.value)}>

@@ -22,11 +22,6 @@ const partsByManufacturer: Record<string, CatalogPart[]> = {
   "Outros":  outrosParts,
 };
 
-const setorByRole: Record<string, string> = {
-  cereco: "Cereco",
-  "lab.eletrica": "lab eletrica",
-  "lab.eletrônica": "lab eletrônica",
-};
 
 type ReportForm = {
   fabricante: string;
