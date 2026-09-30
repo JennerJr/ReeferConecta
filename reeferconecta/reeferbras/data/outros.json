@@ -1,0 +1,13 @@
+[{
+    "linha": "Container",
+    "setor": "lab eletrica",
+    "componente": "Transformador",
+    "descricao": "Transformador 440V"
+},
+{
+    "linha": "Container",
+    "setor": "lab eletrica",
+    "componente": "Motor de Partida",
+    "descricao": "Motor de Partida"
+}
+]

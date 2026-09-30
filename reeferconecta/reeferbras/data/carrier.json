@@ -43,23 +43,45 @@
   },
   {
     "linha": "Container",
+    "setor": "lab eletrica",
     "componente": "Evaporador Trífasico",
     "descricao": "Evaporador Trífasico "
   },
   {
     "linha": "Container",
+    "setor": "lab eletrica",
     "componente": "Evaporador Monofásico",
     "descricao": "Evaporador Monofásico "
   },
   {
     "linha": "Container",
+    "setor": "lab eletrica",
     "componente": "Condensador Trífasico",
     "descricao": "Condensador Trífasico "
   },
    {
     "linha": "Container",
+    "setor": "lab eletrica",
     "componente": "Condensador monofásico",
     "descricao": "Condensador Monofásico"
+  },
+  {
+     "linha": "Container",
+     "setor": "lab eletrica",
+    "componente": "Cotatora 30A",
+    "descricao": "Contatora 30A"
+  },
+   {
+     "linha": "Container",
+     "setor": "lab eletrica",
+    "componente": "Cotatora 12A",
+    "descricao": "Contatora 12A"
+  },
+  {
+    "linha": "Container",
+    "setor": "lab eletrica",
+    "componente": "Rebobinamento de estator",
+    "descricao": "Rebobinamento de estator"
   }
-
+  
 ]

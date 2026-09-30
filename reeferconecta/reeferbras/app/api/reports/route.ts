@@ -8,6 +8,7 @@ type StandaloneReport = {
   id: string;
   responsavelReparo: string;
   descricaoReparo?: string;
+  fabricantes: string;
   nomePeca: string;
   pieceId?: number;
   tecnicoResponsavel: string;
@@ -30,7 +31,7 @@ type StandaloneReport = {
   createdAt: string;
 };
 
-type ReportInput = Omit<StandaloneReport, "id" | "responsavelReparo" | "createdAt" | "pieceId">;
+type ReportInput = Omit<StandaloneReport, "id" | "createdAt" | "pieceId">;
 
 const databaseName = process.env.MONGODB_DATABASE_PECAS || "pecas";
 const collectionName = "reportsdb";
@@ -96,8 +97,10 @@ export async function POST(request: NextRequest) {
     const reports: StandaloneReport[] = [];
     for (const input of inputs) {
       const ordemServico = input.ordemServico?.trim() || undefined;
+      const responsavelReparo = input.responsavelReparo?.trim();
       const situacaoAtual = input.situacaoAtual?.trim();
       const nomePeca = input.nomePeca?.trim();
+      const fabricantes = input.fabricantes?.trim();
       if ((ordemServico && !/^\d+$/.test(ordemServico)) || !nomePeca || !situacaoAtual) {
         return NextResponse.json({ erro: "Preencha o nome da peça e a situação. A OS, quando informada, deve ser numérica." }, { status: 400 });
       }
@@ -112,11 +115,12 @@ export async function POST(request: NextRequest) {
       reports.push({
         ...input,
         ordemServico,
+        fabricantes,
         nomePeca,
         pieceId: matchingPieceIds.length === 1 ? matchingPieceIds[0] : undefined,
         tecnicoResponsavel: user.name.trim(),
         situacaoAtual,
-        responsavelReparo: user.name.trim(),
+        responsavelReparo,
         id: randomUUID(),
         createdAt: new Date().toISOString(),
         resistencia: role === "lab.elétrica" ? input.resistencia?.trim() || undefined : undefined,

@@ -49,22 +49,45 @@
   },
   {
     "linha": "Container",
+    "setor": "lab eletrica",
     "componente": "Evaporador Trífasico",
     "descricao": "Evaporador Trífasico "
   },
   {
     "linha": "Container",
+    "setor": "lab eletrica",
     "componente": "Evaporador Monofásico",
     "descricao": "Evaporador Monofásico "
   },
   {
     "linha": "Container",
+    "setor": "lab eletrica",
     "componente": "Condensador Trífasico",
     "descricao": "Condensador Trífasico "
   },
    {
     "linha": "Container",
+    "setor": "lab eletrica",
     "componente": "Condensador monofásico",
     "descricao": "Condensador Monofásico"
+  },
+  {
+    "linha":"Container",
+    "setor": "lab eletrica",
+    "componente": "Contatora Ci9 20A",
+    "descricao": "Contatora Ci9 20A"
+  },
+  {
+    "linha":"Container",
+    "setor": "lab eletrica",
+    "componente": "Contatora Scheneider 20A",
+    "descricao": "Contatora Scheneider 20A"
+  },
+   {
+    "linha": "Container",
+    "setor": "lab eletrica",
+    "componente": "Rebobinamento de estator",
+    "descricao": "Rebobinamento de estator"
   }
+  
 ]

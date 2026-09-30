@@ -3,16 +3,31 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import carrierParts from "@/data/carrier.json";
+import daikinParts from "@/data/daikin.json";
+import starcoolParts from "@/data/starcool.json";
+import thermokingParts from "@/data/thermoking.json";
+import outrosParts from "@/data/outros.json"; 
 
 const visualInspectionOptions = ["BIELA", "BOMBA DE LUBRIFICAÇÃO", "BORNE", "BUCHA", "CAMISA", "EIXO GIRA BREQUIM", "ESTATOR", "FILTRO", "PISTÕES", "PLACA DE VÁLVULAS"];
 const mechanicalAnalysisOptions = ["Anel Guia do SCROLL", "Bucha Exêntrica", "Bucha do Mancal", "Cabeçote", "Conjunto de virabrequim", "Disco de compressão", "Mancal de virabrequim", "Mola do mecanismo de flutuação", "Selo Flutuante", "SCROLL fixo", "SCROLL movel", "Válvula de Retenção"];
 const functionTestOptions = ["Corrente de operação entre 3A à 8A (BANCADA)", "Pressurização", "320 Psi à 400 Psi", "Teste em Container \"Baby\""];
 const situations = ["OK", "Sem condições de reparo"];
 
+const partsByManufacturer: Record<string, CatalogPart[]> = {
+  Carrier: carrierParts,
+  Daikin: daikinParts,
+  "Star Cool": starcoolParts,
+  "Thermo King": thermokingParts,
+  "Outros":  outrosParts,
+};
+
 type ReportForm = {
+  fabricante: string;
   ordemServico: string;
   nomePeca: string;
   descricaoReparo: string;
+  responsavelReparo: string;
   situacaoAtual: string;
   resistencia: string;
   surge: string[];
@@ -29,9 +44,15 @@ type ReportForm = {
   testeFuncionamento: string[];
   outroTesteFuncionamento: string;
 };
+type CatalogPart = {
+  linha: string;
+  componente: string;
+  descricao: string;
+  imagem?: string;
+};
 
 function createForm(): ReportForm {
-  return { ordemServico: "", nomePeca: "", descricaoReparo: "", situacaoAtual: "", resistencia: "", surge: ["", "", ""], mega: "", simulador: "", corrente: "", transformador: "", serialNumberReport: "", estatorTrocado: "", scroll: "", reparoFalange: "", inspeçãoVisual: [], analiseMecanica: [], testeFuncionamento: [], outroTesteFuncionamento: "" };
+  return { fabricante: "", ordemServico: "", nomePeca: "", descricaoReparo: "", situacaoAtual: "", resistencia: "", surge: ["", "", ""], mega: "", simulador: "", corrente: "", transformador: "", serialNumberReport: "", estatorTrocado: "", scroll: "", reparoFalange: "", responsavelReparo: "", inspeçãoVisual: [], analiseMecanica: [], testeFuncionamento: [], outroTesteFuncionamento: "" };
 }
 
 function cloneForAdditionalReport(source: ReportForm): ReportForm {
@@ -42,6 +63,7 @@ export default function NovoReportSemQcPage() {
   const router = useRouter();
   const [role, setRole] = useState("");
   const [currentUserName, setCurrentUserName] = useState("");
+  const [submitted, setSubmitted] = useState(false);
   const [forms, setForms] = useState<ReportForm[]>([createForm()]);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -64,6 +86,20 @@ export default function NovoReportSemQcPage() {
   function toggle(index: number, field: "inspeçãoVisual" | "analiseMecanica" | "testeFuncionamento", value: string) {
     const selected = forms[index][field];
     update(index, field, selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value]);
+  }
+
+  function handleManufacturerChange(index: number, value: string) {
+    setForms((currentForms) => currentForms.map((form, formIndex) => formIndex === index
+      ? { ...form, fabricante: value, nomePeca: ""}
+      : form));
+    setSubmitted(false);
+  }
+
+  function handlePartNameChange(index: number, value: string) {
+    setForms((currentForms) => currentForms.map((form, formIndex) => formIndex === index
+      ? { ...form, nomePeca: value ?? "" }
+      : form));
+    setSubmitted(false);
   }
 
   async function submit(event: React.FormEvent) {
@@ -90,13 +126,14 @@ export default function NovoReportSemQcPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reports: forms.map((form) => ({
           ...form,
-          tecnicoResponsavel: currentUserName,
+          responsavelReparo: form.responsavelReparo?.trim() ?? "",
           surge: form.surge.filter(Boolean).join(" / "),
           inspeçãoVisual: form.inspeçãoVisual.join(" / "),
           analiseMecanica: form.analiseMecanica.join(" / "),
           testeFuncionamento: form.testeFuncionamento.join(" / "),
         })) }),
       });
+      setSubmitted(true);
       const data = await response.json();
       if (!response.ok) throw new Error(data.erro ?? "Não foi possível salvar os relatórios.");
       router.push("/reports");
@@ -126,8 +163,19 @@ export default function NovoReportSemQcPage() {
             
             <section className="grid gap-5 rounded-xl border border-slate-700 p-4 sm:p-6" key={index}>
               <h2 className="text-xl font-semibold text-white">Relatório {index + 1}</h2>
-              <label className="grid gap-2 text-sm font-semibold text-slate-200">Nome da peça<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white" value={form.nomePeca} onChange={(event) => update(index, "nomePeca", event.target.value)} required /></label>
-              <label className="grid gap-2 text-sm font-semibold text-slate-200">Técnico responsável pelo reparo<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white" placeholder={currentUserName}/></label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Fabricante
+                <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.fabricante} onChange={(event) => handleManufacturerChange(index, event.target.value)}>
+                  <option value="">Selecione um fabricante</option>
+                  {Object.keys(partsByManufacturer).map((manufacturer) => <option className="text-black" key={manufacturer} value={manufacturer}>{manufacturer}</option>)}
+                </select>
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Nome da peça
+                <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required disabled={!form.fabricante} value={form.nomePeca} onChange={(event) => handlePartNameChange(index, event.target.value)}>
+                  <option value="">{form.fabricante ? "Selecione uma peça" : "Selecione primeiro o fabricante"}</option>
+                  {(partsByManufacturer[form.fabricante] ?? []).map((part) => <option className="text-black" key={`${part.descricao}-${part.componente}`} value={part.descricao}>{part.descricao}</option>)}
+                </select>
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Técnico responsável pelo reparo<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white" placeholder={currentUserName} value={form.responsavelReparo} onChange={(event) => update(index, "responsavelReparo", event.target.value)}/></label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Ordem de serviço (opcional)<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white" type="number" value={form.ordemServico} onChange={(event) => update(index, "ordemServico", event.target.value)} /></label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Descrição<textarea className="min-h-24 rounded-lg border border-slate-300 px-3 py-2 font-normal text-white" value={form.descricaoReparo} onChange={(event) => update(index, "descricaoReparo", event.target.value)} /></label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Situação<select className="rounded-lg border border-slate-300 px-3 py-2 font-normal" value={form.situacaoAtual} onChange={(event) => update(index, "situacaoAtual", event.target.value)} required> <option value=""></option> {situations.map((item) => <option className="text-black" key={item}>{item}</option>)}</select></label>

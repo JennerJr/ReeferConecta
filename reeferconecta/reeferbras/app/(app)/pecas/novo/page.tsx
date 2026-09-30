@@ -36,6 +36,8 @@ const partsByManufacturer: Record<string, CatalogPart[]> = {
   "Thermo King": thermokingParts,
 };
 
+
+
 const situations = [
   ["ReparoComum", "Em reparo - Devolver para o mesmo"],
   ["ReparoTroca", "Em reparo - Estoque"],
