@@ -8,7 +8,7 @@ type StandaloneReport = {
   id: string;
   responsavelReparo: string;
   descricaoReparo?: string;
-  fabricantes: string;
+  fabricante: string;
   nomePeca: string;
   pieceId?: number;
   tecnicoResponsavel: string;
@@ -60,11 +60,13 @@ export async function GET() {
     const name = user.name.trim().toLowerCase();
     const visibleStandalone = canViewAll ? standaloneReports : standaloneReports.filter((report) => report.responsavelReparo.trim().toLowerCase() === name);
     const pieceReports = pieces.flatMap((piece) => (piece.reports ?? [])
-      .filter((report) => canViewAll || report.responsavelReparo.trim().toLowerCase() === name)
-      .map((report) => ({ ...report, pieceId: piece.id, pieceName: piece.nome, manufacturer: piece.fabricante, qc: piece.qc })));
+      .filter((report) => canViewAll || matchesUser(report))
+      .map((report) => ({ ...report, pieceId: piece.id, pieceName: piece.nome, fabricante: piece.fabricante, qc: piece.qc })))
+    const matchesUser = (report: { responsavelReparo?: string; tecnicoResponsavel?: string }) =>
+      [report.responsavelReparo, report.tecnicoResponsavel].some((value) => value?.trim().toLowerCase() === name);
     const reports = [
       ...pieceReports,
-      ...visibleStandalone.map((report) => ({ ...report, pieceId: undefined, pieceName: "Report sem peça", manufacturer: "", qc: "" })),
+      ...visibleStandalone.map((report) => ({ ...report, pieceId: undefined, pieceName: "Report sem peça", fabricante: "", qc: "" })),
     ].sort((first, second) => new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime());
     return NextResponse.json({ reports });
   } catch (error) {
@@ -100,7 +102,7 @@ export async function POST(request: NextRequest) {
       const responsavelReparo = input.responsavelReparo?.trim();
       const situacaoAtual = input.situacaoAtual?.trim();
       const nomePeca = input.nomePeca?.trim();
-      const fabricantes = input.fabricantes?.trim();
+      const fabricante = input.fabricante?.trim();
       if ((ordemServico && !/^\d+$/.test(ordemServico)) || !nomePeca || !situacaoAtual) {
         return NextResponse.json({ erro: "Preencha o nome da peça e a situação. A OS, quando informada, deve ser numérica." }, { status: 400 });
       }
@@ -115,7 +117,7 @@ export async function POST(request: NextRequest) {
       reports.push({
         ...input,
         ordemServico,
-        fabricantes,
+        fabricante,
         nomePeca,
         pieceId: matchingPieceIds.length === 1 ? matchingPieceIds[0] : undefined,
         tecnicoResponsavel: user.name.trim(),
