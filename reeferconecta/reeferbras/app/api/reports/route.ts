@@ -60,11 +60,11 @@ export async function GET() {
     const canViewAllStandalone = canViewAll || user.role.trim().toLowerCase() === "almox";
     const name = user.name.trim().toLowerCase();
     const visibleStandalone = canViewAllStandalone ? standaloneReports : standaloneReports.filter((report) => report.responsavelReparo.trim().toLowerCase() === name);
+    const matchesUser = (report: { responsavelReparo?: string; tecnicoResponsavel?: string }) =>
+      [report.responsavelReparo, report.tecnicoResponsavel].some((value) => value?.trim().toLowerCase() === name);
     const pieceReports = pieces.flatMap((piece) => (piece.reports ?? [])
       .filter((report) => canViewAll || matchesUser(report))
       .map((report) => ({ ...report, pieceId: piece.id, pieceName: piece.nome, fabricante: piece.fabricante, qc: piece.qc })))
-    const matchesUser = (report: { responsavelReparo?: string; tecnicoResponsavel?: string }) =>
-      [report.responsavelReparo, report.tecnicoResponsavel].some((value) => value?.trim().toLowerCase() === name);
     const reports = [
       ...pieceReports,
       ...visibleStandalone.map((report) => ({ ...report, pieceId: undefined, pieceName: "Report sem peça", qc: "" })),

@@ -103,49 +103,27 @@
 
     {
         "Região" : "Sudeste",
-        "Localidade":"Sumaré/SP",
-        "funcionario" : ["Clayton RealReefer"]
+        "Localidade": "Realreefer/SP",
+        "funcionario" : ["Wladimir", "Clayton", "David Lucas"]
+    },
+
+    
+     {
+        "Região" : "Sudeste",
+        "Localidade": "Transtec Santos/SP",
+        "funcionario" : ["Elton", "Guilherme"]
     },
 
     {
         "Região" : "Sudeste",
-        "Localidade": "São Paulo/SP",
-        "funcionario" : ["Wladimir RealReefer"]
-    },
-
-    {
-        "Região" : "Centro Oeste",
-        "Localidade": "Campo Grande/MS",
-        "funcionario" : ["Abraão"]
-    },
-
-    {
-        "Região" : "Centro Oeste",
-        "Localidade": "Nova Mutum/MT",
-        "funcionario" : ["Rangel"]
-    },
-
-    {
-        "Região":"Centro Oeste",
-        "Localidade": "Rondonopolis/MT",
-        "funcionario" : ["Robson Generoso"]
-    },
-
-    {
-        "Região" : "Centro Oeste",
-        "Localidade": "Sinop/MT",
-        "funcionario" : ["Alex Rocha"]
-    },
-    {
-        "Região" : "Sudeste",
-        "Localidade": "Santos/SP",
-        "funcionario" : ["Chico",
+        "Localidade": "Atendimento Santos/SP",
+        "funcionario" : [
+        "Chico",
         "Jorge Eduardo",
          "Sillas",
          "Alexandre",
          "Armando",
          "Luis Felipe",
-         "David Lucas",
          "Rosandro",
          "Renan",
          "Rodrigo Hipólito",
@@ -164,7 +142,43 @@
                         "Ivo",
                         "Alvaro",
                         "Luan"]
-    }
-    
+    },
+    {
+        "regiao": "Sudeste",
+        "localidade": "Realreefer PG/SP",
+        "funcionario": ["André Costa(Perninha)",
+                        "Alexandre perereira(Boca)",
+                        "Adriano(Bigode)"]
+    },
 
+    {
+        "Região" : "Sudeste",
+        "Localidade": "Transtec PG/SP",
+        "funcionario" : ["Joao", "Maria"]
+    },
+    
+    
+    {
+        "Região" : "Centro Oeste",
+        "Localidade": "Sinop/MT",
+        "funcionario" : ["Alex Rocha"]
+    },
+
+    {
+        "Região" : "Centro Oeste",
+        "Localidade": "Campo Grande/MS",
+        "funcionario" : ["Abraão"]
+    },
+
+    {
+        "Região" : "Centro Oeste",
+        "Localidade": "Nova Mutum/MT",
+        "funcionario" : ["Rangel"]
+    },
+
+    {
+        "Região":"Centro Oeste",
+        "Localidade": "Rondonopolis/MT",
+        "funcionario" : ["Robson Generoso"]
+    }
 ]

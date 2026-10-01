@@ -38,6 +38,15 @@ type ReportItem = RepairReport & {
 
 const situations = ["OK", "Sem condições de reparo"];
 
+function getReportStatusBadgeClass(status?: string) {
+  const normalized = status?.trim().toLowerCase() ?? "";
+  if (normalized.startsWith("em reparo")) return "bg-yellow-100 text-yellow-700";
+  if (normalized.startsWith("sem condições")) return "bg-red-100 text-red-700";
+  if (normalized.startsWith("entregue para") || normalized.startsWith("enviado para o mesmo")) return "bg-blue-100 text-blue-700";
+  if (normalized.startsWith("ok")) return "bg-emerald-100 text-emerald-700";
+  return "bg-slate-200 text-slate-700";
+}
+
 export default function ReportsPage() {
   const pageSize = 10;
   const [reports, setReports] = useState<ReportItem[]>([]);
@@ -155,7 +164,11 @@ async function saveEdit(report: ReportItem) {
   {/* 1. CABEÇALHO: fica fora do condicional */}
   <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
     <div>
-      <h2 className="font-bold text-slate-900">{report.pieceId ? `${report.fabricante} ${report.pieceName} ${report.manufacturer && `· ${report.manufacturer}`}` : `${report.fabricante ? `${report.fabricante} ` : ""}${report.nomePeca}`}</h2>
+      <h2 className="font-bold text-slate-900">{report.pieceId ? `${report.fabricante} ${report.pieceName} ${report.manufacturer && `· ${report.manufacturer}`}` : `${report.fabricante ? `${report.fabricante} ` : ""}${report.nomePeca}`}{" "}
+        <span className={`ml-1 inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${getReportStatusBadgeClass(report.situacaoAtual)}`}>
+          {report.situacaoAtual || "Não informado"}
+        </span>
+      </h2>
       <p className="mt-1 text-sm text-slate-600">{report.qc ? `QC: ${report.qc}` : `OS: ${report.ordemServico ?? "Não informada"}`}</p>
     </div>
     {report.pieceId && <Link className="text-sm font-semibold text-sky-700 hover:text-sky-900" href={`/pecas/${report.pieceId}/reports`}>Ver peça</Link>}
@@ -192,7 +205,7 @@ async function saveEdit(report: ReportItem) {
           
             <>
             {/* 2. grid Usuário / Técnico / Situação */}
-            <div className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2"><p><strong>Usuário:</strong> {report.tecnicoResponsavel}</p><p><strong>Técnico:</strong> {report.responsavelReparo}</p><p><strong>Situação:</strong> {report.situacaoAtual}</p></div>
+            <div className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2"><p><strong>Usuário:</strong> {report.tecnicoResponsavel}</p><p><strong>Técnico:</strong> {report.responsavelReparo}</p></div>
 
             {/* 3. bloco de medições: copie o seu bloco original inteiro, sem alterar */}
             {(report.resistencia || report.surge || /* ... */ report.outroTesteFuncionamento) && <div className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
