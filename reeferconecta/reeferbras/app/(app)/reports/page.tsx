@@ -30,6 +30,7 @@ type RepairReport = {
 
 type ReportItem = RepairReport & {
   pieceId?: number | string;
+  fabricante: string;
   pieceName: string;
   manufacturer: string;
   qc: string;
@@ -107,6 +108,7 @@ async function saveEdit(report: ReportItem) {
   const normalizedSearch = search.trim().toLowerCase();
   const filteredReports = reports.filter((report) => [
     report.responsavelReparo,
+    report.fabricante,
     report.nomePeca,
     report.tecnicoResponsavel,
     report.descricaoReparo,
@@ -153,7 +155,7 @@ async function saveEdit(report: ReportItem) {
   {/* 1. CABEÇALHO: fica fora do condicional */}
   <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
     <div>
-      <h2 className="font-bold text-slate-900">{report.pieceId ? `${report.pieceName} ${report.manufacturer && `· ${report.manufacturer}`}` : report.nomePeca}</h2>
+      <h2 className="font-bold text-slate-900">{report.pieceId ? `${report.fabricante} ${report.pieceName} ${report.manufacturer && `· ${report.manufacturer}`}` : report.nomePeca}</h2>
       <p className="mt-1 text-sm text-slate-600">{report.qc ? `QC: ${report.qc}` : `OS: ${report.ordemServico ?? "Não informada"}`}</p>
     </div>
     {report.pieceId && <Link className="text-sm font-semibold text-sky-700 hover:text-sky-900" href={`/pecas/${report.pieceId}/reports`}>Ver peça</Link>}

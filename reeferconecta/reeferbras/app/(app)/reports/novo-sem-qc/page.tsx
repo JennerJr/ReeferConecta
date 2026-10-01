@@ -13,6 +13,7 @@ const visualInspectionOptions = ["BIELA", "BOMBA DE LUBRIFICAÇÃO", "BORNE", "B
 const mechanicalAnalysisOptions = ["Anel Guia do SCROLL", "Bucha Exêntrica", "Bucha do Mancal", "Cabeçote", "Conjunto de virabrequim", "Disco de compressão", "Mancal de virabrequim", "Mola do mecanismo de flutuação", "Selo Flutuante", "SCROLL fixo", "SCROLL movel", "Válvula de Retenção"];
 const functionTestOptions = ["Corrente de operação entre 3A à 8A (BANCADA)", "Pressurização", "320 Psi à 400 Psi", "Teste em Container \"Baby\""];
 const situations = ["OK", "Sem condições de reparo"];
+const entregaSituationValue = "EntregueA";
 
 const partsByManufacturer: Record<string, CatalogPart[]> = {
   Carrier: carrierParts,
@@ -30,6 +31,7 @@ type ReportForm = {
   descricaoReparo: string;
   responsavelReparo: string;
   situacaoAtual: string;
+  entregueParaNome: string;
   resistencia: string;
   surge: string[];
   mega: string;
@@ -63,7 +65,7 @@ const normalizeSetor = (value: string) =>
 const filteredSetores = ["lab.elétrica", "cereco", "lab.eletronica"].map(normalizeSetor);
 
 function createForm(): ReportForm {
-  return { fabricante: "", ordemServico: "", nomePeca: "", descricaoReparo: "", situacaoAtual: "", resistencia: "", surge: ["", "", ""], mega: "", simulador: "", corrente: "", transformador: "", serialNumberReport: "", estatorTrocado: "", scroll: "", reparoFalange: "", responsavelReparo: "", inspeçãoVisual: [], analiseMecanica: [], testeFuncionamento: [], outroTesteFuncionamento: "" };
+  return { fabricante: "", ordemServico: "", nomePeca: "", descricaoReparo: "", situacaoAtual: "", entregueParaNome: "", resistencia: "", surge: ["", "", ""], mega: "", simulador: "", corrente: "", transformador: "", serialNumberReport: "", estatorTrocado: "", scroll: "", reparoFalange: "", responsavelReparo: "", inspeçãoVisual: [], analiseMecanica: [], testeFuncionamento: [], outroTesteFuncionamento: "" };
 }
 
 function cloneForAdditionalReport(source: ReportForm): ReportForm {
@@ -149,6 +151,10 @@ export default function NovoReportSemQcPage() {
         setError("Preencha as três medições de Surge ou deixe todas vazias.");
         return;
       }
+      if (role === "almox" && form.situacaoAtual === entregaSituationValue && !form.entregueParaNome.trim()) {
+        setError("Informe o nome de quem pegou a peça.");
+        return;
+      }
     }
     setSaving(true);
     try {
@@ -158,6 +164,9 @@ export default function NovoReportSemQcPage() {
         body: JSON.stringify({ reports: forms.map((form) => ({
           ...form,
           responsavelReparo: form.responsavelReparo?.trim() || currentUserName,
+          situacaoAtual: form.situacaoAtual === entregaSituationValue
+            ? `Entregue para: ${form.entregueParaNome.trim()}`
+            : form.situacaoAtual,
           surge: form.surge.filter(Boolean).join(" / "),
           inspeçãoVisual: form.inspeçãoVisual.join(" / "),
           analiseMecanica: form.analiseMecanica.join(" / "),
@@ -209,7 +218,8 @@ export default function NovoReportSemQcPage() {
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Técnico responsável pelo reparo<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white" placeholder={currentUserName} value={form.responsavelReparo} onChange={(event) => update(index, "responsavelReparo", event.target.value)}/></label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Ordem de serviço (opcional)<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white" type="number" value={form.ordemServico} onChange={(event) => update(index, "ordemServico", event.target.value)} /></label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Descrição<textarea className="min-h-24 rounded-lg border border-slate-300 px-3 py-2 font-normal text-white" value={form.descricaoReparo} onChange={(event) => update(index, "descricaoReparo", event.target.value)} /></label>
-              <label className="grid gap-2 text-sm font-semibold text-slate-200">Situação<select className="rounded-lg border border-slate-300 px-3 py-2 font-normal" value={form.situacaoAtual} onChange={(event) => update(index, "situacaoAtual", event.target.value)} required> <option value=""></option> {situations.map((item) => <option className="text-black" key={item}>{item}</option>)}</select></label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-200">Situação<select className="rounded-lg border border-slate-300 px-3 py-2 font-normal" value={form.situacaoAtual} onChange={(event) => { update(index, "situacaoAtual", event.target.value); if (event.target.value !== entregaSituationValue) update(index, "entregueParaNome", ""); }} required> <option value=""></option> {role === "almox" ? <option className="text-black" value={entregaSituationValue}>Entregue para:</option> : situations.map((item) => <option className="text-black" key={item}>{item}</option>)}</select></label>
+              {role === "almox" && form.situacaoAtual === entregaSituationValue && <label className="grid gap-2 text-sm font-semibold text-slate-200">Nome de quem pegou<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white" value={form.entregueParaNome} onChange={(event) => update(index, "entregueParaNome", event.target.value)} placeholder="Digite o nome" required /></label>}
               {currentUserName && <p className="text-xs text-slate-400">O Úsuario será salvo como: {currentUserName}</p>}
               {role === "lab.elétrica" && <div className="grid gap-4 border-t border-slate-600 pt-4"><h3 className="font-semibold text-white">Medições elétricas</h3><label className="grid gap-2 text-sm text-slate-200">Resistência (Ω)<input className="rounded-lg border border-slate-300 bg-gray-800 px-3 py-2 font-normal text-white outline-none focus:border-sky-400" type="number" step="any" value={form.resistencia} onChange={(event) => update(index, "resistencia", event.target.value)} /></label><div className="grid gap-2 text-sm text-slate-200"><span>Surge (%)</span><div className="grid gap-2 sm:grid-cols-3">{form.surge.map((value, measurementIndex) => <input className="rounded-lg border border-slate-300 bg-gray-800 px-3 py-2 font-normal text-white outline-none focus:border-sky-400" type="number" step="any" key={measurementIndex} value={value} onChange={(event) => update(index, "surge", form.surge.map((item, itemIndex) => itemIndex === measurementIndex ? event.target.value : item))} />)}</div></div><label className="grid gap-2 text-sm text-slate-200">Mega (Ω)<input className="rounded-lg border border-slate-300 bg-gray-800 px-3 py-2 font-normal text-white outline-none focus:border-sky-400" type="number" step="any" value={form.mega} onChange={(event) => update(index, "mega", event.target.value)} /></label><label className="grid gap-2 text-sm text-slate-200">Simulador<select className="rounded-lg border border-slate-300 bg-gray-800 px-3 py-2 text-white outline-none focus:border-sky-400" value={form.simulador} onChange={(event) => update(index, "simulador", event.target.value)}><option value="">Não informado</option><option>Passou</option><option>Não passou</option></select></label><label className="grid gap-2 text-sm text-slate-200">Corrente (A)<input className="rounded-lg border border-slate-300 bg-gray-800 px-3 py-2 font-normal text-white outline-none focus:border-sky-400" type="number" step="any" value={form.corrente} onChange={(event) => update(index, "corrente", event.target.value)} /></label><label className="grid gap-2 text-sm text-slate-200">Transformador (V AC)<input className="rounded-lg border border-slate-300 bg-gray-800 px-3 py-2 font-normal text-white outline-none focus:border-sky-400" type="number" step="any" value={form.transformador} onChange={(event) => update(index, "transformador", event.target.value)} /></label></div>}
               {role === "cereco" && <div className="grid gap-5 border-t border-slate-600 pt-4">

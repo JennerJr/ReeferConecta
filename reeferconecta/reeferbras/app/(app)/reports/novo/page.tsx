@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type Piece = { id: number; qc?: string; nome?: string; fabricante?: string };
 type BarcodeDetectorResult = { rawValue: string };
@@ -18,15 +18,26 @@ const situations = [
   "OK",
   "Sem condições de reparo",
 ];
+const entregaSituationValue = "EntregueA";
 
 export default function NovoReportPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-gray-800 px-4 py-8 text-white">Carregando...</main>}>
+      <NovoReportForm />
+    </Suspense>
+  );
+}
+
+function NovoReportForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [reportCount, setReportCount] = useState(1);
   const [qcs, setQcs] = useState([""]);
   const [pieces, setPieces] = useState<Piece[]>([]);
   const [responsavelReparo, setResponsavelReparo] = useState("");
   const [descricaoReparo, setDescricaoReparo] = useState("");
   const [situacaoAtual, setSituacaoAtual] = useState("");
+  const [entregueParaNome, setEntregueParaNome] = useState("");
   const [role, setRole] = useState("");
   const [resistencia, setResistencia] = useState("");
   const [surge, setSurge] = useState(["", "", ""]);
@@ -181,6 +192,11 @@ export default function NovoReportPage() {
     setScannerIndex(index);
   }
 
+  function handleSituationChange(value: string) {
+    setSituacaoAtual(value);
+    if (value !== entregaSituationValue) setEntregueParaNome("");
+  }
+
   function changeSurge(index: number, value: string) {
     setSurge((current) => current.map((measurement, measurementIndex) => measurementIndex === index ? value : measurement));
   }
@@ -189,14 +205,15 @@ export default function NovoReportPage() {
     setSelected(selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value]);
   }
 
-  async function validateQcs(event: React.FormEvent) {
-    event.preventDefault();
+  async function validateQcs(input?: React.FormEvent | string[]) {
+    const override = Array.isArray(input) ? input : undefined;
+    if (!override) (input as React.FormEvent | undefined)?.preventDefault();
     setChecking(true);
     setPieces([]);
     setError("");
     setMessage("");
     try {
-      const normalizedQcs = qcs.map((value) => value.trim());
+      const normalizedQcs = (override ?? qcs).map((value) => value.trim());
       if (normalizedQcs.some((value) => !value)) throw new Error("Preencha todos os QCs.");
       if (new Set(normalizedQcs).size !== normalizedQcs.length) throw new Error("Não repita o mesmo QC.");
 
@@ -206,6 +223,7 @@ export default function NovoReportPage() {
       const foundPieces = normalizedQcs.map((qc) => pieces.find((item) => item.qc?.trim() === qc));
       const invalidIndex = foundPieces.findIndex((piece) => !piece);
       if (invalidIndex !== -1) throw new Error(`QC inválido: ${normalizedQcs[invalidIndex]}.`);
+      if (override) setQcs(normalizedQcs);
       setPieces(foundPieces as Piece[]);
       setMessage(`${foundPieces.length} QC(s) válido(s). Os relatórios foram liberados.`);
     } catch (requestError) {
@@ -215,6 +233,16 @@ export default function NovoReportPage() {
     }
   }
 
+  // Peças acessadas via /pecas/[id]/reports chegam com o QC pronto para validar automaticamente.
+  useEffect(() => {
+    const qcParam = searchParams.get("qc")?.trim();
+    if (!qcParam) return;
+    setReportCount(1);
+    setQcs([qcParam]);
+    void validateQcs([qcParam]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   async function saveReport(event: React.FormEvent) {
     event.preventDefault();
     if (!pieces.length) return;
@@ -222,15 +250,22 @@ export default function NovoReportPage() {
       setError("Preencha as três medições de Surge ou deixe todas vazias.");
       return;
     }
+    if (role === "almox" && situacaoAtual === entregaSituationValue && !entregueParaNome.trim()) {
+      setError("Informe o nome de quem pegou a peça.");
+      return;
+    }
     setSaving(true);
     setError("");
     try {
+      const finalSituacaoAtual = situacaoAtual === entregaSituationValue
+        ? `Entregue para: ${entregueParaNome.trim()}`
+        : situacaoAtual;
       await Promise.all(pieces.map(async (piece, index) => {
         const response = await fetch(`/api/pecas/${piece.id}/reports`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            qc: qcs[index], responsavelReparo, descricaoReparo, situacaoAtual,
+            qc: qcs[index], responsavelReparo, descricaoReparo, situacaoAtual: finalSituacaoAtual,
             resistencia, surge: surge.filter(Boolean).join(" / "), mega, simulador, corrente, transformador,
             inspeçãoVisual: visualInspections.join(" / "), ordemServico, serialNumberReport, estatorTrocado,
             scroll, reparoFalange, analiseMecanica: mechanicalAnalysis.join(" / "),
@@ -299,11 +334,17 @@ export default function NovoReportPage() {
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-200">
               Situação atual
-              <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={situacaoAtual} onChange={(event) => setSituacaoAtual(event.target.value)} required>
+              <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={situacaoAtual} onChange={(event) => handleSituationChange(event.target.value)} required>
                 <option value="">Selecione uma situação</option>
-                {situations.map((situation) => <option className="text-black" key={situation} value={situation}>{situation}</option>)}
+                {role === "almox"
+                  ? <option className="text-black" value={entregaSituationValue}>Entregue para:</option>
+                  : situations.map((situation) => <option className="text-black" key={situation} value={situation}>{situation}</option>)}
               </select>
             </label>
+            {role === "almox" && situacaoAtual === entregaSituationValue && <label className="grid gap-2 text-sm font-semibold text-slate-200">
+              Nome de quem pegou
+              <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={entregueParaNome} onChange={(event) => setEntregueParaNome(event.target.value)} placeholder="Digite o nome" required />
+            </label>}
             {role === "lab.elétrica" && <div className="grid gap-5 rounded-lg border border-slate-600 p-4">
               <h2 className="text-lg font-semibold text-white">Medições elétricas</h2>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Resistência (Ω)<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" step="any" value={resistencia} onChange={(event) => setResistencia(event.target.value)} /></label>

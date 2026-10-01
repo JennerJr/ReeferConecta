@@ -99,8 +99,8 @@ export async function POST(
       return NextResponse.json({ erro: "QC não corresponde à peça selecionada." }, { status: 400 });
     }
 
-    const replacement = submittedSituation === "Sem condições de reparo"
-      ? "Sem condições de reparo"
+    const replacement = submittedSituation === "Sem condições de reparo" || /^Entregue para:/i.test(submittedSituation)
+      ? submittedSituation
       : "OK";
     const situacaoAtual = piece.situacaoAtual?.replace(/^Em reparo\b/i, replacement) || submittedSituation;
     const optionalMeasurements = {

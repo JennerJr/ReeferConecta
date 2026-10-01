@@ -83,7 +83,7 @@ export default function PieceReportsPage({ params }: PageProps) {
               <h2 className="text-xl font-semibold">Histórico de relatórios</h2>
               <p className="mt-1 text-sm text-slate-500">Situação atual: {piece.situacaoAtual || "Não informada"}</p>
             </div>
-            {(canManagePieces(role) || role === "cereco" || role === "lab.elétrica") && <Link className="rounded-lg bg-red-700 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-red-800" href="/reports/novo">Novo relatório</Link>}
+            {(canManagePieces(role) || role === "cereco" || role === "lab.elétrica") && <Link className="rounded-lg bg-red-700 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-red-800" href={`/reports/novo${piece.qc ? `?qc=${encodeURIComponent(piece.qc)}` : ""}`}>Novo relatório</Link>}
           </div>
           {!piece.reports?.length ? <p className="mt-6 text-slate-600">Nenhum relatório registrado.</p> : (
             <div className="mt-6 grid gap-4">

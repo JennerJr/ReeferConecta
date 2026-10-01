@@ -48,7 +48,7 @@ const partsByManufacturer: Record<string, CatalogPart[]> = {
 };
 const funcByRegiao: dados[] = reeferbrasfunc;
 
-const localidades =[...new Set(funcByRegiao.map((r) => r.Localidade))];
+const localidades = [...new Set(funcByRegiao.map((r) => r.Localidade)), "Santos/SP"];
 
 
 const situations = [
@@ -423,10 +423,20 @@ const funcionarios = funcByRegiao
               </label>
 
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Técnico Responsável
-                <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.tecnicoResponsavel} onChange={(event) => { updateField(index, "tecnicoResponsavel", event.target.value); }}>
-                  <option value="">Selecione um técnico</option>
-                  {funcionarios.map((func) => <option className="text-black" key={func} value={func}>{func}</option>)}
-                </select>
+                {form.localidade === "Santos/SP" ? (
+                  <input
+                    className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none"
+                    required
+                    value={form.tecnicoResponsavel}
+                    onChange={(event) => updateField(index, "tecnicoResponsavel", event.target.value)}
+                    placeholder="Digite o nome do funcionário"
+                  />
+                ) : (
+                  <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.tecnicoResponsavel} onChange={(event) => { updateField(index, "tecnicoResponsavel", event.target.value); }}>
+                    <option value="">Selecione um técnico</option>
+                    {funcionarios.map((func) => <option className="text-black" key={func} value={func}>{func}</option>)}
+                  </select>
+                )}
               </label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200 md:col-span-2">Situação Atual
                 <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.situacaoAtual} onChange={(event) => handleSituationChange(index, event.target.value)}>
