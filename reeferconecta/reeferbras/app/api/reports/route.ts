@@ -57,8 +57,9 @@ export async function GET() {
       client.db(databaseName).collection<Piece>("pecasdb").find({}, { projection: { id: 1, nome: 1, fabricante: 1, qc: 1, reports: 1 } }).toArray(),
     ]);
     const canViewAll = user.role.trim().toLowerCase() === "enc";
+    const canViewAllStandalone = canViewAll || user.role.trim().toLowerCase() === "almox";
     const name = user.name.trim().toLowerCase();
-    const visibleStandalone = canViewAll ? standaloneReports : standaloneReports.filter((report) => report.responsavelReparo.trim().toLowerCase() === name);
+    const visibleStandalone = canViewAllStandalone ? standaloneReports : standaloneReports.filter((report) => report.responsavelReparo.trim().toLowerCase() === name);
     const pieceReports = pieces.flatMap((piece) => (piece.reports ?? [])
       .filter((report) => canViewAll || matchesUser(report))
       .map((report) => ({ ...report, pieceId: piece.id, pieceName: piece.nome, fabricante: piece.fabricante, qc: piece.qc })))
@@ -66,7 +67,7 @@ export async function GET() {
       [report.responsavelReparo, report.tecnicoResponsavel].some((value) => value?.trim().toLowerCase() === name);
     const reports = [
       ...pieceReports,
-      ...visibleStandalone.map((report) => ({ ...report, pieceId: undefined, pieceName: "Report sem peça", fabricante: "", qc: "" })),
+      ...visibleStandalone.map((report) => ({ ...report, pieceId: undefined, pieceName: "Report sem peça", qc: "" })),
     ].sort((first, second) => new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime());
     return NextResponse.json({ reports });
   } catch (error) {
