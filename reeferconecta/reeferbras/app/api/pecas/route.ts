@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { getSessionUser } from "@/lib/auth-session";
 import { canManagePieces } from "@/lib/authorization";
+import { getSetorForComponente, normalizeSetor } from "@/lib/catalog";
 import getMongoClient from "@/lib/mongodb";
 
 // ============================================================
@@ -57,6 +58,7 @@ export interface PieceHistory {
 
 const PIECES_DATABASE = process.env.MONGODB_DATABASE_PECAS || "pecas";
 const PIECES_COLLECTION = "pecasdb";
+const sectorOnlyRoles = ["lab.eletronica", "lab.elétrica", "cereco"];
 
 async function piecesCollection() {
   const client = await getMongoClient();
@@ -113,11 +115,18 @@ export async function GET(request: NextRequest) {
   try {
     const collection = await piecesCollection();
     const pieces = await collection.find({}).sort({ id: 1 }).toArray();
+
+    const sessionUser = await getSessionUser();
+    const role = sessionUser?.role.trim().toLowerCase();
+    const sectorPieces = role && sectorOnlyRoles.includes(role)
+      ? pieces.filter((piece) => getSetorForComponente(piece.nome) === normalizeSetor(role))
+      : pieces;
+
     if (request.nextUrl.searchParams.get("reports") !== "visible") {
-      return NextResponse.json(pieces, { status: 200 });
+      return NextResponse.json(sectorPieces, { status: 200 });
     }
 
-    const user = await getSessionUser();
+    const user = sessionUser;
     if (!user) {
       return NextResponse.json({ erro: "Sessão não encontrada" }, { status: 401 });
     }
@@ -125,8 +134,8 @@ export async function GET(request: NextRequest) {
     const canViewAllReports = user.role.trim().toLowerCase() === "enc";
     const currentUserName = user.name.trim().toLowerCase();
     const visiblePieces = canViewAllReports
-      ? pieces
-      : pieces.map((piece) => ({
+      ? sectorPieces
+      : sectorPieces.map((piece) => ({
           ...piece,
           reports: piece.reports?.filter(
             (report) => report.responsavelReparo.trim().toLowerCase() === currentUserName,
