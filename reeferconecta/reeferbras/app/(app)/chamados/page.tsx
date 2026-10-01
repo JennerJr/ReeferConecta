@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getChamadoStatusBadgeClass } from "@/lib/chamado-status";
 
 type chamado ={
     id: string;
@@ -72,7 +73,12 @@ export default function ChamadosPage() {
               href={`/chamados/${encodeURIComponent(String(chamado.id ?? ''))}`}
               key={String(chamado.id)}
             >
-              <h2 className="break-words font-bold">{chamado.titulo || "Chamado sem título"}</h2>
+              <h2 className="flex flex-wrap items-center gap-2 break-words font-bold">
+                {chamado.titulo || "Chamado sem título"}
+                <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${getChamadoStatusBadgeClass(chamado.status)}`}>
+                  {chamado.status || "Não informado"}
+                </span>
+              </h2>
               <p className="mt-2 text-sm text-slate-600">Usuário: {chamado.pedidoPor || "Não informado"}, Situação: {chamado.status || "Não informado"}</p>
               <p className="text-sm text-slate-600">Descrição: {chamado.descricao || "Não informado"}</p>
               <p className="text-sm text-slate-600">Criado em: {formatArrivalDate(chamado.criadoEm) ?? "Não informado"}</p>

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import { canManagePieces } from "@/lib/authorization";
+import { canManagePieces, canDeleteChamados } from "@/lib/authorization";
+import { getChamadoStatusBadgeClass } from "@/lib/chamado-status";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -37,6 +38,8 @@ export default function ReportDetailsPage({ params }: PageProps) {
   const [chamados, setChamados] = useState<chamados | null>(null);
   const [error, setError] = useState("");
   const [role, setRole] = useState<string>();
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
 	fetch("/api/auth/session")
@@ -55,6 +58,26 @@ export default function ReportDetailsPage({ params }: PageProps) {
 	})
 	.catch((RequestError) => setError(RequestError instanceof Error ? RequestError.message : "Erro ao carregar o chamado"))
 	},[id]);
+
+	const handleDelete = async () => {
+		if (!chamados) return;
+		if (!window.confirm("Tem certeza que deseja excluir este chamado? Essa ação não pode ser desfeita.")) return;
+
+		setDeleting(true);
+		setDeleteError("");
+		try {
+			const response = await fetch(`/api/chamados?id=${encodeURIComponent(String(chamados.id))}`, { method: "DELETE" });
+			if (!response.ok) {
+				const data = await response.json();
+				throw new Error(data.erro ?? "Não foi possível excluir o chamado");
+			}
+			router.push("/chamados");
+		} catch (deleteRequestError) {
+			setDeleteError(deleteRequestError instanceof Error ? deleteRequestError.message : "Erro ao excluir o chamado");
+		} finally {
+			setDeleting(false);
+		}
+	};
 
 	if(error) return  <main className="mx-auto max-w-3xl px-4 py-8 text-red-700 sm:px-6 sm:py-10">{error}</main>;
 	if(!chamados) return <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">Carregando...</main>;
@@ -82,9 +105,24 @@ export default function ReportDetailsPage({ params }: PageProps) {
 				  Editar chamado
 				</button>
 			  )}
+			  {canDeleteChamados(role) && (
+				<button
+				  onClick={handleDelete}
+				  disabled={deleting}
+				  className="w-full rounded-lg bg-red-700 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-red-800 disabled:opacity-50 sm:w-auto"
+				>
+				  {deleting ? "Excluindo..." : "Excluir chamado"}
+				</button>
+			  )}
 			</div>
 		  </div>
-		  <h1 className="mt-4 text-3xl text-white font-bold">Detalhes do chamado</h1>
+		  {deleteError && <p className="mt-4 rounded-lg bg-red-100 p-3 text-red-700">{deleteError}</p>}
+		  <div className="mt-4 flex items-center gap-3">
+			<h1 className="text-3xl text-white font-bold">Detalhes do chamado</h1>
+			<span className={`rounded-full px-3 py-1 text-xs font-semibold ${getChamadoStatusBadgeClass(chamados.status)}`}>
+			  {chamados.status || "Status não informado"}
+			</span>
+		  </div>
 
 		  <div className="mt-8 grid gap-4 rounded-lg border border-slate-200 bg-white p-4 md:grid-cols-2 sm:p-6">
 			{fields.map(([label, value]) => (

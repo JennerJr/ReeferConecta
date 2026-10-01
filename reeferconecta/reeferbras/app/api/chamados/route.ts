@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth-session";
 import getMongoClient from "@/lib/mongodb";
 import { notifyReportSubmitted } from "@/lib/notifications";
-import { canManagePieces } from "@/lib/authorization";
+import { canManagePieces, canViewAllChamados, canDeleteChamados } from "@/lib/authorization";
 
 type standAloneChamado = {
     titulo: string;
@@ -79,18 +79,20 @@ function getCurrentDateTimeLocal(): string {
 // ============================================================
 // GET /api/chamados — lista todos os chamados salvos no MongoDB
 // ============================================================
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const collection = await chamadosCollection();
-    const pieces = await collection.find({}).sort({ id: 1 }).toArray();
- if (request.nextUrl.searchParams.get("all") === "true") {
-      return NextResponse.json(pieces, { status: 200 });
-    }
-
     const user = await getSessionUser();
     if (!user) return NextResponse.json({ erro: "Sessão não encontrada" }, { status: 401 });
-    
-    return NextResponse.json(pieces, { status: 200 });
+
+    const collection = await chamadosCollection();
+    const pieces = await collection.find({}).sort({ id: 1 }).toArray();
+
+    // Usuários do setor "dev" enxergam todos os chamados; os demais só veem os próprios.
+    const canViewAll = canViewAllChamados(user.role);
+    const name = user.name.trim().toLowerCase();
+    const visiblePieces = canViewAll ? pieces : pieces.filter((piece) => piece.pedidoPor?.trim().toLowerCase() === name);
+
+    return NextResponse.json(visiblePieces, { status: 200 });
   } catch (err) {
     console.error("[GET /api/chamado] falha ao ler MongoDB:", err);
     return NextResponse.json(
@@ -213,5 +215,33 @@ try {
     } catch (err) {
       console.error("[PUT /api/chamados] erro ao atualizar:", err);
       return NextResponse.json({ success: false, erro: "Não foi possível atualizar o chamado" }, { status: 500 });
+    }
+  }
+
+  // ============================================================
+  // DELETE /api/chamados — remove um chamado existente (somente setor dev)
+  // ============================================================
+  export async function DELETE(request: NextRequest) {
+    try {
+      const user = await getSessionUser();
+      if (!canDeleteChamados(user?.role)) {
+        return NextResponse.json({ erro: "Entrada não autorizada" }, { status: 403 });
+      }
+
+      const id = Number(request.nextUrl.searchParams.get("id"));
+      if (!Number.isInteger(id)) {
+        return NextResponse.json({ erro: "ID do chamado inválido" }, { status: 400 });
+      }
+
+      const collection = await chamadosCollection();
+      const result = await collection.deleteOne({ id });
+      if (result.deletedCount === 0) {
+        return NextResponse.json({ erro: "Chamado não encontrado" }, { status: 404 });
+      }
+
+      return NextResponse.json({ success: true }, { status: 200 });
+    } catch (err) {
+      console.error("[DELETE /api/chamados] erro ao remover:", err);
+      return NextResponse.json({ success: false, erro: "Não foi possível remover o chamado" }, { status: 500 });
     }
   }

@@ -67,7 +67,7 @@ function createForm(): ReportForm {
 }
 
 function cloneForAdditionalReport(source: ReportForm): ReportForm {
-  return { ...source, ordemServico: "", surge: [...source.surge], inspeçãoVisual: [...source.inspeçãoVisual], analiseMecanica: [...source.analiseMecanica], testeFuncionamento: [...source.testeFuncionamento] };
+  return { ...source, ordemServico: "", surge: [...source.surge], inspeçãoVisual: [...source.inspeçãoVisual], analiseMecanica: [...source.analiseMecanica], testeFuncionamento: [...source.testeFuncionamento],};
 }
 
 export default function NovoReportSemQcPage() {
@@ -109,16 +109,20 @@ export default function NovoReportSemQcPage() {
   }
 
   function handleManufacturerChange(index: number, value: string) {
-    setForms((currentForms) => currentForms.map((form, formIndex) => formIndex === index
-      ? { ...form, fabricante: value, nomePeca: ""}
-      : form));
+    setForms((currentForms) => currentForms.map((form, formIndex) => {
+      if (formIndex === index) return { ...form, fabricante: value, nomePeca: "" };
+      if (index === 0) return { ...form, fabricante: value, nomePeca: "" };
+      return form;
+    }));
     setSubmitted(false);
   }
 
   function handlePartNameChange(index: number, value: string) {
-    setForms((currentForms) => currentForms.map((form, formIndex) => formIndex === index
-      ? { ...form, nomePeca: value ?? "" }
-      : form));
+    setForms((currentForms) => currentForms.map((form, formIndex) => {
+      if (formIndex === index) return { ...form, nomePeca: value ?? "" };
+      if (index === 0) return { ...form, nomePeca: value ?? "" };
+      return form;
+    }));
     setSubmitted(false);
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { canManagePieces } from "@/lib/authorization";
 import { printPieceLabels } from "@/lib/labels";
 import carrierParts from "@/data/carrier.json";
@@ -9,6 +9,12 @@ import starcoolParts from "@/data/starcool.json";
 import thermokingParts from "@/data/thermoking.json";
 import reeferbrasfunc from "@/data/reeferbrasfunc.json";
 import { useRouter } from "next/navigation";  
+
+type BarcodeDetectorResult = { rawValue: string };
+type BarcodeDetectorInstance = { detect(source: HTMLVideoElement): Promise<BarcodeDetectorResult[]> };
+type BarcodeDetectorConstructor = new (options?: { formats?: string[] }) => BarcodeDetectorInstance;
+
+const barcodeFormats = ["qr_code", "code_128", "code_39", "code_93", "codabar", "ean_13", "ean_8", "itf", "upc_a", "upc_e"];
 
 type PieceForm = {
   nome: string;
@@ -82,6 +88,9 @@ export default function NovoPecaPage() {
   const [saving, setSaving] = useState(false);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
   const [printingLabels, setPrintingLabels] = useState(false);  
+  const [scannerIndex, setScannerIndex] = useState<number | null>(null);
+  const [scannerError, setScannerError] = useState("");
+  const videoRef = useRef<HTMLVideoElement>(null);
   
 const funcionarios = funcByRegiao
       .filter((r) => r.Localidade === localidade)
@@ -94,6 +103,105 @@ const funcionarios = funcByRegiao
       .catch(() => setAuthorized(false));
   }, []);
 
+  useEffect(() => {
+    if (scannerIndex === null) return;
+
+    const targetIndex = scannerIndex;
+    const videoElement = videoRef.current;
+    let active = true;
+    let animationFrame = 0;
+    let stream: MediaStream | undefined;
+    let stopFallbackScanner: (() => void) | undefined;
+    const detectorConstructor = (window as Window & { BarcodeDetector?: BarcodeDetectorConstructor }).BarcodeDetector;
+
+    async function startNativeScanner(Detector: BarcodeDetectorConstructor) {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+        if (!active || !videoElement) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+
+        const video = videoElement;
+        video.srcObject = stream;
+        await video.play();
+        const detector = new Detector({ formats: barcodeFormats });
+
+        const scan = async () => {
+          if (!active) return;
+          try {
+            const detected = await detector.detect(video);
+            const value = detected.find((item) => item.rawValue.trim())?.rawValue.trim();
+            if (value) {
+              updateField(targetIndex, "serialNumber", value);
+              setScannerIndex(null);
+              return;
+            }
+          } catch {
+            // A frame can fail while the camera is focusing; keep scanning.
+          }
+          if (active) animationFrame = requestAnimationFrame(() => { void scan(); });
+        };
+        animationFrame = requestAnimationFrame(() => { void scan(); });
+      } catch (requestError) {
+        if (active) {
+          setScannerError(requestError instanceof DOMException && requestError.name === "NotAllowedError"
+            ? "Permita o acesso à câmera para ler o código."
+            : "Não foi possível iniciar a câmera.");
+        }
+      }
+    }
+
+    async function startFallbackScanner() {
+      try {
+        const { BrowserMultiFormatReader } = await import("@zxing/browser");
+        if (!active || !videoElement) return;
+
+        const reader = new BrowserMultiFormatReader();
+        const controls = await reader.decodeFromConstraints(
+          { video: { facingMode: { ideal: "environment" } }, audio: false },
+          videoElement,
+          (result, _error, scannerControls) => {
+            if (!active) return;
+
+            const value = result?.getText().trim();
+            if (value) {
+              scannerControls.stop();
+              updateField(targetIndex, "serialNumber", value);
+              setScannerIndex(null);
+            }
+          },
+        );
+        stopFallbackScanner = controls.stop;
+        if (!active) controls.stop();
+      } catch (requestError) {
+        if (active) {
+          setScannerError(requestError instanceof DOMException && requestError.name === "NotAllowedError"
+            ? "Permita o acesso à câmera para ler o código."
+            : "Não foi possível iniciar a câmera.");
+        }
+      }
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      void Promise.resolve().then(() => {
+        if (active) setScannerError("A câmera não está disponível neste dispositivo ou contexto.");
+      });
+    } else if (detectorConstructor) {
+      void startNativeScanner(detectorConstructor);
+    } else {
+      void startFallbackScanner();
+    }
+
+    return () => {
+      active = false;
+      cancelAnimationFrame(animationFrame);
+      stopFallbackScanner?.();
+      stream?.getTracks().forEach((track) => track.stop());
+      if (videoElement) videoElement.srcObject = null;
+    };
+  }, [scannerIndex]);
+
   function changePieceCount(value: number) {
     const nextCount = Math.min(50, Math.max(0, value || 0));
     setPieceCount(nextCount);
@@ -102,8 +210,14 @@ const funcionarios = funcByRegiao
     setGeneratedQcs([]);
   }
 
+  const nonRepeatingFields: Array<keyof PieceForm> = ["serialNumber", "imagemUrl", "deliveredBy"];
+
   function updateField(index: number, field: keyof PieceForm, value: string) {
-    setForms((currentForms) => currentForms.map((form, formIndex) => formIndex === index ? { ...form, [field]: value } : form));
+    setForms((currentForms) => currentForms.map((form, formIndex) => {
+      if (formIndex === index) return { ...form, [field]: value };
+      if (index === 0 && !nonRepeatingFields.includes(field)) return { ...form, [field]: value };
+      return form;
+    }));
     setSubmitted(false);
   }
 
@@ -117,26 +231,37 @@ const funcionarios = funcByRegiao
     }
   }
 
+  function openScanner(index: number) {
+    setScannerError("");
+    setScannerIndex(index);
+  }
+
   function handleManufacturerChange(index: number, value: string) {
-    setForms((currentForms) => currentForms.map((form, formIndex) => formIndex === index
-      ? { ...form, fabricante: value, nome: "", imagemUrl: "" }
-      : form));
+    setForms((currentForms) => currentForms.map((form, formIndex) => {
+      if (formIndex === index) return { ...form, fabricante: value, nome: "", imagemUrl: "" };
+      if (index === 0) return { ...form, fabricante: value, nome: "" };
+      return form;
+    }));
     setSubmitted(false);
   }
 
   function handlePartNameChange(index: number, value: string) {
     const selectedManufacturer = forms[index]?.fabricante;
     const selectedPart = (partsByManufacturer[selectedManufacturer] ?? []).find((part) => part.descricao === value);
-    setForms((currentForms) => currentForms.map((form, formIndex) => formIndex === index
-      ? { ...form, nome: value, imagemUrl: selectedPart?.imagem ?? "" }
-      : form));
+    setForms((currentForms) => currentForms.map((form, formIndex) => {
+      if (formIndex === index) return { ...form, nome: value, imagemUrl: selectedPart?.imagem ?? "" };
+      if (index === 0) return { ...form, nome: value };
+      return form;
+    }));
     setSubmitted(false);
   }
 
   function handleSituationChange(index: number, value: string) {
-    setForms((currentForms) => currentForms.map((form, formIndex) => formIndex === index
-      ? { ...form, situacaoAtual: value, deliveredBy: value === "ReparoIncomum" ? form.deliveredBy : "" }
-      : form));
+    setForms((currentForms) => currentForms.map((form, formIndex) => {
+      if (formIndex === index) return { ...form, situacaoAtual: value, deliveredBy: value === "ReparoIncomum" ? form.deliveredBy : "" };
+      if (index === 0) return { ...form, situacaoAtual: value };
+      return form;
+    }));
     setSubmitted(false);
   }
 
@@ -276,14 +401,19 @@ const funcionarios = funcByRegiao
                 </select>
               </label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Serial Number
-                <input
-                  className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none"
-                  value={form.serialNumber}
-                  onFocus={(event) => event.target.select()}
-                  onKeyDown={(event) => handleSerialNumberKeyDown(index, event)}
-                  onChange={(event) => updateField(index, "serialNumber", event.target.value)}
-                  placeholder="Leia o código de barras ou digite o serial"
-                />
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <input
+                    className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none"
+                    value={form.serialNumber}
+                    onFocus={(event) => event.target.select()}
+                    onKeyDown={(event) => handleSerialNumberKeyDown(index, event)}
+                    onChange={(event) => updateField(index, "serialNumber", event.target.value)}
+                    placeholder="Leia o código de barras ou digite o serial"
+                  />
+                  <button className="shrink-0 rounded-lg bg-sky-700 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-800" type="button" onClick={() => openScanner(index)}>
+                    Ler código
+                  </button>
+                </div>
               </label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Localidade
                 <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal outline-none" required value={form.localidade} onChange={(event) => { updateField(index, "localidade", event.target.value); setLocalidade(event.target.value); }}>
@@ -341,6 +471,22 @@ const funcionarios = funcByRegiao
           <button className="w-full rounded-lg bg-gradient-to-br from-[#E8262C] to-[#B32025] px-4 py-3 font-semibold text-white transition hover:brightness-110 disabled:opacity-50" onClick={() => router.push('/pecas')} disabled={saving} type="submit">{saving ? `Cadastrando ${pieceCount} peças...` : `Cadastrar ${pieceCount} peças`} </button>
         </form>
       </section>
+      {scannerIndex !== null && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="scanner-title">
+        <div className="w-full max-w-lg rounded-xl border border-slate-600 bg-gray-800 p-5 shadow-xl">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold text-white" id="scanner-title">Ler serial da peça {scannerIndex + 1}</h2>
+              <p className="mt-1 text-sm text-slate-300">Aponte a câmera para o código de barras ou QR code.</p>
+            </div>
+            <button className="text-2xl leading-none text-slate-300 hover:text-white" type="button" onClick={() => setScannerIndex(null)} aria-label="Fechar leitor">×</button>
+          </div>
+          <video className="mt-4 aspect-video w-full rounded-lg bg-black object-cover" ref={videoRef} autoPlay muted playsInline />
+          {scannerError && <p className="mt-3 rounded-lg bg-red-100 p-3 text-sm text-red-700">{scannerError}</p>}
+          <button className="mt-4 w-full rounded-lg border border-slate-500 px-4 py-2 font-semibold text-white hover:bg-slate-700" type="button" onClick={() => setScannerIndex(null)}>
+            Fechar
+          </button>
+        </div>
+      </div>}
     </main>
   );
 }
