@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { canManagePieces } from "@/lib/authorization";
 
 const fabricantes = ["Star Cool", "Daikin", "Carrier", "Thermo King", "Outros"];
@@ -73,7 +74,8 @@ export default function CadastrarComponentePage() {
   return (
     <main className="min-h-screen px-4 py-8 text-slate-900 sm:px-6 sm:py-10">
       <section className="mx-auto max-w-2xl">
-        <p className="bg-gradient-to-br from-[#E8262C] to-[#B32025] bg-clip-text text-transparent text-sm font-bold uppercase tracking-widest">ReeferConecta</p>
+        <Link className="text-sm font-semibold text-sky-400 hover:text-sky-300" href="/pecas">← Voltar para peças</Link>
+        <p className="mt-2 bg-gradient-to-br from-[#E8262C] to-[#B32025] bg-clip-text text-transparent text-sm font-bold uppercase tracking-widest">ReeferConecta</p>
         <h1 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Cadastrar nova peça</h1>
         <p className="mt-2 text-slate-300">Adicione um novo componente ao catálogo de peças do fabricante selecionado.</p>
 
