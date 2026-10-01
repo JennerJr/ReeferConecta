@@ -159,7 +159,10 @@ export default function Home() {
           <div><p className="bg-gradient-to-br from-[#E8262C] to-[#B32025] bg-clip-text text-transparent text-sm font-bold uppercase tracking-widest">ReeferConecta</p>
           <h1 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Peças cadastradas</h1></div>
           {canManagePieces(role) && (
-            <Link className="w-full rounded-lg bg-sky-700 px-4 py-3 text-center font-semibold text-white hover:bg-sky-800 sm:w-auto" href="/pecas/novo">Nova peça</Link>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              <Link className="w-full rounded-lg bg-sky-700 px-4 py-3 text-center font-semibold text-white hover:bg-sky-800 sm:w-auto" href="/pecas/novo">Nova entrada de peça</Link>
+              <Link className="w-full rounded-lg bg-emerald-700 px-4 py-3 text-center font-semibold text-white hover:bg-emerald-800 sm:w-auto" href="/pecas/catalogo/novo">Cadastrar nova peça</Link>
+            </div>
           )}
         </header>
         {loading && <p className="mt-8">Carregando peças...</p>}
