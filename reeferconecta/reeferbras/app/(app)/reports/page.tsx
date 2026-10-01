@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { getSetorForComponente, setorTabs } from "@/lib/catalog";
 
 type RepairReport = {
   id: string;
@@ -38,14 +39,29 @@ type ReportItem = RepairReport & {
 
 const situations = ["OK", "Sem condições de reparo"];
 
-function getReportStatusBadgeClass(status?: string) {
+function getReportStatusCategory(status?: string): "reparo" | "semCondicoes" | "enviado" | "ok" | "outro" {
   const normalized = status?.trim().toLowerCase() ?? "";
-  if (normalized.startsWith("em reparo")) return "bg-yellow-100 text-yellow-700";
-  if (normalized.startsWith("sem condições")) return "bg-red-100 text-red-700";
-  if (normalized.startsWith("entregue para") || normalized.startsWith("enviado para o mesmo")) return "bg-blue-100 text-blue-700";
-  if (normalized.startsWith("ok")) return "bg-emerald-100 text-emerald-700";
+  if (normalized.startsWith("em reparo")) return "reparo";
+  if (normalized.startsWith("sem condições")) return "semCondicoes";
+  if (normalized.startsWith("entregue para") || normalized.startsWith("enviado para o mesmo")) return "enviado";
+  if (normalized.startsWith("ok")) return "ok";
+  return "outro";
+}
+
+function getReportStatusBadgeClass(status?: string) {
+  const category = getReportStatusCategory(status);
+  if (category === "reparo") return "bg-yellow-100 text-yellow-700";
+  if (category === "semCondicoes") return "bg-red-100 text-red-700";
+  if (category === "enviado") return "bg-blue-100 text-blue-700";
+  if (category === "ok") return "bg-emerald-100 text-emerald-700";
   return "bg-slate-200 text-slate-700";
 }
+
+const statusFilters = [
+  { value: "ok", label: "OK", className: "bg-emerald-100 text-emerald-700" },
+  { value: "enviado", label: "Enviadas", className: "bg-blue-100 text-blue-700" },
+  { value: "semCondicoes", label: "Sem condições", className: "bg-red-100 text-red-700" },
+] as const;
 
 export default function ReportsPage() {
   const pageSize = 10;
@@ -58,6 +74,10 @@ export default function ReportsPage() {
   const [editForm, setEditForm] = useState({ responsavelReparo: "", ordemServico: "", descricaoReparo: "", situacaoAtual: "" });
   const [editError, setEditError] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
+  const [role, setRole] = useState<string>();
+  const [setorTab, setSetorTab] = useState<string>("todos");
+  const [statusFilter, setStatusFilter] = useState<string>("todos");
+  const isAlmox = role?.trim().toLowerCase() === "almox";
 
 function startEdit(report: ReportItem) {
   setEditError("");
@@ -102,6 +122,11 @@ async function saveEdit(report: ReportItem) {
 }
 
   useEffect(() => {
+    fetch("/api/auth/session")
+      .then((response) => response.json())
+      .then((data) => setRole(data.user?.role))
+      .catch(() => undefined);
+
     fetch("/api/reports")
       .then(async (response) => {
         const data = await response.json();
@@ -140,7 +165,9 @@ async function saveEdit(report: ReportItem) {
     report.pieceName,
     report.manufacturer,
     report.qc,
-  ].filter((value): value is string => Boolean(value)).some((value) => value.toLowerCase().includes(normalizedSearch)));
+  ].filter((value): value is string => Boolean(value)).some((value) => value.toLowerCase().includes(normalizedSearch)))
+    .filter((report) => !isAlmox || setorTab === "todos" || getSetorForComponente(report.pieceId ? report.pieceName : report.nomePeca) === setorTab)
+    .filter((report) => statusFilter === "todos" || getReportStatusCategory(report.situacaoAtual) === statusFilter);
   const totalPages = Math.max(1, Math.ceil(filteredReports.length / pageSize));
   const visibleReports = filteredReports.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
@@ -152,7 +179,24 @@ async function saveEdit(report: ReportItem) {
           <div className="flex flex-wrap gap-2"><Link className="rounded-lg bg-sky-700 px-4 py-2 font-semibold text-white hover:bg-sky-800" href="/reports/novo">Novo Relatório</Link><Link className="rounded-lg bg-red-700 px-4 py-2 font-semibold text-white hover:bg-red-800" href="/reports/novo-sem-qc">Novo relatório sem QC</Link></div>
         </div>
 
+        {isAlmox && !loading && !error && reports.length > 0 && (
+          <div className="mt-6 flex flex-wrap border-b border-slate-700" role="tablist" aria-label="Setores dos relatórios">
+            <button className={`border-b-2 px-4 py-3 text-sm font-semibold ${setorTab === "todos" ? "border-sky-500 text-white" : "border-transparent text-slate-400 hover:text-white"}`} type="button" role="tab" aria-selected={setorTab === "todos"} onClick={() => { setSetorTab("todos"); setCurrentPage(1); }}>Todos</button>
+            {setorTabs.map((tab) => (
+              <button className={`border-b-2 px-4 py-3 text-sm font-semibold ${setorTab === tab.value ? "border-sky-500 text-white" : "border-transparent text-slate-400 hover:text-white"}`} key={tab.value} type="button" role="tab" aria-selected={setorTab === tab.value} onClick={() => { setSetorTab(tab.value); setCurrentPage(1); }}>{tab.label}</button>
+            ))}
+          </div>
+        )}
+
         {!loading && !error && reports.length > 0 && <input className="mt-8 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-600" type="search" placeholder="Buscar por usuário, peça, QC, situação ou descrição..." value={search} onChange={(event) => { setSearch(event.target.value); setCurrentPage(1); }} aria-label="Buscar relatórios" />}
+        {!loading && !error && reports.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button className="rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700" type="button" onClick={() => { setStatusFilter("todos"); setCurrentPage(1); }}>Todos</button>
+            {statusFilters.map((filter) => (
+              <button className={`rounded-full px-3 py-1 text-xs font-semibold ${filter.className} ${statusFilter === filter.value ? "ring-2 ring-offset-1 ring-offset-slate-900 ring-sky-400" : ""}`} key={filter.value} type="button" onClick={() => { setStatusFilter(filter.value); setCurrentPage(1); }}>{filter.label}</button>
+            ))}
+          </div>
+        )}
         {loading && <p className="mt-8 text-slate-300">Carregando relatórios...</p>}
         {error && <p className="mt-8 rounded-lg bg-red-100 p-4 text-red-700">{error}</p>}
         {!loading && !error && reports.length === 0 && <p className="mt-8 rounded-lg bg-white p-6 text-slate-600">Nenhum relatório registrado.</p>}

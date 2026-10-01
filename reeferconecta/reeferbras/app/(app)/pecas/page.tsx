@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { canManagePieces } from "@/lib/authorization";
+import { getSetorForComponente, setorTabs } from "@/lib/catalog";
 
 type BarcodeDetectorResult = { rawValue: string };
 type BarcodeDetectorInstance = { detect(source: HTMLVideoElement): Promise<BarcodeDetectorResult[]> };
@@ -32,14 +33,29 @@ function formatArrivalDate(value?: string) {
 }
 
 // Cada estado da peça ganha uma cor fixa, independente do texto completo (ex.: "Em reparo - Estoque").
-function getPieceStatusBadgeClass(status?: string) {
+function getPieceStatusCategory(status?: string): "reparo" | "semCondicoes" | "enviado" | "ok" | "outro" {
   const normalized = status?.trim().toLowerCase() ?? "";
-  if (normalized.startsWith("em reparo")) return "bg-yellow-100 text-yellow-700";
-  if (normalized.startsWith("sem condições")) return "bg-red-100 text-red-700";
-  if (normalized.startsWith("entregue para") || normalized.startsWith("enviado para o mesmo")) return "bg-blue-100 text-blue-700";
-  if (normalized.startsWith("ok")) return "bg-emerald-100 text-emerald-700";
+  if (normalized.startsWith("em reparo")) return "reparo";
+  if (normalized.startsWith("sem condições")) return "semCondicoes";
+  if (normalized.startsWith("entregue para") || normalized.startsWith("enviado para o mesmo")) return "enviado";
+  if (normalized.startsWith("ok")) return "ok";
+  return "outro";
+}
+
+function getPieceStatusBadgeClass(status?: string) {
+  const category = getPieceStatusCategory(status);
+  if (category === "reparo") return "bg-yellow-100 text-yellow-700";
+  if (category === "semCondicoes") return "bg-red-100 text-red-700";
+  if (category === "enviado") return "bg-blue-100 text-blue-700";
+  if (category === "ok") return "bg-emerald-100 text-emerald-700";
   return "bg-slate-200 text-slate-700";
 }
+
+const statusFilters = [
+  { value: "ok", label: "OK", className: "bg-emerald-100 text-emerald-700" },
+  { value: "enviado", label: "Enviadas", className: "bg-blue-100 text-blue-700" },
+  { value: "semCondicoes", label: "Sem condições", className: "bg-red-100 text-red-700" },
+] as const;
 
 export default function Home() {
   const pageSize = 10;
@@ -52,6 +68,9 @@ export default function Home() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [scannerError, setScannerError] = useState("");
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [setorTab, setSetorTab] = useState<string>("todos");
+  const [statusFilter, setStatusFilter] = useState<string>("todos");
+  const isAlmox = role?.trim().toLowerCase() === "almox";
   const normalizedSearch = search.trim().toLowerCase();
   const filteredPieces = pieces
     .filter((piece) =>
@@ -59,6 +78,8 @@ export default function Home() {
         String(value ?? "").toLowerCase().includes(normalizedSearch),
       ),
     )
+    .filter((piece) => !isAlmox || setorTab === "todos" || getSetorForComponente(piece.nome) === setorTab)
+    .filter((piece) => statusFilter === "todos" || getPieceStatusCategory(piece.situacaoAtual) === statusFilter)
     .sort((first, second) => {
       const firstDate = new Date(first.createdAt ?? first.dataChegada ?? 0).getTime();
       const secondDate = new Date(second.createdAt ?? second.dataChegada ?? 0).getTime();
@@ -165,6 +186,14 @@ export default function Home() {
             </div>
           )}
         </header>
+        {isAlmox && !loading && !error && pieces.length > 0 && (
+          <div className="mt-6 flex flex-wrap border-b border-slate-700" role="tablist" aria-label="Setores do almoxarifado">
+            <button className={`border-b-2 px-4 py-3 text-sm font-semibold ${setorTab === "todos" ? "border-sky-500 text-white" : "border-transparent text-slate-400 hover:text-white"}`} type="button" role="tab" aria-selected={setorTab === "todos"} onClick={() => { setSetorTab("todos"); setCurrentPage(1); }}>Todos</button>
+            {setorTabs.map((tab) => (
+              <button className={`border-b-2 px-4 py-3 text-sm font-semibold ${setorTab === tab.value ? "border-sky-500 text-white" : "border-transparent text-slate-400 hover:text-white"}`} key={tab.value} type="button" role="tab" aria-selected={setorTab === tab.value} onClick={() => { setSetorTab(tab.value); setCurrentPage(1); }}>{tab.label}</button>
+            ))}
+          </div>
+        )}
         {loading && <p className="mt-8">Carregando peças...</p>}
         {error && <p className="mt-8 rounded-lg bg-red-50 p-4 text-red-700">{error}</p>}
         {!loading && !error && pieces.length === 0 && <p className="mt-8">Nenhuma peça cadastrada.</p>}
@@ -184,6 +213,14 @@ export default function Home() {
             <button className="shrink-0 rounded-lg bg-sky-700 px-4 py-3 font-semibold text-white hover:bg-sky-800" type="button" onClick={() => { setScannerError(""); setScannerOpen(true); }}>
               Ler código
             </button>
+          </div>
+        )}
+        {!loading && !error && pieces.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button className={`rounded-full px-3 py-1 text-xs font-semibold ${statusFilter === "todos" ? "bg-slate-200 text-slate-700 ring-2 ring-slate-400" : "bg-slate-200 text-slate-700"}`} type="button" onClick={() => { setStatusFilter("todos"); setCurrentPage(1); }}>Todos</button>
+            {statusFilters.map((filter) => (
+              <button className={`rounded-full px-3 py-1 text-xs font-semibold ${filter.className} ${statusFilter === filter.value ? "ring-2 ring-offset-1 ring-offset-slate-900 ring-sky-400" : ""}`} key={filter.value} type="button" onClick={() => { setStatusFilter(filter.value); setCurrentPage(1); }}>{filter.label}</button>
+            ))}
           </div>
         )}
         {!loading && !error && pieces.length > 0 && filteredPieces.length === 0 && (
