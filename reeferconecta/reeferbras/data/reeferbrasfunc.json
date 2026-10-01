@@ -135,6 +135,35 @@
         "Região" : "Centro Oeste",
         "Localidade": "Sinop/MT",
         "funcionario" : ["Alex Rocha"]
+    },
+    {
+        "Região" : "Sudeste",
+        "Localidade": "Santos/SP",
+        "funcionario" : ["Chico",
+        "Jorge Eduardo",
+         "Sillas",
+         "Alexandre",
+         "Armando",
+         "Luis Felipe",
+         "David Lucas",
+         "Rosandro",
+         "Renan",
+         "Rodrigo Hipólito",
+        "Henrique"]
+    },
+    {
+        "regiao": "Sudeste",
+        "localidade": "Guarujá/SP",
+        "funcionario": ["Sergio",
+                        "Germano",
+                        "Erivelto",
+                        "Everthon",
+                        "Jardel",
+                        "Bruno",
+                        "Michael",
+                        "Ivo",
+                        "Alvaro",
+                        "Luan"]
     }
     
 
