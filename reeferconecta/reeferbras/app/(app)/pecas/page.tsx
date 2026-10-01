@@ -31,6 +31,16 @@ function formatArrivalDate(value?: string) {
   return `${day}/${month}/${year}`;
 }
 
+// Cada estado da peça ganha uma cor fixa, independente do texto completo (ex.: "Em reparo - Estoque").
+function getPieceStatusBadgeClass(status?: string) {
+  const normalized = status?.trim().toLowerCase() ?? "";
+  if (normalized.startsWith("em reparo")) return "bg-yellow-100 text-yellow-700";
+  if (normalized.startsWith("sem condições")) return "bg-red-100 text-red-700";
+  if (normalized.startsWith("entregue para") || normalized.startsWith("enviado para o mesmo")) return "bg-blue-100 text-blue-700";
+  if (normalized.startsWith("ok")) return "bg-emerald-100 text-emerald-700";
+  return "bg-slate-200 text-slate-700";
+}
+
 export default function Home() {
   const pageSize = 10;
   const [pieces, setPieces] = useState<Piece[]>([]);
@@ -183,10 +193,14 @@ export default function Home() {
               href={`/pecas/${encodeURIComponent(String(piece.id ?? ''))}`}
               key={String(piece.id)}
             >
-              <h2 className="break-words font-bold">{piece.nome || "Peça sem nome"}, {piece.fabricante || "sem fabricante informado"}, {formatArrivalDate(piece.dataChegada)}</h2>
+              <h2 className="break-words font-bold">
+                {piece.nome || "Peça sem nome"}, {piece.fabricante || "sem fabricante informado"}, {formatArrivalDate(piece.dataChegada)}{" "}
+                <span className={`ml-1 inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${getPieceStatusBadgeClass(piece.situacaoAtual)}`}>
+                  {piece.situacaoAtual || "Não informado"}
+                </span>
+              </h2>
               <p className="mt-2 text-sm text-slate-600">Serial: {piece.serialNumber || "Não informado"},QC: {piece.qc || "Não informado"}</p>
               <p className="text-sm text-slate-600">Localidade: {piece.localidade || "Não informado"}</p>
-              <p className="text-sm text-slate-600">Status: {piece.situacaoAtual || "Não informado"}</p>
             </Link>
           ))}
         </div>

@@ -45,7 +45,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const responsavelReparo = body.responsavelReparo?.trim() || existing.responsavelReparo;
     const descricaoReparo = body.descricaoReparo?.trim() ?? "";
 
-    if (!situations.includes(situacaoAtual) && !/^Entregue para: .+/i.test(situacaoAtual)) {
+    if (!situations.includes(situacaoAtual) && situacaoAtual !== "Enviado para o mesmo" && !/^Entregue para: .+/i.test(situacaoAtual)) {
       return NextResponse.json({ erro: "Situação inválida." }, { status: 400 });
     }
     if (ordemServico && !/^\d+$/.test(ordemServico)) {

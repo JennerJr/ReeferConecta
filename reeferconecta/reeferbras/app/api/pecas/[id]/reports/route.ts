@@ -99,10 +99,13 @@ export async function POST(
       return NextResponse.json({ erro: "QC não corresponde à peça selecionada." }, { status: 400 });
     }
 
-    const replacement = submittedSituation === "Sem condições de reparo" || /^Entregue para:/i.test(submittedSituation)
+    const isAlmoxDelivery = submittedSituation === "Enviado para o mesmo" || /^Entregue para:/i.test(submittedSituation);
+    const replacement = submittedSituation === "Sem condições de reparo" || isAlmoxDelivery
       ? submittedSituation
       : "OK";
-    const situacaoAtual = piece.situacaoAtual?.replace(/^Em reparo\b/i, replacement) || submittedSituation;
+    const situacaoAtual = isAlmoxDelivery
+      ? submittedSituation
+      : piece.situacaoAtual?.replace(/^Em reparo\b/i, replacement) || submittedSituation;
     const optionalMeasurements = {
       resistencia: body.resistencia?.trim() ? `${body.resistencia.trim()} Ω` : undefined,
       surge: surgeValues.length ? surgeValues.map((value) => `${value}%`).join(" / ") : undefined,

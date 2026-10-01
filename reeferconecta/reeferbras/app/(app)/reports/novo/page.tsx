@@ -19,6 +19,7 @@ const situations = [
   "Sem condições de reparo",
 ];
 const entregaSituationValue = "EntregueA";
+const enviadoParaMesmoSituation = "Enviado para o mesmo";
 
 export default function NovoReportPage() {
   return (
@@ -337,12 +338,15 @@ function NovoReportForm() {
               <select className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={situacaoAtual} onChange={(event) => handleSituationChange(event.target.value)} required>
                 <option value="">Selecione uma situação</option>
                 {role === "almox"
-                  ? <option className="text-black" value={entregaSituationValue}>Entregue para:</option>
+                  ? <>
+                      <option className="text-black" value={entregaSituationValue}>Entregue para:</option>
+                      <option className="text-black" value={enviadoParaMesmoSituation}>{enviadoParaMesmoSituation}</option>
+                    </>
                   : situations.map((situation) => <option className="text-black" key={situation} value={situation}>{situation}</option>)}
               </select>
             </label>
             {role === "almox" && situacaoAtual === entregaSituationValue && <label className="grid gap-2 text-sm font-semibold text-slate-200">
-              Nome de quem pegou
+              Técnico responsável
               <input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={entregueParaNome} onChange={(event) => setEntregueParaNome(event.target.value)} placeholder="Digite o nome" required />
             </label>}
             {role === "lab.elétrica" && <div className="grid gap-5 rounded-lg border border-slate-600 p-4">
