@@ -130,8 +130,8 @@
         "Henrique"]
     },
     {
-        "regiao": "Sudeste",
-        "localidade": "Guarujá/SP - ",
+        "Região": "Sudeste",
+        "Localidade": "Guarujá/SP - ",
         "funcionario": ["Sergio",
                         "Germano",
                         "Erivelto",
@@ -144,8 +144,8 @@
                         "Luan"]
     },
     {
-        "regiao": "Sudeste",
-        "localidade": "Realreefer PG/SP",
+        "Região": "Sudeste",
+        "Localidade": "Realreefer PG/SP",
         "funcionario": ["André Costa(Perninha)",
                         "Alexandre perereira(Boca)",
                         "Adriano(Bigode)"]
