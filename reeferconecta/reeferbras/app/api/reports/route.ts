@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth-session";
 import getMongoClient from "@/lib/mongodb";
 import { notifyReportSubmitted } from "@/lib/notifications";
+import { getSetorForComponente } from "@/lib/catalog";
+
+// almox não deve ver relatórios "sem condições de reparo" destes setores (só os do laboratório de eletrônica).
+const semCondicoesSetoresRestritosParaAlmox = new Set(["labeletrica", "cereco"]);
 
 type StandaloneReport = {
   id: string;
@@ -66,10 +70,18 @@ export async function GET() {
     const pieceReports = pieces.flatMap((piece) => (piece.reports ?? [])
       .filter((report) => canViewAll || matchesUser(report))
       .map((report) => ({ ...report, pieceId: piece.id, pieceName: piece.nome, fabricante: piece.fabricante, qc: piece.qc })))
+    const role = user.role.trim().toLowerCase();
+    const isSemCondicoes = (status?: string) => status?.trim().toLowerCase().startsWith("sem condições") ?? false;
     const reports = [
       ...pieceReports,
       ...visibleStandalone.map((report) => ({ ...report, pieceId: undefined, pieceName: "Report sem peça", qc: "" })),
-    ].sort((first, second) => new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime());
+    ]
+      .filter((report) => {
+        if (role !== "almox" || !isSemCondicoes(report.situacaoAtual)) return true;
+        const setor = getSetorForComponente(report.pieceId ? report.pieceName : report.nomePeca);
+        return !semCondicoesSetoresRestritosParaAlmox.has(setor);
+      })
+      .sort((first, second) => new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime());
     return NextResponse.json({ reports });
   } catch (error) {
     console.error("[GET /api/reports] erro ao carregar:", error);

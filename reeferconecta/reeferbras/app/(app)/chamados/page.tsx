@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getChamadoStatusBadgeClass } from "@/lib/chamado-status";
+import { getChamadoStatusBadgeClass, getChamadoStatusColor } from "@/lib/chamado-status";
 
 type chamado ={
     id: string;
@@ -19,12 +19,43 @@ function formatArrivalDate(value?: string) {
   return `${day}/${month}/${year}`;
 }
 
+// Mapeia a cor do status para uma categoria de ordenação/filtro: abertos primeiro, depois ok, por último o resto.
+function getStatusCategory(status?: string): "aberto" | "ok" | "naoRealizado" | "outro" {
+  const color = getChamadoStatusColor(status);
+  if (color === "yellow") return "aberto";
+  if (color === "green") return "ok";
+  if (color === "red") return "naoRealizado";
+  return "outro";
+}
+
+const sortPriority: Record<ReturnType<typeof getStatusCategory>, number> = {
+  aberto: 0,
+  ok: 1,
+  naoRealizado: 2,
+  outro: 2,
+};
+
+function sortChamados(list: chamado[]) {
+  return [...list].sort((first, second) => {
+    const priorityDiff = sortPriority[getStatusCategory(first.status)] - sortPriority[getStatusCategory(second.status)];
+    if (priorityDiff !== 0) return priorityDiff;
+    return new Date(first.criadoEm).getTime() - new Date(second.criadoEm).getTime();
+  });
+}
+
+const statusFilters = [
+  { value: "aberto", label: "Abertos", className: "bg-yellow-100 text-yellow-700" },
+  { value: "ok", label: "OK", className: "bg-emerald-100 text-emerald-700" },
+  { value: "naoRealizado", label: "Não realizado", className: "bg-red-100 text-red-700" },
+] as const;
+
 
 export default function ChamadosPage() {
     const pageSize = 10;
     const [chamados, setChamados] = useState<chamado[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState<string>("todos");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
 
@@ -34,15 +65,13 @@ export default function ChamadosPage() {
                 const data = await response.json();
                 if (!response.ok) throw new Error( data.erro ?? 'não foi possível carregar os chamados');
                 const normalized: chamado[] = Array.isArray(data) ? data : (data.data ?? data.chamados ?? data.dados ?? []);
-                setChamados(normalized as chamado[]);
-                normalized.sort((first,second) => new Date(second.criadoEm).getTime() - new Date(first.criadoEm).getTime());
-                setChamados(normalized);
+                setChamados(sortChamados(normalized));
                 })
                 .catch((requestError) => setError(requestError instanceof Error? requestError.message:'Erro ao carregar os chamados'))
                 .finally(() => setLoading(false));
             }, []);
             const normalizedSearch = search.trim().toLowerCase();
-            const filteredChamados  = chamados.filter((chamado) => [
+            const filteredChamados  = chamados.filter((chamado) => (statusFilter === "todos" || getStatusCategory(chamado.status) === statusFilter) && [
                 chamado.titulo,
                 chamado.descricao,
                 chamado.status,
@@ -62,6 +91,14 @@ export default function ChamadosPage() {
                 </div>
 
             {!loading && !error && chamados.length > 0 && <input className="mt-8 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-600" type="search" placeholder="Buscar por usuário, peça, QC, situação ou descrição..." value={search} onChange={(event) => { setSearch(event.target.value); setCurrentPage(1); }} aria-label="Buscar relatórios" />}
+            {!loading && !error && chamados.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button className="rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700" type="button" onClick={() => { setStatusFilter("todos"); setCurrentPage(1); }}>Todos</button>
+                {statusFilters.map((filter) => (
+                  <button className={`rounded-full px-3 py-1 text-xs font-semibold ${filter.className} ${statusFilter === filter.value ? "ring-2 ring-offset-1 ring-offset-slate-900 ring-sky-400" : ""}`} key={filter.value} type="button" onClick={() => { setStatusFilter(filter.value); setCurrentPage(1); }}>{filter.label}</button>
+                ))}
+              </div>
+            )}
             {loading && <p className="mt-8 text-slate-300">Carregando chamados...</p>}
             {error && <p className="mt-8 rounded-lg bg-red-100 p-4 text-red-700">{error}</p>}
             {!loading && !error && chamados.length === 0 && <p className="mt-8 rounded-lg bg-white p-6 text-slate-600">Nenhum chamado registrado.</p>}
