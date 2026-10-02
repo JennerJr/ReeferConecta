@@ -18,6 +18,7 @@ type RepairReport = {
   simulador?: string;
   corrente?: string;
   transformador?: string;
+  rebobinadoPor?: string;
   inspeçãoVisual?: string;
   serialNumberReport?: string;
   estatorTrocado?: string;
@@ -153,6 +154,7 @@ async function saveEdit(report: ReportItem) {
     report.simulador,
     report.corrente,
     report.transformador,
+    report.rebobinadoPor,
     report.inspeçãoVisual,
     report.ordemServico,
     report.serialNumberReport,
@@ -250,6 +252,7 @@ async function saveEdit(report: ReportItem) {
             <>
             {/* 2. grid Usuário / Técnico / Situação */}
             <div className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2"><p><strong>Usuário:</strong> {report.tecnicoResponsavel}</p><p><strong>Técnico:</strong> {report.responsavelReparo}</p></div>
+            {report.rebobinadoPor && <p className="mt-2 text-sm text-slate-700"><strong>Rebobinado por:</strong> {report.rebobinadoPor}</p>}
 
             {/* 3. bloco de medições: copie o seu bloco original inteiro, sem alterar */}
             {(report.resistencia || report.surge || /* ... */ report.outroTesteFuncionamento) && <div className="mt-4 grid gap-2 text-sm text-slate-700 sm:grid-cols-2">

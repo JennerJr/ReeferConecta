@@ -20,6 +20,7 @@ type StandaloneReport = {
   simulador?: string;
   corrente?: string;
   transformador?: string;
+  rebobinadoPor?: string;
   inspeçãoVisual?: string;
   serialNumberReport?: string;
   estatorTrocado?: string;
@@ -59,9 +60,9 @@ export async function GET() {
     const canViewAll = user.role.trim().toLowerCase() === "enc";
     const canViewAllStandalone = canViewAll || user.role.trim().toLowerCase() === "almox";
     const name = user.name.trim().toLowerCase();
-    const visibleStandalone = canViewAllStandalone ? standaloneReports : standaloneReports.filter((report) => report.responsavelReparo.trim().toLowerCase() === name);
-    const matchesUser = (report: { responsavelReparo?: string; tecnicoResponsavel?: string }) =>
-      [report.responsavelReparo, report.tecnicoResponsavel].some((value) => value?.trim().toLowerCase() === name);
+    const matchesUser = (report: { responsavelReparo?: string; tecnicoResponsavel?: string; rebobinadoPor?: string }) =>
+      [report.responsavelReparo, report.tecnicoResponsavel, report.rebobinadoPor].some((value) => value?.trim().toLowerCase() === name);
+    const visibleStandalone = canViewAllStandalone ? standaloneReports : standaloneReports.filter(matchesUser);
     const pieceReports = pieces.flatMap((piece) => (piece.reports ?? [])
       .filter((report) => canViewAll || matchesUser(report))
       .map((report) => ({ ...report, pieceId: piece.id, pieceName: piece.nome, fabricante: piece.fabricante, qc: piece.qc })))
@@ -132,6 +133,7 @@ export async function POST(request: NextRequest) {
         simulador: role === "lab.elétrica" ? input.simulador?.trim() || undefined : undefined,
         corrente: role === "lab.elétrica" ? input.corrente?.trim() || undefined : undefined,
         transformador: role === "lab.elétrica" ? input.transformador?.trim() || undefined : undefined,
+        rebobinadoPor: role === "lab.elétrica" ? input.rebobinadoPor?.trim() || undefined : undefined,
         inspeçãoVisual: role === "cereco" && visual.values.length ? visual.values.join(" / ") : undefined,
         serialNumberReport: role === "cereco" ? input.serialNumberReport?.trim() || undefined : undefined,
         estatorTrocado: role === "cereco" ? input.estatorTrocado?.trim() || undefined : undefined,

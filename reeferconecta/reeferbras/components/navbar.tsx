@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { canAccessTeams } from '@/lib/authorization';
+import ThemeToggle from '@/components/theme-toggle';
 
 function Bars3Icon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -202,7 +203,8 @@ export default function Navbar() {
             </div>
           </div>
           <div className="hidden lg:block">
-            <div className="ml-4 flex items-center md:ml-6">
+            <div className="ml-4 flex items-center gap-2 md:ml-6">
+              <ThemeToggle />
               <div className="relative">
                 <button
                   type="button"
@@ -304,10 +306,11 @@ export default function Navbar() {
                 <div className="text-base/5 font-medium text-white">{user.name}</div>
                 <div className="text-sm font-medium text-gray-400">{user.email}</div>
               </div>
+              <ThemeToggle className="relative ml-auto shrink-0 rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500" />
               <button
                 type="button"
                 onClick={toggleNotifications}
-                className="relative ml-auto shrink-0 rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
+                className="relative ml-2 shrink-0 rounded-full p-1 text-gray-400 hover:text-white focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500"
               >
                 <span className="absolute -inset-1.5" />
                 <span className="sr-only">View notifications</span>

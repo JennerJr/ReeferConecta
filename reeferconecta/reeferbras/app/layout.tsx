@@ -25,7 +25,15 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" data-theme="dark">
+      <head>
+        {/* Aplica o tema salvo antes da pintura para evitar flash do tema errado */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "(function(){try{var t=localStorage.getItem('reeferconecta-theme');document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');}catch(e){}})();",
+          }}
+        />
+      </head>
       <body>
         {children}
         <RegisterServiceWorker />
