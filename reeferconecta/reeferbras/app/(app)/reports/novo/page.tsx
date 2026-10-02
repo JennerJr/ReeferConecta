@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { formatRoleLabel } from "@/lib/authorization";
 
 type Piece = { id: number; qc?: string; nome?: string; fabricante?: string };
 type BarcodeDetectorResult = { rawValue: string };
@@ -359,7 +360,7 @@ function NovoReportForm() {
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Transformador (V AC)<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" step="any" value={transformador} onChange={(event) => setTransformador(event.target.value)} /></label>
             </div>}
             {role === "cereco" && <div className="grid gap-5 rounded-lg border border-slate-600 p-4">
-              <h2 className="text-lg font-semibold text-white">Dados do Cereco</h2>
+              <h2 className="text-lg font-semibold text-white">Dados do {formatRoleLabel("cereco")}</h2>
               <fieldset className="grid gap-2 rounded-lg border border-slate-300 p-4 text-sm font-semibold text-slate-200"><legend className="px-2 font-semibold text-slate-200">Inspeção visual</legend><div className="grid gap-2 sm:grid-cols-2">{visualInspectionOptions.map((option) => <label className="flex items-center gap-2 font-normal" key={option}><input type="checkbox" checked={visualInspections.includes(option)} onChange={() => toggleSelection(option, visualInspections, setVisualInspections)} />{option}</label>)}</div></fieldset>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Ordem de serviço<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" type="number" value={ordemServico} onChange={(event) => setOrdemServico(event.target.value)} /></label>
               <label className="grid gap-2 text-sm font-semibold text-slate-200">Serial number<input className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-white outline-none" value={serialNumberReport} onChange={(event) => setSerialNumberReport(event.target.value)} pattern="[A-Za-z0-9]+" /></label>

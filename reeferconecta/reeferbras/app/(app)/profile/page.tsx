@@ -1,7 +1,7 @@
 'use client'
 
 import { FormEvent, useEffect, useState } from 'react'
-import { employeeRoles, hasRole } from '@/lib/authorization'
+import { employeeRoles, formatRoleLabel, hasRole } from '@/lib/authorization'
 
 type User = {
   _id?: string
@@ -161,7 +161,7 @@ export default function ProfilePage() {
       <form onSubmit={saveUser} className="space-y-5 rounded-lg border border-white/10 bg-gray-900/70 p-4 sm:p-6">
         <label className="block text-sm text-gray-300">Nome<input readOnly value={user.name} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>
         <label className="block text-sm text-gray-300">E-mail<input readOnly type="email" value={user.email} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>
-        { (hasRole(user.role, ['enc', 'dev']) || hasRole(user.primaryRole, ['enc', 'dev'])) ? <label className="block text-sm text-gray-300">Setor<select value={user.role} onChange={(event) => setUser((currentUser) => ({ ...currentUser, role: event.target.value }))} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800 px-3 py-3 text-white outline-none focus:border-cyan-400">{user.primaryRole && <option className="text-black" value={user.primaryRole}>Retornar ao setor primário ({user.primaryRole})</option>}{employeeRoles.map((role) => <option className="text-black" key={role} value={role}>{role}</option>)}</select></label> : <label className="block text-sm text-gray-300">Setor<input readOnly value={user.role} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>}
+        { (hasRole(user.role, ['enc', 'dev']) || hasRole(user.primaryRole, ['enc', 'dev'])) ? <label className="block text-sm text-gray-300">Setor<select value={user.role} onChange={(event) => setUser((currentUser) => ({ ...currentUser, role: event.target.value }))} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800 px-3 py-3 text-white outline-none focus:border-cyan-400">{user.primaryRole && <option className="text-black" value={user.primaryRole}>Retornar ao setor primário ({formatRoleLabel(user.primaryRole)})</option>}{employeeRoles.map((role) => <option className="text-black" key={role} value={role}>{formatRoleLabel(role)}</option>)}</select></label> : <label className="block text-sm text-gray-300">Setor<input readOnly value={formatRoleLabel(user.role)} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800/60 px-3 py-3 text-gray-400 outline-none" /></label>}
         <div className="block text-sm text-gray-300">
           Foto do perfil
           <div className="mt-2 flex flex-wrap items-center gap-4">

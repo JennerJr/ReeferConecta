@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { getSessionUser } from "@/lib/auth-session";
-import { canManagePieces } from "@/lib/authorization";
+import { canDeletePecas, canManagePieces } from "@/lib/authorization";
 import { getSetorForComponente, normalizeSetor } from "@/lib/catalog";
 import getMongoClient from "@/lib/mongodb";
 
@@ -283,5 +283,33 @@ export async function PUT(request: NextRequest) {
   } catch (err) {
     console.error("[PUT /api/pecas] erro ao atualizar:", err);
     return NextResponse.json({ success: false, erro: "Não foi possível atualizar a peça" }, { status: 500 });
+  }
+}
+
+// ============================================================
+// DELETE /api/pecas — remove uma peça existente
+// ============================================================
+export async function DELETE(request: NextRequest) {
+  try {
+    const user = await getSessionUser();
+    if (!canDeletePecas(user?.role)) {
+      return NextResponse.json({ erro: "Entrada não autorizada" }, { status: 403 });
+    }
+
+    const id = Number(request.nextUrl.searchParams.get("id"));
+    if (!Number.isInteger(id)) {
+      return NextResponse.json({ erro: "ID da peça inválido" }, { status: 400 });
+    }
+
+    const collection = await piecesCollection();
+    const result = await collection.deleteOne({ id });
+    if (result.deletedCount === 0) {
+      return NextResponse.json({ erro: "Peça não encontrada" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("[DELETE /api/pecas] erro ao remover:", err);
+    return NextResponse.json({ erro: "Não foi possível remover a peça." }, { status: 500 });
   }
 }

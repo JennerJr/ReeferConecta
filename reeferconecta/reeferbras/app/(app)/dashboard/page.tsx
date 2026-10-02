@@ -1,5 +1,5 @@
 import getMongoClient, { getMongoCollectionName, getMongoDatabaseName } from "@/lib/mongodb";
-import { employeeRoles} from "@/lib/authorization";
+import { employeeRoles, formatRoleLabel } from "@/lib/authorization";
 import { getSessionUser } from "@/lib/auth-session";
 import DashboardFilters from "./dashboard-filters";
 import DashboardReportsTabs from "./dashboard-reports-tabs";
@@ -20,7 +20,7 @@ const masterFilterableSectors = ["enc"] as const;
 const periods = ["all", "1-month", "3-months", "6-months", "1-year", "custom"] as const;
 
 function formatSector(sector: string) {
-  return sector.replace("lab.", "Lab. ").replace("eletronica", "Eletrônica").replace("elétrica", "Elétrica");
+  return formatRoleLabel(sector);
 }
 
 function getSingleSearchParam(value: string | string[] | undefined) {

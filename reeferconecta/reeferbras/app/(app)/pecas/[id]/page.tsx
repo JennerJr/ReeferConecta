@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import { canManagePieces } from "@/lib/authorization";
+import { canDeletePecas, canManagePieces } from "@/lib/authorization";
 import { printPieceLabels } from "@/lib/labels";
 
 type PageProps = { params: Promise<{ id: string }> };
@@ -57,6 +57,8 @@ export default function PecaPage({ params }: PageProps) {
   const [role, setRole] = useState<string>();
   const [printingLabel, setPrintingLabel] = useState(false);
   const [printError, setPrintError] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -95,6 +97,21 @@ export default function PecaPage({ params }: PageProps) {
     }
   }
 
+  async function handleDelete() {
+    if (!window.confirm("Tem certeza que deseja excluir esta peça? Essa ação não pode ser desfeita.")) return;
+    setDeleting(true);
+    setDeleteError("");
+    try {
+      const response = await fetch(`/api/pecas?id=${id}`, { method: "DELETE" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.erro ?? "Não foi possível excluir a peça.");
+      router.push("/pecas");
+    } catch (requestError) {
+      setDeleteError(requestError instanceof Error ? requestError.message : "Não foi possível excluir a peça.");
+      setDeleting(false);
+    }
+  }
+
   const fields: [string, string|undefined|number][] = [
     ["ID", piece.id],
     ["Data de chegada", formatArrivalDate(piece.dataChegada)],
@@ -129,9 +146,19 @@ export default function PecaPage({ params }: PageProps) {
                 Editar peça
               </button>
             )}
+            {canDeletePecas(role) && (
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="w-full rounded-lg bg-red-700 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-red-800 disabled:opacity-50 sm:w-auto"
+              >
+                {deleting ? "Excluindo..." : "Excluir peça"}
+              </button>
+            )}
           </div>
         </div>
         {printError && <p className="mt-3 rounded-lg bg-amber-50 p-3 text-amber-800">{printError}</p>}
+        {deleteError && <p className="mt-3 rounded-lg bg-red-100 p-3 text-red-700">{deleteError}</p>}
         
         <h1 className="mt-4 text-3xl text-white font-bold">Detalhes da peça</h1>
 

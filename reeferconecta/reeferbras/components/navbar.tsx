@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { canAccessTeams } from '@/lib/authorization';
+import { canAccessPedidos, canAccessTeams } from '@/lib/authorization';
 import ThemeToggle from '@/components/theme-toggle';
 
 function Bars3Icon(props: React.SVGProps<SVGSVGElement>) {
@@ -40,10 +40,9 @@ const defaultUser = {
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard' },
-  { name: 'Almoxarifado', href: '/pecas' },
-  { name: 'Times', href: '/times' },
+  { name: 'Almoxarifado', href: '/pecas' },  { name: 'Pedidos', href: '/pedidos' },  { name: 'Times', href: '/times' },
   { name: 'Relatórios', href: '/reports' },
-  {name: 'chamados', href: '/chamados'},
+  {name: 'Chamados', href: '/chamados'},
 ]
 
 const logoNavigation = [{name: 'logo', href: '/'}]
@@ -57,7 +56,7 @@ function classNames(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-type ReportNotification = { id: string; message: string; createdAt: string; read: boolean }
+type ReportNotification = { id: string; message: string; createdAt: string; read: boolean; type?: 'report' | 'pedido' }
 
 export default function Navbar() {
   const pathname = usePathname()
@@ -69,6 +68,7 @@ export default function Navbar() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [user, setUser] = useState(defaultUser)
   const isActive = (href: string) => href !== '#' && (pathname === href || pathname.startsWith(`${href}/`))
+  const pedidosUnreadCount = notifications.filter((notification) => !notification.read && notification.type === 'pedido').length
 
   async function handleLogout() {
     try {
@@ -186,17 +186,22 @@ export default function Navbar() {
             </div>
             <div className="min-w-0">
               <div className="ml-4 hidden flex-wrap items-baseline gap-2 lg:flex xl:ml-10">
-                {navigation.filter((item) => item.href !== '/times' || canAccessTeams(user.role)).map((item) => (
+                {navigation.filter((item) => (item.href !== '/times' || canAccessTeams(user.role)) && (item.href !== '/pedidos' || canAccessPedidos(user.role))).map((item) => (
                   <a
                     key={item.name}
                     href={item.href}
                     aria-current={isActive(item.href) ? 'page' : undefined}
                     className={classNames(
                       isActive(item.href) ? 'bg-gray-950/50 text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white',
-                      'rounded-md px-3 py-2 text-sm font-medium',
+                      'relative rounded-md px-3 py-2 text-sm font-medium',
                     )}
                   >
                     {item.name}
+                    {item.href === '/pedidos' && pedidosUnreadCount > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
+                        {pedidosUnreadCount > 9 ? '9+' : pedidosUnreadCount}
+                      </span>
+                    )}
                   </a>
                 ))}
               </div>
@@ -279,17 +284,22 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="lg:hidden">
           <div className="space-y-1 px-2 pt-2 pb-3 sm:px-3">
-            {navigation.filter((item) => item.href !== '/times' || canAccessTeams(user.role)).map((item) => (
+            {navigation.filter((item) => (item.href !== '/times' || canAccessTeams(user.role)) && (item.href !== '/pedidos' || canAccessPedidos(user.role))).map((item) => (
               <a
                 key={item.name}
                 href={item.href}
                 aria-current={isActive(item.href) ? 'page' : undefined}
                 className={classNames(
                   isActive(item.href) ? 'bg-gray-950/50 text-white' : 'text-gray-300 hover:bg-white/5 hover:text-white',
-                  'block rounded-md px-3 py-2 text-base font-medium',
+                  'relative block rounded-md px-3 py-2 text-base font-medium',
                 )}
               >
                 {item.name}
+                {item.href === '/pedidos' && pedidosUnreadCount > 0 && (
+                  <span className="absolute right-2 top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
+                    {pedidosUnreadCount > 9 ? '9+' : pedidosUnreadCount}
+                  </span>
+                )}
               </a>
             ))}
           </div>

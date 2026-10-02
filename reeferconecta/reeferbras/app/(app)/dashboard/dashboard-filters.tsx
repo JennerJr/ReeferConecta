@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatRoleLabel } from "@/lib/authorization";
 
 type Employee = {
   name: string;
@@ -18,7 +19,7 @@ type DashboardFiltersProps = {
 };
 
 function formatSector(sector: string) {
-  return sector.replace("lab.", "Lab. ").replace("eletronica", "Eletrônica").replace("elétrica", "Elétrica");
+  return formatRoleLabel(sector);
 }
 
 export default function DashboardFilters({

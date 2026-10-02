@@ -35,6 +35,7 @@ export async function GET() {
       message: document.message,
       createdAt: document.createdAt,
       read: document.readBy?.includes(user._id) ?? false,
+      type: document.type,
     }));
     const unreadCount = notifications.filter((notification) => !notification.read).length;
 

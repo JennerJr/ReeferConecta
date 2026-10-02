@@ -7,9 +7,9 @@ import { canManagePieces } from "@/lib/authorization";
 
 const fabricantes = ["Star Cool", "Daikin", "Carrier", "Thermo King", "Outros"];
 const setores = [
-  { value: "lab.elétrica", label: "Lab. Elétrica" },
-  { value: "lab.eletronica", label: "Lab. Eletrônica" },
-  { value: "cereco", label: "Cereco" },
+  { value: "lab.elétrica", label: "Laboratório de Elétrica" },
+  { value: "lab.eletronica", label: "Laboratório de Eletrônica" },
+  { value: "cereco", label: "Centro de Recondicionamento de Compressores" },
 ];
 
 export default function CadastrarComponentePage() {

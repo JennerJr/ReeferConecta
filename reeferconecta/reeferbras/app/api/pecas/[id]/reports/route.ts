@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth-session";
+import { canDeleteAnyReport } from "@/lib/authorization";
 import getMongoClient from "@/lib/mongodb";
 import { notifyReportSubmitted } from "@/lib/notifications";
 
@@ -158,5 +159,37 @@ export async function POST(
   } catch (error) {
     console.error("[POST /api/pecas/:id/reports] erro ao salvar:", error);
     return NextResponse.json({ erro: "Não foi possível salvar o report." }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  try {
+    const user = await getSessionUser();
+    if (!user) return NextResponse.json({ erro: "Sessão não encontrada" }, { status: 401 });
+
+    const { id: rawId } = await context.params;
+    const id = Number(rawId);
+    const reportId = request.nextUrl.searchParams.get("reportId");
+    if (!Number.isInteger(id) || !reportId) {
+      return NextResponse.json({ erro: "Parâmetros inválidos." }, { status: 400 });
+    }
+
+    const collection = (await getMongoClient()).db(databaseName).collection<PieceDocument>("pecasdb");
+    const piece = await collection.findOne({ id });
+    if (!piece) return NextResponse.json({ erro: "Peça não encontrada" }, { status: 404 });
+
+    const report = piece.reports?.find((item) => item.id === reportId);
+    if (!report) return NextResponse.json({ erro: "Relatório não encontrado." }, { status: 404 });
+
+    const isAuthor = report.responsavelReparo.trim().toLowerCase() === user.name.trim().toLowerCase();
+    if (!canDeleteAnyReport(user.role) && !isAuthor) {
+      return NextResponse.json({ erro: "Você não pode excluir este relatório." }, { status: 403 });
+    }
+
+    await collection.updateOne({ id }, { $set: { reports: (piece.reports ?? []).filter((item) => item.id !== reportId) } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("[DELETE /api/pecas/:id/reports] erro ao excluir:", error);
+    return NextResponse.json({ erro: "Não foi possível excluir o report." }, { status: 500 });
   }
 }

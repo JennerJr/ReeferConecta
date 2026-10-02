@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth-session";
+import { canDeleteAnyReport } from "@/lib/authorization";
 import getMongoClient from "@/lib/mongodb";
 
 type StoredReport = {
@@ -63,5 +64,30 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   } catch (error) {
     console.error("[PATCH /api/reports/[id]] erro ao editar:", error);
     return NextResponse.json({ erro: "Não foi possível salvar a edição." }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const user = await getSessionUser();
+    if (!user) return NextResponse.json({ erro: "Sessão não encontrada" }, { status: 401 });
+
+    const { id } = await params;
+    const client = await getMongoClient();
+    const collection = client.db(databaseName).collection<StoredReport>(collectionName);
+
+    const existing = await collection.findOne({ id });
+    if (!existing) return NextResponse.json({ erro: "Relatório não encontrado." }, { status: 404 });
+
+    const isAuthor = existing.tecnicoResponsavel.trim().toLowerCase() === user.name.trim().toLowerCase();
+    if (!canDeleteAnyReport(user.role) && !isAuthor) {
+      return NextResponse.json({ erro: "Você não pode excluir este relatório." }, { status: 403 });
+    }
+
+    await collection.deleteOne({ id });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("[DELETE /api/reports/[id]] erro ao excluir:", error);
+    return NextResponse.json({ erro: "Não foi possível excluir o relatório." }, { status: 500 });
   }
 }

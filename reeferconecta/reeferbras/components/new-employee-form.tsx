@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { employeeRoles } from "@/lib/authorization";
+import { employeeRoles, formatRoleLabel } from "@/lib/authorization";
 
 const roles = employeeRoles;
 
@@ -86,7 +86,7 @@ export default function NewEmployeeForm() {
             onChange={(event) => setRole(event.target.value)}
             className="mt-2 w-full rounded-md border border-white/10 bg-gray-800 px-3 py-3 text-white outline-none focus:border-cyan-400"
           >
-            {roles.map((option) => <option key={option} value={option}>{option}</option>)}
+            {roles.map((option) => <option key={option} value={option}>{formatRoleLabel(option)}</option>)}
           </select>
         </label>
 

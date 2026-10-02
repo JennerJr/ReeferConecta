@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { employeeRoles } from "@/lib/authorization";
+import { employeeRoles, formatRoleLabel } from "@/lib/authorization";
 
 type Employee = {
   _id: string;
@@ -126,7 +126,7 @@ export default function EmployeeList() {
       <div className="mt-6 grid gap-6 md:grid-cols-2">
         {Object.entries(groupedEmployees).map(([role, roleEmployees]) => (
           <section key={role} className="rounded-lg border border-white/10 bg-gray-900/70 p-5">
-            <h3 className="text-lg font-semibold capitalize text-cyan-300">{role}</h3>
+            <h3 className="text-lg font-semibold capitalize text-cyan-300">{formatRoleLabel(role)}</h3>
             <div className="mt-4 space-y-3">
               {roleEmployees.map((employee) => (
                 <button
@@ -183,7 +183,7 @@ export default function EmployeeList() {
               <label className="block text-sm font-medium text-gray-300">
                 Setor
                 <select value={editRole} onChange={(event) => setEditRole(event.target.value)} className="mt-2 w-full rounded-md border border-white/10 bg-gray-800 px-3 py-3 text-white outline-none focus:border-cyan-400">
-                  {employeeRoles.map((role) => <option key={role} value={role}>{role}</option>)}
+                  {employeeRoles.map((role) => <option key={role} value={role}>{formatRoleLabel(role)}</option>)}
                 </select>
               </label>
             </div>

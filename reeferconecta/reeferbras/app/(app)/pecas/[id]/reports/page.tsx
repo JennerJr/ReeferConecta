@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
-import { canManagePieces } from "@/lib/authorization";
+import { canDeleteAnyReport, canManagePieces } from "@/lib/authorization";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -42,12 +42,18 @@ export default function PieceReportsPage({ params }: PageProps) {
   const { id } = use(params);
   const [piece, setPiece] = useState<Piece | null>(null);
   const [role, setRole] = useState<string>();
+  const [currentUserName, setCurrentUserName] = useState("");
   const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     fetch("/api/auth/session")
       .then((response) => response.json())
-      .then((data) => setRole(data.user?.role))
+      .then((data) => {
+        setRole(data.user?.role);
+        setCurrentUserName(data.user?.name ?? "");
+      })
       .catch(() => undefined);
 
     fetch("/api/pecas?reports=visible")
@@ -61,6 +67,27 @@ export default function PieceReportsPage({ params }: PageProps) {
       })
       .catch((requestError) => setError(requestError instanceof Error ? requestError.message : "Erro ao carregar relatórios."));
   }, [id]);
+
+  function canDeleteReport(report: RepairReport) {
+    const isOwner = report.responsavelReparo?.trim().toLowerCase() === currentUserName.trim().toLowerCase();
+    return canDeleteAnyReport(role) || isOwner;
+  }
+
+  async function deleteReport(report: RepairReport) {
+    if (!window.confirm("Tem certeza que deseja excluir este relatório? Essa ação não pode ser desfeita.")) return;
+    setDeletingId(report.id);
+    setDeleteError("");
+    try {
+      const response = await fetch(`/api/pecas/${id}/reports?reportId=${encodeURIComponent(report.id)}`, { method: "DELETE" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.erro ?? "Não foi possível excluir o relatório.");
+      setPiece((current) => current ? { ...current, reports: current.reports?.filter((item) => item.id !== report.id) } : current);
+    } catch (requestError) {
+      setDeleteError(requestError instanceof Error ? requestError.message : "Não foi possível excluir o relatório.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   if (error) return <main className="mx-auto max-w-3xl px-4 py-8 text-red-700 sm:px-6 sm:py-10">{error}</main>;
   if (!piece) return <main className="mx-auto max-w-3xl px-4 py-8 text-white sm:px-6 sm:py-10">Carregando...</main>;
@@ -85,10 +112,16 @@ export default function PieceReportsPage({ params }: PageProps) {
             </div>
             {(canManagePieces(role) || role === "cereco" || role === "lab.elétrica") && <Link className="rounded-lg bg-red-700 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-red-800" href={`/reports/novo${piece.qc ? `?qc=${encodeURIComponent(piece.qc)}` : ""}`}>Novo relatório</Link>}
           </div>
+          {deleteError && <p className="mt-4 rounded-lg bg-red-100 p-3 text-sm text-red-700">{deleteError}</p>}
           {!piece.reports?.length ? <p className="mt-6 text-slate-600">Nenhum relatório registrado.</p> : (
             <div className="mt-6 grid gap-4">
               {piece.reports.map((report) => <article className="rounded-lg border border-slate-200 p-4" key={report.id}>
-                <p><strong>Responsável:</strong> {report.responsavelReparo}</p>
+                <div className="flex items-start justify-between gap-3">
+                  <p><strong>Responsável:</strong> {report.responsavelReparo}</p>
+                  {canDeleteReport(report) && (
+                    <button className="text-sm font-semibold text-red-700 hover:text-red-900 disabled:opacity-50" type="button" disabled={deletingId === report.id} onClick={() => deleteReport(report)}>{deletingId === report.id ? "Excluindo..." : "Excluir"}</button>
+                  )}
+                </div>
                 <p><strong>Situação:</strong> {report.situacaoAtual}</p>
                 {(report.resistencia || report.surge || report.mega || report.simulador || report.corrente || report.transformador || report.inspeçãoVisual || report.ordemServico || report.serialNumberReport || report.estatorTrocado || report.scroll || report.reparoFalange || report.analiseMecanica || report.testeFuncionamento || report.outroTesteFuncionamento) && <div className="mt-2 grid gap-1 sm:grid-cols-2">
                   {report.resistencia && <p><strong>Resistência:</strong> {report.resistencia}</p>}

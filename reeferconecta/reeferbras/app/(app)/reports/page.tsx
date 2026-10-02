@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getSetorForComponente, setorTabs } from "@/lib/catalog";
+import { canDeleteAnyReport } from "@/lib/authorization";
 
 type RepairReport = {
   id: string;
@@ -76,8 +77,11 @@ export default function ReportsPage() {
   const [editError, setEditError] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
   const [role, setRole] = useState<string>();
+  const [currentUserName, setCurrentUserName] = useState("");
   const [setorTab, setSetorTab] = useState<string>("todos");
   const [statusFilter, setStatusFilter] = useState<string>("todos");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState("");
   const isAlmox = role?.trim().toLowerCase() === "almox";
 
 function startEdit(report: ReportItem) {
@@ -122,10 +126,40 @@ async function saveEdit(report: ReportItem) {
   }
 }
 
+function canDeleteReport(report: ReportItem) {
+  const name = currentUserName.trim().toLowerCase();
+  const isOwner = report.pieceId
+    ? report.responsavelReparo?.trim().toLowerCase() === name
+    : report.tecnicoResponsavel?.trim().toLowerCase() === name;
+  return canDeleteAnyReport(role) || isOwner;
+}
+
+async function deleteReport(report: ReportItem) {
+  if (!window.confirm("Tem certeza que deseja excluir este relatório? Essa ação não pode ser desfeita.")) return;
+  setDeletingId(report.id);
+  setDeleteError("");
+  try {
+    const endpoint = report.pieceId
+      ? `/api/pecas/${report.pieceId}/reports?reportId=${encodeURIComponent(report.id)}`
+      : `/api/reports/${report.id}`;
+    const response = await fetch(endpoint, { method: "DELETE" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.erro ?? "Não foi possível excluir o relatório.");
+    setReports((current) => current.filter((item) => item.id !== report.id));
+  } catch (requestError) {
+    setDeleteError(requestError instanceof Error ? requestError.message : "Não foi possível excluir o relatório.");
+  } finally {
+    setDeletingId(null);
+  }
+}
+
   useEffect(() => {
     fetch("/api/auth/session")
       .then((response) => response.json())
-      .then((data) => setRole(data.user?.role))
+      .then((data) => {
+        setRole(data.user?.role);
+        setCurrentUserName(data.user?.name ?? "");
+      })
       .catch(() => undefined);
 
     fetch("/api/reports")
@@ -201,6 +235,7 @@ async function saveEdit(report: ReportItem) {
         )}
         {loading && <p className="mt-8 text-slate-300">Carregando relatórios...</p>}
         {error && <p className="mt-8 rounded-lg bg-red-100 p-4 text-red-700">{error}</p>}
+        {deleteError && <p className="mt-4 rounded-lg bg-red-100 p-4 text-red-700">{deleteError}</p>}
         {!loading && !error && reports.length === 0 && <p className="mt-8 rounded-lg bg-white p-6 text-slate-600">Nenhum relatório registrado.</p>}
         {!loading && !error && reports.length > 0 && filteredReports.length === 0 && <p className="mt-8 text-slate-300">Nenhum relatório encontrado para essa busca.</p>}
 
@@ -220,6 +255,9 @@ async function saveEdit(report: ReportItem) {
     {report.pieceId && <Link className="text-sm font-semibold text-sky-700 hover:text-sky-900" href={`/pecas/${report.pieceId}/reports`}>Ver peça</Link>}
     {!report.pieceId && editingId !== report.id && (
       <button className="text-sm font-semibold text-sky-700 hover:text-sky-900" type="button" onClick={() => startEdit(report)}>Editar</button>
+    )}
+    {canDeleteReport(report) && (
+      <button className="text-sm font-semibold text-red-700 hover:text-red-900 disabled:opacity-50" type="button" disabled={deletingId === report.id} onClick={() => deleteReport(report)}>{deletingId === report.id ? "Excluindo..." : "Excluir"}</button>
     )}
   </div>
 
