@@ -94,28 +94,32 @@ export default function Navbar() {
   }
 
   async function markNotificationRead(id: string) {
+    setNotifications((current) => current.filter((notification) => notification.id !== id))
+    setUnreadCount((current) => Math.max(0, current - 1))
     try {
       await fetch('/api/notifications', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id }),
       })
-      loadNotifications()
     } catch (error) {
       console.error('[Navbar] mark notification read failed', error)
+      loadNotifications()
     }
   }
 
   async function markAllNotificationsRead() {
+    setNotifications([])
+    setUnreadCount(0)
     try {
       await fetch('/api/notifications', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ all: true }),
       })
-      loadNotifications()
     } catch (error) {
       console.error('[Navbar] mark all notifications read failed', error)
+      loadNotifications()
     }
   }
 

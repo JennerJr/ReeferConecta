@@ -25,8 +25,10 @@ export async function GET() {
     if (!user) return NextResponse.json({ error: "Sessão não encontrada" }, { status: 401 });
 
     const collection = await notificationsCollection();
+    // Só retorna notificações ainda não lidas pelo usuário, para que elas somem da lista ao serem lidas.
+    const query = { $and: [notificationsQuery(user._id, canReceiveReportNotifications(user.role)), { readBy: { $ne: user._id } }] };
     const documents = await collection
-      .find(notificationsQuery(user._id, canReceiveReportNotifications(user.role)))
+      .find(query)
       .sort({ createdAt: -1 })
       .limit(50)
       .toArray();
@@ -37,7 +39,7 @@ export async function GET() {
       read: document.readBy?.includes(user._id) ?? false,
       type: document.type,
     }));
-    const unreadCount = notifications.filter((notification) => !notification.read).length;
+    const unreadCount = notifications.length;
 
     return NextResponse.json({ notifications, unreadCount });
   } catch (error) {
