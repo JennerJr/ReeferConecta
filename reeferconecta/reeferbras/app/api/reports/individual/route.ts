@@ -17,13 +17,11 @@ type ReportItem = { id?: string; responsavelReparo?: string; situacaoAtual?: str
 type Piece = { nome?: string; reports?: ReportItem[] };
 
 function drawHeader(doc: PDFKit.PDFDocument, userName: string, startDate: string, endDate: string) {
-  console.log("cwd:", process.cwd()); // ← temporário, remova depois
   const pageWidth = doc.page.width;
 
   doc.rect(0, 0, pageWidth, HEADER_HEIGHT).fill("#1e1833");
 
-  const logoPath = path.join(process.cwd(), "public", "icons", "icon.svg");
-  console.log("logoPath:", logoPath); // ← temporário também
+  const logoPath = path.join(process.cwd(), "public", "icons", "R-logo.svg");
   const logoSvg = fs.readFileSync(logoPath, "utf8");
   const logoWidth = 70;
   SVGtoPDFKit(doc, logoSvg, pageWidth - PAGE_MARGIN - logoWidth, 15, { width: logoWidth });
@@ -166,9 +164,10 @@ function drawPieChart(
 }
 
 export async function GET(request: NextRequest) {
+ try {
   const sessionUser = await getSessionUser();
-  if (!canAccessTeams(sessionUser?.role)) {
-    return NextResponse.json({ error: "Entrada não autorizada" }, { status: 403 });
+  if (!sessionUser) {
+    return NextResponse.json({ error: "Sessão não encontrada" }, { status: 401 });
   }
 
   const userId = request.nextUrl.searchParams.get("userId");
@@ -177,6 +176,11 @@ export async function GET(request: NextRequest) {
 
   if (!userId || !ObjectId.isValid(userId) || !startDate || !endDate) {
     return NextResponse.json({ error: "Parâmetros inválidos" }, { status: 400 });
+  }
+
+  // apenas dev/enc/master podem gerar relatório de outro usuário; os demais só dos próprios dados
+  if (!canAccessTeams(sessionUser.role) && userId !== sessionUser._id) {
+    return NextResponse.json({ error: "Você só pode gerar relatórios dos seus próprios dados" }, { status: 403 });
   }
 
   const start = new Date(`${startDate}T00:00:00.000Z`);
@@ -294,4 +298,8 @@ export async function GET(request: NextRequest) {
       "Content-Disposition": `attachment; filename="relatorio-${targetUser.name.replace(/\s+/g, "_")}.pdf"`,
     },
   });
+ } catch (error) {
+    console.error("[GET /api/reports/individual] erro ao gerar relatório:", error);
+    return NextResponse.json({ error: "Não foi possível gerar o relatório." }, { status: 500 });
+  }
 }

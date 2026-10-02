@@ -14,6 +14,7 @@ export default function GenIndReport() {
   const [open, setOpen] = useState(false);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [role, setRole] = useState<string>();
+  const [selfId, setSelfId] = useState("");
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [userId, setUserId] = useState("");
@@ -22,13 +23,16 @@ export default function GenIndReport() {
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
 
+  const canPickAnyUser = canAccessTeams(role);
+  const targetUserId = canPickAnyUser ? userId : selfId;
+
   const handleGenerate = async () => {
-  if (!userId || !startDate || !endDate) return;
+  if (!targetUserId || !startDate || !endDate) return;
   setGenerating(true);
   setGenerateError(null);
 
   try {
-    const params = new URLSearchParams({ userId, startDate, endDate });
+    const params = new URLSearchParams({ userId: targetUserId, startDate, endDate });
     const res = await fetch(`/api/reports/individual?${params.toString()}`);
 
     if (!res.ok) {
@@ -40,7 +44,7 @@ export default function GenIndReport() {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `relatorio-${userId}.pdf`;
+    link.download = `relatorio-${targetUserId}.pdf`;
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -55,30 +59,47 @@ export default function GenIndReport() {
 
   const handleOpen = () => {
     setOpen(true);
-    if (employees.length === 0) {
-      setLoadingEmployees(true);
-      setFetchError(null);
-    }
   };
 
   useEffect(() => {
-    if (!open || employees.length > 0) return;
+    if (!open) return;
 
     let cancelled = false;
 
     fetch("/api/auth/session")
       .then((response) => response.json())
-      .then((data) => setRole(data.user?.role))
+      .then((data) => {
+        if (cancelled) return;
+        setRole(data.user?.role);
+        setSelfId(data.user?._id ?? "");
+      })
       .catch(() => undefined);
 
-    fetch("/api/users?all=true")
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open || !canPickAnyUser || employees.length > 0) return;
+
+    let cancelled = false;
+
+    Promise.resolve()
+      .then(() => {
+        if (cancelled) return undefined;
+        setLoadingEmployees(true);
+        setFetchError(null);
+        return fetch("/api/users?all=true");
+      })
       .then(async (res) => {
+        if (!res) return undefined;
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Erro ao buscar usuários");
         return data;
       })
       .then((data) => {
-        if (!cancelled) setEmployees(data.users ?? []);
+        if (!cancelled && data) setEmployees(data.users ?? []);
       })
       .catch((err) => {
         if (!cancelled) setFetchError(err.message);
@@ -90,7 +111,7 @@ export default function GenIndReport() {
     return () => {
       cancelled = true;
     };
-  }, [open, employees.length]);
+  }, [open, canPickAnyUser, employees.length]);
 
 
 
@@ -103,7 +124,7 @@ export default function GenIndReport() {
         Gerar Relatório Individual
       </button>
 
-      {canAccessTeams(role) &&  open && (
+      {open && (
         
         <div className="fixed inset-0 z-50 flex justify-end bg-black/50">
           <div className="h-full w-full max-w-sm bg-slate-900 p-6 text-white">
@@ -115,19 +136,23 @@ export default function GenIndReport() {
               </p>
             )}
 
-            <select
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              disabled={loadingEmployees}
-              className="mt-4 w-full rounded-md bg-slate-800 px-3 py-2 disabled:opacity-50"
-            >
-              <option value="">
-                {loadingEmployees ? "Carregando usuários..." : "Selecione o usuário"}
-              </option>
-              {employees.map((emp) => (
-                <option key={emp._id} value={emp._id}>{emp.name}</option>
-              ))}
-            </select>
+            {canPickAnyUser ? (
+              <select
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                disabled={loadingEmployees}
+                className="mt-4 w-full rounded-md bg-slate-800 px-3 py-2 disabled:opacity-50"
+              >
+                <option value="">
+                  {loadingEmployees ? "Carregando usuários..." : "Selecione o usuário"}
+                </option>
+                {employees.map((emp) => (
+                  <option key={emp._id} value={emp._id}>{emp.name}</option>
+                ))}
+              </select>
+            ) : (
+              <p className="mt-4 text-sm text-slate-300">O relatório será gerado apenas com os seus próprios dados.</p>
+            )}
 
             <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="mt-3 w-full rounded-md bg-slate-800 px-3 py-2" />
             <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="mt-3 w-full rounded-md bg-slate-800 px-3 py-2" />

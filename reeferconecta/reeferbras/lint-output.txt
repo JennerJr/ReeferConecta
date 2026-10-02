@@ -1,0 +1,100 @@
+
+> reeferconecta@0.1.0 lint
+> eslint
+
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\app\(app)\chamados\[id]\editar\page.tsx
+  26:14  warning  'pedidoPor' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  26:25  warning  'setPedidoPor' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\app\(app)\chamados\novo\page.tsx
+  17:7   warning  'router' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  21:8   warning  'submitted' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+  22:8   warning  'role' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  60:62  warning  Compilation Skipped: The 'eval' function is not supported
+
+Eval is an anti-pattern in JavaScript, and the code executed cannot be evaluated by React Compiler.
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\app\(app)\chamados\novo\page.tsx:60:62
+  58 |           ["pedidoPor", "Pedido Por"],
+  59 |         ];
+> 60 |         const emptyField = requiredFields.find(([field]) => !eval(field).trim());
+     |                                                              ^^^^ The 'eval' function is not supported
+  61 |         if (emptyField) throw new Error(`O campo ${emptyField[1]} +® obrigat+¦rio.`);
+  62 |
+  63 |         const response = await fetch("/api/chamados", {
+
+  react-hooks/unsupported-syntax
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\app\(app)\pecas\[id]\page.tsx
+  200:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\app\(app)\pecas\catalogo\novo\page.tsx
+  104:22  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\app\(app)\pecas\novo\page.tsx
+  203:6   warning  React Hook useEffect has a missing dependency: 'updateField'. Either include it or remove the dependency array                                                                                                                                                                           react-hooks/exhaustive-deps
+  462:36  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\app\(app)\profile\page.tsx
+  168:31  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\app\(app)\reports\novo-sem-qc\page.tsx
+  81:10  warning  'submitted' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\app\(app)\reports\novo\page.tsx
+  242:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\app\(app)\reports\novo\page.tsx:242:5
+  240 |     const qcParam = searchParams.get("qc")?.trim();
+  241 |     if (!qcParam) return;
+> 242 |     setReportCount(1);
+      |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  243 |     setQcs([qcParam]);
+  244 |     void validateQcs([qcParam]);
+  245 |     // eslint-disable-next-line react-hooks/exhaustive-deps  react-hooks/set-state-in-effect
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\app\(auth)\login\page.tsx
+  40:6  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\app\api\chamados\route.ts
+  5:10  warning  'notifyReportSubmitted' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\app\api\pedidos\route.ts
+  47:10  warning  'resolveSetorLabel' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\components\employee-list.tsx
+  140:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\components\navbar.tsx
+   48:7   warning  'logoNavigation' is assigned a value but never used                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+  244:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  313:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\components\theme-toggle.tsx
+  27:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\User\Desktop\reeferConecta\reeferapp\ReeferConecta\reeferconecta\reeferbras\components\theme-toggle.tsx:27:5
+  25 |
+  26 |   useEffect(() => {
+> 27 |     setTheme(getStoredTheme());
+     |     ^^^^^^^^ Avoid calling setState() directly within an effect
+  28 |   }, []);
+  29 |
+  30 |   function toggle() {  react-hooks/set-state-in-effect
+
+Ô£û 21 problems (2 errors, 19 warnings)
+
+
